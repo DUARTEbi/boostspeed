@@ -16,16 +16,13 @@
     html{scroll-behavior:smooth}
     body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden}
 
-    /* PARTÍCULAS */
     #particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
     .p{position:absolute;border-radius:50%;background:var(--g);animation:float linear infinite;opacity:0}
     @keyframes float{0%{transform:translateY(100vh) scale(0);opacity:0}10%{opacity:.3}90%{opacity:.1}100%{transform:translateY(-10vh) scale(1.4);opacity:0}}
 
-    /* RESPLANDOR RADIAL */
     .bg-glow{position:fixed;top:-30%;left:50%;transform:translateX(-50%);width:900px;height:900px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,30,.07) 0%,transparent 65%);pointer-events:none;z-index:0;animation:pulse-bg 4s ease-in-out infinite}
     @keyframes pulse-bg{0%,100%{opacity:.6;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.08)}}
 
-    /* NAV */
     nav{position:sticky;top:0;z-index:200;background:rgba(7,7,7,.88);backdrop-filter:blur(22px);border-bottom:1px solid var(--bdr);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:62px;animation:slideDown .6s cubic-bezier(.23,1,.32,1) both}
     @keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
     .logo{font-family:'Rajdhani',sans-serif;font-size:1.55rem;font-weight:700;color:var(--g);letter-spacing:2px;text-decoration:none;display:flex;align-items:center;gap:.45rem;transition:all .25s}
@@ -37,7 +34,6 @@
     @keyframes ripple{0%{transform:scale(.5);opacity:.8}100%{transform:scale(2.5);opacity:0}}
     .nav-btns{display:flex;gap:.6rem}
 
-    /* BOTONES */
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;padding:.55rem 1.2rem;border-radius:7px;font-family:'Exo 2',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;border:none;text-decoration:none;transition:all .25s;letter-spacing:.3px;position:relative;overflow:hidden}
     .btn-ghost{background:transparent;border:1px solid var(--bdr);color:var(--txt)}
     .btn-ghost:hover{border-color:var(--g);color:var(--g);box-shadow:0 0 12px rgba(0,255,30,.18)}
@@ -46,8 +42,9 @@
     .btn-p:active,.btn-ghost:active{transform:scale(.97)}
     .btn-lg{padding:.82rem 2rem;font-size:1rem;border-radius:9px}
     .btn-full{width:100%}
+    .btn-tg{background:rgba(0,136,204,.12);border:1px solid rgba(0,136,204,.25);color:#4dabff}.btn-tg:hover{background:rgba(0,136,204,.22)}
+    .btn-wa{background:rgba(37,211,102,.12);border:1px solid rgba(37,211,102,.25);color:#25D366}.btn-wa:hover{background:rgba(37,211,102,.22)}
 
-    /* HERO */
     .hero{position:relative;z-index:1;min-height:calc(100vh - 62px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3rem 1.5rem}
     .hero-chip{display:inline-flex;align-items:center;gap:.5rem;background:var(--gdim);border:1px solid var(--bdr);padding:.32rem .9rem;border-radius:100px;font-size:.75rem;font-weight:700;color:var(--g);letter-spacing:1.2px;margin-bottom:1.6rem;text-transform:uppercase;animation:fadeUp .7s .1s cubic-bezier(.23,1,.32,1) both;overflow:hidden;position:relative}
     .hero-chip::after{content:'';position:absolute;inset:0;background:linear-gradient(90deg,transparent,rgba(0,255,30,.15),transparent);transform:translateX(-100%);animation:shimmer 2.5s 1s linear infinite}
@@ -60,7 +57,11 @@
     .hero-cta{display:flex;gap:.9rem;flex-wrap:wrap;justify-content:center;animation:fadeUp .7s .4s cubic-bezier(.23,1,.32,1) both}
     @keyframes fadeUp{from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1}}
 
-    /* TICKER */
+    /* STATUS CHIPS */
+    .hero-status{display:flex;gap:.55rem;flex-wrap:wrap;justify-content:center;margin-bottom:2rem;animation:fadeUp .7s .35s cubic-bezier(.23,1,.32,1) both}
+    .hs-chip{display:inline-flex;align-items:center;gap:.35rem;background:rgba(0,255,30,.06);border:1px solid rgba(0,255,30,.12);border-radius:100px;padding:.22rem .65rem;font-size:.72rem;font-weight:700;color:var(--mut);letter-spacing:.4px}
+    .hs-chip strong{color:var(--g)}
+
     .hero-ticker{position:relative;z-index:1;display:flex;align-items:center;gap:1.2rem;margin-top:2.8rem;background:var(--sur);border:1px solid var(--bdr);border-radius:12px;padding:.9rem 1.6rem;animation:fadeUp .7s .6s cubic-bezier(.23,1,.32,1) both;flex-wrap:wrap;justify-content:center}
     .ticker-item{display:flex;flex-direction:column;align-items:center;min-width:90px}
     .ticker-num{font-family:'Rajdhani',sans-serif;font-size:1.6rem;font-weight:700;color:var(--g);line-height:1;transition:text-shadow .3s}
@@ -68,24 +69,20 @@
     .ticker-lbl{color:var(--mut);font-size:.7rem;text-transform:uppercase;letter-spacing:.8px;margin-top:.1rem}
     .ticker-div{width:1px;height:36px;background:var(--bdr)}
 
-    /* SCROLL HINT */
     .scroll-hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4rem;color:var(--mut);font-size:.7rem;letter-spacing:1px;text-transform:uppercase;animation:fadeUp .7s .8s cubic-bezier(.23,1,.32,1) both}
     .scroll-arrow{width:16px;height:16px;border-right:2px solid var(--g);border-bottom:2px solid var(--g);transform:rotate(45deg);animation:bounceArrow 1.4s ease-in-out infinite}
     @keyframes bounceArrow{0%,100%{transform:rotate(45deg) translateY(-3px);opacity:.5}50%{transform:rotate(45deg) translateY(4px);opacity:1}}
 
-    /* DIVISOR */
     .divider{position:relative;z-index:1;width:100%;height:1px;background:linear-gradient(90deg,transparent,var(--bdr),transparent);overflow:hidden}
     .divider::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,255,30,.5),transparent);animation:divLine 3s ease-in-out infinite}
     @keyframes divLine{0%{left:-50%}100%{left:150%}}
 
-    /* SECCIONES */
     .sec{position:relative;z-index:1;padding:5rem 1.5rem}
     .sec-title{text-align:center;margin-bottom:3rem}
     .sec-title h2{font-family:'Rajdhani',sans-serif;font-size:clamp(1.75rem,4vw,2.7rem);font-weight:700;margin-bottom:.4rem}
     .sec-title h2 span{color:var(--g)}
     .sec-title p{color:var(--mut);max-width:490px;margin:0 auto;line-height:1.72}
 
-    /* GRID CARDS */
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:1.1rem;max-width:1080px;margin:0 auto}
     .card{background:var(--sur);border:1px solid var(--bdr);border-radius:13px;padding:1.7rem;position:relative;overflow:hidden;transition:border-color .3s,transform .3s,box-shadow .3s;opacity:0;transform:translateY(20px)}
     .card.visible{animation:cardIn .5s cubic-bezier(.23,1,.32,1) forwards}
@@ -99,7 +96,6 @@
     .card:hover h3{color:var(--g)}
     .card p{color:var(--mut);font-size:.88rem;line-height:1.62}
 
-    /* PASOS */
     .steps{display:flex;flex-direction:column;max-width:660px;margin:0 auto}
     .step{display:flex;gap:1.4rem;align-items:flex-start;padding:1.4rem 0;opacity:0;transform:translateX(-20px);transition:all .5s cubic-bezier(.23,1,.32,1)}
     .step.visible{opacity:1;transform:translateX(0)}
@@ -110,7 +106,6 @@
     .step:hover .sb h3{color:var(--g)}
     .sb p{color:var(--mut);font-size:.88rem;line-height:1.62}
 
-    /* BANNER */
     .banner{position:relative;z-index:1;max-width:880px;margin:0 auto 5rem;background:var(--bg3);border:1px solid rgba(0,255,30,.18);border-radius:17px;padding:3rem 2rem;text-align:center;overflow:hidden;transition:border-color .3s,box-shadow .3s}
     .banner:hover{border-color:rgba(0,255,30,.35);box-shadow:0 0 60px rgba(0,255,30,.08)}
     .banner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 130%,rgba(0,255,30,.09),transparent 65%);pointer-events:none}
@@ -125,13 +120,13 @@
     /* MODAL */
     .ov{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(8px);z-index:300;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .25s}
     .ov.open{opacity:1;pointer-events:all}
-    .modal{background:var(--bg2);border:1px solid var(--bdr);border-radius:17px;padding:2rem;width:100%;max-width:430px;position:relative;transform:translateY(22px) scale(.97);transition:transform .25s,opacity .25s;opacity:0}
+    .modal{background:var(--bg2);border:1px solid var(--bdr);border-radius:17px;padding:2rem;width:100%;max-width:430px;position:relative;transform:translateY(22px) scale(.97);transition:transform .25s,opacity .25s;opacity:0;max-height:90vh;overflow-y:auto}
     .modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:17px 17px 0 0;background:linear-gradient(90deg,transparent,var(--g),transparent)}
     .ov.open .modal{transform:translateY(0) scale(1);opacity:1}
-    .mc{position:absolute;top:.9rem;right:.9rem;background:none;border:none;color:var(--mut);font-size:1.35rem;cursor:pointer;padding:.2rem;line-height:1;transition:color .2s,transform .2s}
+    .mc{position:absolute;top:.9rem;right:.9rem;background:none;border:none;color:var(--mut);font-size:1.35rem;cursor:pointer;padding:.2rem;line-height:1;transition:color .2s,transform .2s;z-index:1}
     .mc:hover{color:var(--txt);transform:rotate(90deg)}
     .modal h2{font-family:'Rajdhani',sans-serif;font-size:1.55rem;font-weight:700;margin-bottom:.2rem}
-    .modal .sub{color:var(--mut);font-size:.87rem;margin-bottom:1.6rem}
+    .modal .sub{color:var(--mut);font-size:.87rem;margin-bottom:1.4rem;line-height:1.55}
     .fg{margin-bottom:1rem}
     .fg label{display:block;font-size:.78rem;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem}
     .fg input{width:100%;background:var(--sur);border:1px solid var(--bdr);border-radius:8px;padding:.72rem 1rem;color:var(--txt);font-family:'Exo 2',sans-serif;font-size:.93rem;outline:none;transition:border-color .2s,box-shadow .2s}
@@ -145,6 +140,22 @@
     .msg.err{background:rgba(255,71,87,.09);border:1px solid rgba(255,71,87,.28);color:var(--red)}
     .spin{display:none;width:16px;height:16px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:spin .6s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
+
+    /* RECUPERAR MODAL - soporte links */
+    .sup-link{display:flex;align-items:center;gap:.75rem;padding:.75rem;border-radius:10px;border:1px solid var(--bdr);background:rgba(255,255,255,.03);margin-bottom:.5rem;cursor:pointer;transition:all .22s;text-decoration:none;color:var(--txt)}
+    .sup-link:hover{border-color:rgba(0,255,30,.22);transform:translateX(3px)}
+    .sup-ico{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .sup-tg{background:rgba(0,136,204,.14);border:1px solid rgba(0,136,204,.22)}
+    .sup-wa{background:rgba(37,211,102,.14);border:1px solid rgba(37,211,102,.22)}
+    .sup-name{font-weight:700;font-size:.85rem;margin-bottom:.06rem}
+    .sup-handle{color:var(--mut);font-size:.73rem}
+    .rec-info{background:rgba(0,255,30,.05);border:1px solid rgba(0,255,30,.12);border-radius:9px;padding:.75rem .9rem;margin-bottom:1rem;font-size:.8rem;color:var(--mut);line-height:1.6}
+    .rec-info strong{color:var(--g)}
+
+    /* STEPS DOTS */
+    .sdots{display:flex;gap:.4rem;margin-bottom:1rem}
+    .sdot{width:7px;height:7px;border-radius:50%;background:var(--bdr);transition:background .3s,box-shadow .3s}
+    .sdot.active{background:var(--g);box-shadow:0 0 7px rgba(0,255,30,.5)}
 
     @media(max-width:600px){nav{padding:0 1rem}.ticker-div{display:none}.hero-ticker{gap:.8rem}}
   </style>
@@ -162,11 +173,20 @@
 </nav>
 
 <section class="hero">
-  <div class="hero-chip"><div class="live-dot"></div>Free Fire · Sistema Activo</div>
+  <div class="hero-chip"><div class="live-dot"></div>Free Fire · Sistema Activo 24/7</div>
   <h1>Aumenta tus <em>Likes de Free Fire</em><br>de forma rápida y segura</h1>
   <p>BoostSpeed es la plataforma para impulsar tu perfil en Free Fire. Seguro, instantáneo y siempre disponible.</p>
+
+  <!-- Status chips -->
+  <div class="hero-status">
+    <div class="hs-chip">⚡ Entrega <strong>Instantánea</strong></div>
+    <div class="hs-chip">🛡️ <strong>Anti-ban</strong> activo</div>
+    <div class="hs-chip">🕐 Disponible <strong>24/7</strong></div>
+    <div class="hs-chip">📊 <strong>99.9%</strong> uptime</div>
+  </div>
+
   <div class="hero-cta">
-    <button class="btn btn-p btn-lg" onclick="abrirModal('registro')">Empezar gratis →</button>
+    <button class="btn btn-p btn-lg" onclick="abrirModal('registro')">Empezar Ahora →</button>
     <button class="btn btn-ghost btn-lg" onclick="abrirModal('login')">Ya tengo cuenta</button>
   </div>
   <div class="hero-ticker">
@@ -189,11 +209,11 @@
   </div>
   <div class="grid">
     <div class="card"><div class="c-ico">⚡</div><h3>Envío Instantáneo</h3><p>Los likes se reflejan en tu perfil en minutos. Sin esperas innecesarias.</p></div>
-    <div class="card"><div class="c-ico">🛡️</div><h3>100% Seguro</h3><p>Sistema anti-ban activo. Tu cuenta siempre protegida.</p></div>
+    <div class="card"><div class="c-ico">🛡️</div><h3>100% Seguro</h3><p>Sistema anti-ban activo. Tu cuenta siempre protegida, sin ningún riesgo.</p></div>
     <div class="card"><div class="c-ico">🎟️</div><h3>Códigos de Plan</h3><p>Canjea tu código y activa tu plan al instante. Sin complicaciones.</p></div>
     <div class="card"><div class="c-ico">📱</div><h3>Optimizado Mobile</h3><p>Gestiona todo desde tu celular. Diseño adaptado para cualquier pantalla.</p></div>
-    <div class="card"><div class="c-ico">📊</div><h3>Panel Completo</h3><p>Monitorea envíos, historial y plan activo desde un solo panel.</p></div>
-    <div class="card"><div class="c-ico">🔑</div><h3>ID Único</h3><p>Cada cuenta tiene un ID único para gestión rápida por el administrador.</p></div>
+    <div class="card"><div class="c-ico">📊</div><h3>Panel Completo</h3><p>Monitorea envíos, historial y plan activo desde un solo panel intuitivo.</p></div>
+    <div class="card"><div class="c-ico">🕐</div><h3>Activo 24/7</h3><p>Funciona los 7 días de la semana, las 24 horas. Siempre disponible para ti.</p></div>
   </div>
 </section>
 
@@ -207,19 +227,19 @@
   <div class="steps">
     <div class="step"><div class="sn">01</div><div class="sb"><h3>Crea tu cuenta</h3><p>Regístrate con usuario, contraseña y correo o teléfono. Obtienes tu ID único al instante.</p></div></div>
     <div class="step"><div class="sn">02</div><div class="sb"><h3>Canjea tu código</h3><p>Ingresa el código que recibiste del administrador. Tu plan se activa automáticamente.</p></div></div>
-    <div class="step"><div class="sn">03</div><div class="sb"><h3>Envía los likes</h3><p>Ingresa el UID de Free Fire y pulsa enviar. Los likes llegan en minutos.</p></div></div>
+    <div class="step"><div class="sn">03</div><div class="sb"><h3>Envía los likes</h3><p>Ingresa el UID de Free Fire y pulsa enviar. Los likes llegan en minutos. ¡Así de fácil!</p></div></div>
   </div>
 </section>
 
 <div style="padding:0 1.5rem;position:relative;z-index:1">
   <div class="banner">
     <h2>¿Listo para <span style="color:var(--g)">subir de nivel</span>?</h2>
-    <p>Únete a jugadores que ya usan BoostSpeed para impulsar su perfil.</p>
+    <p>Únete a jugadores que ya usan BoostSpeed para impulsar su perfil en Free Fire.</p>
     <button class="btn btn-p btn-lg" onclick="abrirModal('registro')">Crear cuenta gratis →</button>
   </div>
 </div>
 
-<footer><strong>BoostSpeed</strong> &copy; 2026 · Plataforma de likes para Free Fire</footer>
+<footer><strong>BoostSpeed</strong> &copy; 2026 · Plataforma de likes para Free Fire · Activo 24/7</footer>
 
 <!-- MODAL LOGIN -->
 <div class="ov" id="ov-login">
@@ -255,16 +275,74 @@
   </div>
 </div>
 
-<!-- MODAL RECUPERAR -->
+<!-- MODAL RECUPERAR CONTRASEÑA -->
 <div class="ov" id="ov-recuperar">
   <div class="modal">
     <button class="mc" onclick="cerrarModal('recuperar')">✕</button>
     <h2>Recuperar contraseña</h2>
-    <p class="sub">Ingresa el correo o teléfono con el que te registraste</p>
-    <div class="msg" id="msg-recuperar"></div>
-    <div class="fg"><label>Correo o teléfono</label><input type="text" id="rec-contact" placeholder="correo@ejemplo.com" onkeydown="if(event.key==='Enter')recuperar()"/></div>
-    <button class="btn btn-p btn-full" onclick="recuperar()">Enviar instrucciones →</button>
-    <div class="fl"><a href="#" onclick="cerrarModal('recuperar');abrirModal('login')">← Volver a iniciar sesión</a></div>
+    <p class="sub">Sigue estos pasos para recuperar el acceso a tu cuenta</p>
+
+    <!-- PASO 1: Verificar cuenta -->
+    <div id="rec-step1">
+      <div class="sdots"><div class="sdot active"></div><div class="sdot"></div><div class="sdot"></div></div>
+      <div class="msg" id="msg-recuperar"></div>
+
+      <div class="rec-info">
+        <strong>Paso 1:</strong> Ingresa el correo o teléfono con el que te registraste para verificar tu cuenta.
+      </div>
+      <div class="fg">
+        <label>Correo o teléfono registrado</label>
+        <input type="text" id="rec-contact" placeholder="correo@ejemplo.com o +57..."/>
+      </div>
+      <button class="btn btn-p btn-full" onclick="recuperarP1()">Verificar cuenta →</button>
+      <div class="fl"><a href="#" onclick="cerrarModal('recuperar');abrirModal('login')">← Volver a iniciar sesión</a></div>
+    </div>
+
+    <!-- PASO 2: Contactar admin y pedir código -->
+    <div id="rec-step2" style="display:none">
+      <div class="sdots"><div class="sdot"></div><div class="sdot active"></div><div class="sdot"></div></div>
+      <div class="msg" id="msg-recuperar2"></div>
+
+      <div class="rec-info">
+        ✅ Cuenta encontrada: <strong id="rec-found-name">—</strong><br><br>
+        <strong>Paso 2:</strong> Contacta al administrador por Telegram o WhatsApp. Dile tu <strong>nombre de usuario</strong> e <strong>ID único</strong> para que te envíe un código de recuperación.
+      </div>
+
+      <p style="font-size:.78rem;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.55rem">Contactar administrador:</p>
+      <a class="sup-link" href="https://t.me/DuarteStoreX" target="_blank">
+        <div class="sup-ico sup-tg">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#0088CC" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </div>
+        <div><div class="sup-name">Telegram</div><div class="sup-handle">@DuarteStoreX · Respuesta rápida</div></div>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--mut)" stroke-width="2" style="margin-left:auto;flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+      <a class="sup-link" href="https://wa.me/573164377140" target="_blank">
+        <div class="sup-ico sup-wa">
+          <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+        </div>
+        <div><div class="sup-name">WhatsApp</div><div class="sup-handle">+57 316 437 7140</div></div>
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--mut)" stroke-width="2" style="margin-left:auto;flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+      </a>
+
+      <div style="margin-top:1rem">
+        <div class="fg" style="margin-bottom:.5rem">
+          <label>Código de recuperación del admin</label>
+          <input type="text" id="rec-codigo" placeholder="Ingresa el código que te dio el admin" style="text-transform:uppercase"/>
+        </div>
+        <button class="btn btn-p btn-full" onclick="recuperarP2()">Verificar código →</button>
+      </div>
+      <div class="fl"><a href="#" onclick="recReset()">← Volver</a></div>
+    </div>
+
+    <!-- PASO 3: Nueva contraseña -->
+    <div id="rec-step3" style="display:none">
+      <div class="sdots"><div class="sdot"></div><div class="sdot"></div><div class="sdot active"></div></div>
+      <div class="msg" id="msg-recuperar3"></div>
+      <div class="rec-info"><strong>Paso 3:</strong> ¡Código verificado! Elige tu nueva contraseña.</div>
+      <div class="fg"><label>Nueva contraseña</label><input type="password" id="rec-new" placeholder="Mínimo 6 caracteres"/></div>
+      <div class="fg"><label>Confirmar contraseña</label><input type="password" id="rec-confirm" placeholder="Repite la contraseña"/></div>
+      <button class="btn btn-p btn-full" onclick="recuperarP3()">Guardar nueva contraseña →</button>
+    </div>
   </div>
 </div>
 
@@ -272,7 +350,8 @@
 <script>
   if(localStorage.getItem('bs_token')) location.href='/dashboard.html';
 
-  /* PARTÍCULAS */
+  let recUserId = null;
+
   (function(){
     const c=document.getElementById('particles');
     for(let i=0;i<20;i++){
@@ -283,7 +362,6 @@
     }
   })();
 
-  /* SCROLL REVEAL */
   const obs=new IntersectionObserver(entries=>{
     entries.forEach(e=>{
       if(e.isIntersecting){
@@ -298,7 +376,6 @@
   },{threshold:.15});
   document.querySelectorAll('.card,.step').forEach(el=>obs.observe(el));
 
-  /* TICKER */
   function animCount(el,target,dur){
     const s=performance.now();
     (function u(now){
@@ -314,19 +391,22 @@
     }catch(e){}
   })();
 
-  /* MODALES */
   function abrirModal(n){document.getElementById('ov-'+n).classList.add('open')}
   function cerrarModal(n){
     document.getElementById('ov-'+n).classList.remove('open');
     document.querySelectorAll('#ov-'+n+' input').forEach(i=>i.value='');
-    const m=document.getElementById('msg-'+n);if(m)m.style.display='none';
+    const msgs=['msg-'+n,'msg-'+n+'2','msg-'+n+'3'];
+    msgs.forEach(id=>{const m=document.getElementById(id);if(m)m.style.display='none'});
+    if(n==='recuperar') recReset();
   }
   document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')}));
+
   function cargando(id,estado){
     document.getElementById('spin-'+id).style.display=estado?'block':'none';
     document.getElementById('txt-'+id).style.display=estado?'none':'inline';
     document.getElementById('btn-'+id).disabled=estado;
   }
+
   async function login(){
     const user=document.getElementById('l-user').value.trim(),pass=document.getElementById('l-pass').value;
     cargando('login',true);
@@ -336,6 +416,7 @@
     localStorage.setItem('bs_token',res.token);localStorage.setItem('bs_user',JSON.stringify(res.user));
     location.href='/dashboard.html';
   }
+
   async function registro(){
     const user=document.getElementById('r-user').value.trim(),contact=document.getElementById('r-contact').value.trim(),pass=document.getElementById('r-pass').value;
     cargando('registro',true);
@@ -345,16 +426,51 @@
     localStorage.setItem('bs_token',res.token);localStorage.setItem('bs_user',JSON.stringify(res.user));
     location.href='/dashboard.html';
   }
-  async function recuperar(){
-    const contact=document.getElementById('rec-contact').value.trim();
-    const res=await API.post('/api/recuperar',{contact});
-    if(!res.ok)return mostrarMsg('msg-recuperar',res.error,'err');
-    mostrarMsg('msg-recuperar',res.message,'ok');
+
+  // RECUPERAR - 3 pasos
+  function recReset(){
+    document.getElementById('rec-step1').style.display='block';
+    document.getElementById('rec-step2').style.display='none';
+    document.getElementById('rec-step3').style.display='none';
+    recUserId=null;
   }
+
+  async function recuperarP1(){
+    const contact=document.getElementById('rec-contact').value.trim();
+    if(!contact)return mostrarMsg('msg-recuperar','Ingresa tu correo o teléfono','err');
+    const res=await API.post('/api/recuperar-check',{contact});
+    if(!res.ok)return mostrarMsg('msg-recuperar',res.error,'err');
+    recUserId=res.userId;
+    document.getElementById('rec-found-name').textContent=res.username;
+    document.getElementById('rec-step1').style.display='none';
+    document.getElementById('rec-step2').style.display='block';
+  }
+
+  async function recuperarP2(){
+    const codigo=document.getElementById('rec-codigo').value.trim().toUpperCase();
+    if(!codigo)return mostrarMsg('msg-recuperar2','Ingresa el código de recuperación','err');
+    const res=await API.post('/api/recuperar-verificar',{userId:recUserId,codigo});
+    if(!res.ok)return mostrarMsg('msg-recuperar2',res.error,'err');
+    document.getElementById('rec-step2').style.display='none';
+    document.getElementById('rec-step3').style.display='block';
+  }
+
+  async function recuperarP3(){
+    const nueva=document.getElementById('rec-new').value;
+    const confirma=document.getElementById('rec-confirm').value;
+    if(!nueva||nueva.length<6)return mostrarMsg('msg-recuperar3','Mínimo 6 caracteres','err');
+    if(nueva!==confirma)return mostrarMsg('msg-recuperar3','Las contraseñas no coinciden','err');
+    const res=await API.post('/api/recuperar-cambiar',{userId:recUserId,password_nueva:nueva});
+    if(!res.ok)return mostrarMsg('msg-recuperar3',res.error,'err');
+    mostrarMsg('msg-recuperar3','✅ Contraseña actualizada. Inicia sesión.','ok');
+    setTimeout(()=>{cerrarModal('recuperar');abrirModal('login');},2200);
+  }
+
   function mostrarMsg(id,txt,tipo){
     const el=document.getElementById(id);
+    if(!el)return;
     el.textContent=txt;el.className='msg '+tipo;el.style.display='block';
-    setTimeout(()=>el.style.display='none',5000);
+    setTimeout(()=>el.style.display='none',5500);
   }
 </script>
 </body>
