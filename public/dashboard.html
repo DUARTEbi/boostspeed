@@ -1,262 +1,443 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-  <meta charset="UTF-8"/>
-  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Panel – BoostSpeed</title>
-  <link rel="preconnect" href="https://fonts.googleapis.com"/>
-  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Exo+2:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
-  <style>
-    :root{
-      --g:#00FF1E;--gm:#00e61a;--gdim:rgba(0,255,30,.10);--glow:0 0 22px rgba(0,255,30,.38);
-      --bg:#070707;--bg2:#0e0e0e;--bg3:#141414;--sur:#181818;
-      --bdr:rgba(0,255,30,.14);--txt:#eef2ee;--mut:#7a8f7a;--red:#ff4757;--warn:#ffc107;
-    }
-    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-    body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-direction:column}
-    body::before{content:'';position:fixed;top:-20%;left:50%;transform:translateX(-50%);width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,30,.05) 0%,transparent 65%);pointer-events:none;z-index:0}
+<meta charset="UTF-8"/>
+<meta name="viewport" content="width=device-width,initial-scale=1.0"/>
+<title>Panel – BoostSpeed</title>
+<link rel="preconnect" href="https://fonts.googleapis.com"/>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Exo+2:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<style>
+:root{
+  --g:#00FF1E;--gm:#00e61a;--gdim:rgba(0,255,30,.10);--glow:0 0 20px rgba(0,255,30,.4);
+  --bg:#070707;--bg2:#0d0d0d;--bg3:#131313;--sur:#171717;
+  --bdr:rgba(0,255,30,.13);--txt:#eef2ee;--mut:#6b806b;
+  --red:#ff4757;--warn:#ffc107;--blue:#4dabff;
+}
+*,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;padding-bottom:72px}
 
-    /* TOPBAR */
-    .topbar{position:sticky;top:0;z-index:200;background:rgba(7,7,7,.94);backdrop-filter:blur(18px);border-bottom:1px solid var(--bdr);height:62px;display:flex;align-items:center;padding:0 1.5rem;justify-content:space-between;gap:.75rem}
-    .logo{font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;color:var(--g);letter-spacing:2px;text-decoration:none;display:flex;align-items:center;gap:.4rem}
-    .logo span{color:var(--txt);font-weight:500}
-    .pulse{width:7px;height:7px;border-radius:50%;background:var(--g);box-shadow:var(--glow);animation:blink 1.6s infinite}
-    @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
-    .tab-nav{display:flex;gap:.4rem}
-    .tb{background:transparent;border:1px solid transparent;color:var(--mut);font-family:'Exo 2',sans-serif;font-size:.86rem;font-weight:700;padding:.42rem .9rem;border-radius:7px;cursor:pointer;transition:all .2s;display:flex;align-items:center;gap:.35rem}
-    .tb.active,.tb:hover{color:var(--g);border-color:var(--bdr);background:var(--gdim)}
-    .topbar-r{display:flex;align-items:center;gap:.6rem}
-    .chip{display:flex;align-items:center;gap:.4rem;background:var(--sur);border:1px solid var(--bdr);border-radius:100px;padding:.28rem .7rem .28rem .38rem;font-size:.83rem}
-    .av{width:26px;height:26px;border-radius:50%;background:var(--gdim);border:1px solid rgba(0,255,30,.3);display:flex;align-items:center;justify-content:center;font-size:.75rem;color:var(--g);font-weight:700}
-    .btn-out{background:transparent;border:1px solid rgba(255,71,87,.3);color:var(--red);font-family:'Exo 2',sans-serif;font-size:.8rem;font-weight:700;padding:.38rem .8rem;border-radius:6px;cursor:pointer;transition:all .2s}
-    .btn-out:hover{background:rgba(255,71,87,.1)}
+/* BG */
+#ptcl{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.pt{position:absolute;border-radius:50%;background:var(--g);animation:ptf linear infinite;opacity:0}
+@keyframes ptf{0%{transform:translateY(100vh);opacity:0}10%{opacity:.15}90%{opacity:.05}100%{transform:translateY(-8vh);opacity:0}}
+.bggl{position:fixed;top:-20%;left:50%;transform:translateX(-50%);width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,30,.045) 0%,transparent 65%);pointer-events:none;z-index:0;animation:bgp 6s ease-in-out infinite}
+@keyframes bgp{0%,100%{opacity:.6}50%{opacity:1}}
 
-    /* MAIN */
-    main{position:relative;z-index:1;flex:1;padding:1.5rem;max-width:980px;margin:0 auto;width:100%}
-    .pane{display:none}
-    .pane.active{display:block}
+/* TOPBAR */
+.tb{position:sticky;top:0;z-index:100;background:rgba(7,7,7,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);height:56px;display:flex;align-items:center;padding:0 1rem;justify-content:space-between;animation:sD .5s cubic-bezier(.23,1,.32,1)}
+@keyframes sD{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
+.logo{font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--g);letter-spacing:2px;display:flex;align-items:center;gap:.4rem;text-decoration:none}
+.logo span{color:var(--txt);font-weight:500}
+.pulse{position:relative;width:7px;height:7px;border-radius:50%;background:var(--g);box-shadow:var(--glow);animation:bl 1.6s infinite;flex-shrink:0}
+.pulse::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(0,255,30,.3);animation:rp 1.6s ease-out infinite}
+@keyframes bl{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.2;transform:scale(.6)}}
+@keyframes rp{0%{transform:scale(.4);opacity:.8}100%{transform:scale(2.6);opacity:0}}
+.uchip{display:flex;align-items:center;gap:.45rem;background:var(--sur);border:1px solid var(--bdr);border-radius:100px;padding:.22rem .65rem .22rem .28rem;font-size:.8rem;font-weight:600}
+.uav{width:27px;height:27px;border-radius:50%;background:var(--gdim);border:1px solid rgba(0,255,30,.28);display:flex;align-items:center;justify-content:center;font-size:.78rem;color:var(--g);font-weight:700;font-family:'Rajdhani',sans-serif;flex-shrink:0}
 
-    /* CARD */
-    .card{background:var(--sur);border:1px solid var(--bdr);border-radius:13px;padding:1.4rem;margin-bottom:1.2rem;position:relative;overflow:hidden}
-    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g),transparent)}
-    .ct{font-family:'Rajdhani',sans-serif;font-size:1.15rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+/* MAIN */
+main{position:relative;z-index:1;flex:1;padding:1rem 1rem 0;max-width:760px;margin:0 auto;width:100%}
+.pane{display:none;animation:pIn .38s cubic-bezier(.23,1,.32,1)}
+.pane.active{display:block}
+@keyframes pIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 
-    /* STAT BOXES */
-    .sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:.9rem;margin-bottom:1.2rem}
-    .sb{background:var(--sur);border:1px solid var(--bdr);border-radius:11px;padding:1.1rem;text-align:center;position:relative;overflow:hidden}
-    .sb::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g),transparent)}
-    .sv{font-family:'Rajdhani',sans-serif;font-size:1.8rem;font-weight:700;color:var(--g)}
-    .sl{color:var(--mut);font-size:.74rem;text-transform:uppercase;letter-spacing:.5px;margin-top:.15rem}
+/* CARD */
+.card{background:var(--sur);border:1px solid var(--bdr);border-radius:14px;padding:1.2rem;margin-bottom:.9rem;position:relative;overflow:hidden;transition:border-color .3s,box-shadow .3s}
+.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g),transparent)}
+.card:hover{border-color:rgba(0,255,30,.22);box-shadow:0 6px 28px rgba(0,0,0,.45)}
+.ctit{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.9rem;display:flex;align-items:center;gap:.45rem;color:var(--txt)}
+.ctit svg{flex-shrink:0;opacity:.75}
 
-    /* BOTONES */
-    .btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;padding:.58rem 1.2rem;border-radius:8px;font-family:'Exo 2',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;border:none;transition:all .2s}
-    .btn-p{background:var(--g);color:#000}
-    .btn-p:hover{background:var(--gm);box-shadow:var(--glow);transform:translateY(-1px)}
-    .btn-p:disabled{opacity:.45;cursor:not-allowed;transform:none;box-shadow:none}
-    .btn-o{background:transparent;border:1px solid var(--bdr);color:var(--txt)}
-    .btn-o:hover{border-color:var(--g);color:var(--g)}
-    .btn-full{width:100%}
+/* STAT GRID */
+.sg{display:grid;grid-template-columns:repeat(3,1fr);gap:.65rem;margin-bottom:.9rem}
+.sb{background:var(--sur);border:1px solid var(--bdr);border-radius:12px;padding:.85rem .6rem;text-align:center;position:relative;overflow:hidden;opacity:0;transform:translateY(10px);transition:transform .3s,border-color .3s}
+.sb.vis{animation:cIn .4s cubic-bezier(.23,1,.32,1) forwards}
+@keyframes cIn{to{opacity:1;transform:translateY(0)}}
+.sb:hover{transform:translateY(-3px);border-color:rgba(0,255,30,.28)}
+.sb::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g),transparent)}
+.sv{font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;color:var(--g);line-height:1.1}
+.sl{color:var(--mut);font-size:.62rem;text-transform:uppercase;letter-spacing:.5px;margin-top:.18rem}
 
-    /* FORMULARIO */
-    .fg{margin-bottom:.95rem}
-    .fg label{display:block;font-size:.77rem;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.38rem}
-    .fg input,.fg select{width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:.68rem 1rem;color:var(--txt);font-family:'Exo 2',sans-serif;font-size:.9rem;outline:none;transition:border-color .2s}
-    .fg input:focus,.fg select:focus{border-color:var(--g)}
-    .fg input::placeholder{color:var(--mut)}
-    select option{background:var(--bg2)}
+/* PLAN BADGE */
+.pbadge{display:inline-flex;align-items:center;gap:.35rem;padding:.28rem .75rem;border-radius:100px;font-size:.73rem;font-weight:700;letter-spacing:.4px;text-transform:uppercase}
+.pon{background:var(--gdim);border:1px solid rgba(0,255,30,.28);color:var(--g)}
+.poff{background:rgba(255,71,87,.07);border:1px solid rgba(255,71,87,.22);color:var(--red)}
 
-    /* MSG */
-    .msg{padding:.62rem .95rem;border-radius:8px;font-size:.84rem;margin-bottom:.9rem;display:none}
-    .msg.ok{background:rgba(0,255,30,.09);border:1px solid rgba(0,255,30,.28);color:var(--g)}
-    .msg.err{background:rgba(255,71,87,.09);border:1px solid rgba(255,71,87,.28);color:var(--red)}
+/* PROGRESS BAR */
+.progbar{height:5px;background:rgba(0,255,30,.1);border-radius:100px;margin-top:.7rem;overflow:hidden}
+.progfill{height:100%;background:linear-gradient(90deg,var(--g),var(--gm));border-radius:100px;transition:width .8s cubic-bezier(.23,1,.32,1)}
 
-    /* PLAN BADGE */
-    .pb{display:inline-flex;align-items:center;gap:.45rem;background:var(--gdim);border:1px solid rgba(0,255,30,.28);padding:.36rem .9rem;border-radius:100px;font-size:.8rem;font-weight:700;color:var(--g);text-transform:uppercase;letter-spacing:.8px}
-    .pb.off{background:rgba(255,71,87,.09);border-color:rgba(255,71,87,.28);color:var(--red)}
+/* BUTTONS */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.55rem 1.1rem;border-radius:9px;font-family:'Exo 2',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;border:none;transition:all .2s;position:relative;overflow:hidden}
+.bp{background:var(--g);color:#000}.bp:hover{background:var(--gm);box-shadow:var(--glow);transform:translateY(-1px)}
+.bp:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
+.bo{background:transparent;border:1px solid var(--bdr);color:var(--txt)}.bo:hover{border-color:var(--g);color:var(--g)}
+.bf{width:100%}
+.bsm{padding:.3rem .65rem;font-size:.75rem;border-radius:7px}
+.bred{background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.25);color:var(--red)}.bred:hover{background:rgba(255,71,87,.18)}
 
-    /* TABLA */
-    .tw{overflow-x:auto;border-radius:10px;border:1px solid var(--bdr)}
-    table{width:100%;border-collapse:collapse;font-size:.84rem}
-    thead tr{background:var(--bg3)}
-    th{padding:.62rem .9rem;text-align:left;color:var(--mut);font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;font-weight:700;white-space:nowrap}
-    td{padding:.7rem .9rem;border-top:1px solid var(--bdr);white-space:nowrap}
-    .badge{display:inline-flex;align-items:center;padding:.18rem .55rem;border-radius:100px;font-size:.71rem;font-weight:700;text-transform:uppercase}
-    .bOk{background:rgba(0,255,30,.1);color:var(--g);border:1px solid rgba(0,255,30,.22)}
+/* FORMS */
+.fg{margin-bottom:.8rem}
+.fg label{display:block;font-size:.72rem;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.32rem}
+.fg input,.fg select,.fg textarea{width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:9px;padding:.62rem .9rem;color:var(--txt);font-family:'Exo 2',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s,box-shadow .2s;resize:none}
+.fg input:focus,.fg select:focus,.fg textarea:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(0,255,30,.09)}
+.fg input::placeholder,.fg textarea::placeholder{color:var(--mut)}
+select option{background:var(--bg2)}
 
-    /* PERFIL */
-    .ph{display:flex;align-items:center;gap:1.4rem;margin-bottom:1.4rem}
-    .ava{width:68px;height:68px;border-radius:50%;background:var(--gdim);border:2px solid var(--g);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:1.9rem;font-weight:700;color:var(--g);flex-shrink:0}
-    .pi h3{font-family:'Rajdhani',sans-serif;font-size:1.45rem;font-weight:700}
-    .pi p{color:var(--mut);font-size:.85rem;margin-top:.2rem}
-    .uid-row{display:flex;align-items:center;gap:.5rem;background:var(--bg3);border:1px solid var(--bdr);border-radius:8px;padding:.55rem .9rem;margin-top:.65rem;font-size:.83rem}
-    .uid-row code{flex:1;color:var(--g);font-family:monospace;letter-spacing:1px}
-    .copy-btn{background:none;border:none;color:var(--mut);cursor:pointer;font-size:.88rem;padding:.15rem;transition:color .2s}
-    .copy-btn:hover{color:var(--g)}
-    .ir{display:flex;justify-content:space-between;align-items:center;padding:.65rem 0;border-bottom:1px solid var(--bdr)}
-    .ir:last-child{border-bottom:none}
-    .ir .k{color:var(--mut);font-size:.86rem}
-    .ir .v{font-weight:700;font-size:.9rem}
+/* UID INPUT */
+.uiw{position:relative}
+.uiw input{padding-right:3.2rem;font-size:.95rem;letter-spacing:.5px;font-family:'Rajdhani',sans-serif;font-weight:600}
+.usb{position:absolute;right:.4rem;top:50%;transform:translateY(-50%);background:var(--g);border:none;border-radius:7px;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
+.usb:hover{background:var(--gm);box-shadow:var(--glow)}
+.usb:disabled{opacity:.4;cursor:not-allowed}
+.usb svg{stroke:#000;width:16px;height:16px}
+.spin{display:none;width:14px;height:14px;border:2px solid rgba(0,0,0,.25);border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite}
+@keyframes sp{to{transform:rotate(360deg)}}
 
-    /* SPINNER */
-    .spin{display:none;width:15px;height:15px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite}
-    @keyframes sp{to{transform:rotate(360deg)}}
+/* MSGS */
+.msg{padding:.58rem .9rem;border-radius:9px;font-size:.82rem;margin-bottom:.8rem;display:none;animation:fadeIn .3s ease}
+@keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
+.ok{background:rgba(0,255,30,.08);border:1px solid rgba(0,255,30,.22);color:var(--g)}
+.err{background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.22);color:var(--red)}
+.warn{background:rgba(255,193,7,.08);border:1px solid rgba(255,193,7,.22);color:var(--warn)}
 
-    /* MOB NAV */
-    .mobn{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(7,7,7,.97);backdrop-filter:blur(18px);border-top:1px solid var(--bdr);padding:.45rem;z-index:200;justify-content:space-around}
-    .mb{display:flex;flex-direction:column;align-items:center;gap:.18rem;padding:.38rem .7rem;border-radius:8px;background:transparent;border:none;color:var(--mut);font-family:'Exo 2',sans-serif;font-size:.67rem;font-weight:700;cursor:pointer;transition:all .2s}
-    .mb.active,.mb:hover{color:var(--g)}
-    .mb .ico{font-size:1.2rem}
+/* RESULT BOX */
+.rbox{background:var(--bg3);border:1px solid rgba(0,255,30,.2);border-radius:13px;padding:1.1rem;margin-top:.7rem;display:none;animation:fadeIn .4s cubic-bezier(.23,1,.32,1)}
+.rplayer{display:flex;align-items:center;gap:.85rem;margin-bottom:.9rem;padding-bottom:.9rem;border-bottom:1px solid var(--bdr)}
+.rav{width:46px;height:46px;border-radius:50%;background:var(--gdim);border:2px solid var(--g);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:1.2rem;color:var(--g);font-weight:700;flex-shrink:0}
+.rname{font-family:'Rajdhani',sans-serif;font-size:1.08rem;font-weight:700}
+.rsub{color:var(--mut);font-size:.75rem;margin-top:.1rem}
+.rsent{margin-left:auto;text-align:right}
+.rnum{font-family:'Rajdhani',sans-serif;font-size:1.65rem;font-weight:700;color:var(--g);animation:pop .5s cubic-bezier(.23,1,.32,1)}
+@keyframes pop{from{opacity:0;transform:scale(.5)}to{opacity:1;transform:scale(1)}}
+.rlbl{color:var(--mut);font-size:.62rem;text-transform:uppercase;letter-spacing:.4px}
+.rcols{display:grid;grid-template-columns:repeat(3,1fr);gap:.5rem}
+.rc{background:var(--sur);border-radius:9px;padding:.5rem;text-align:center}
+.rcv{font-weight:700;font-size:.88rem}.rcv.green{color:var(--g)}
+.rcl{color:var(--mut);font-size:.62rem;text-transform:uppercase;margin-bottom:.18rem}
 
-    @media(max-width:600px){
-      .tab-nav{display:none} .mobn{display:flex}
-      main{padding:1rem 1rem 5rem}
-      .chip .uname{display:none}
-    }
-  </style>
+/* TOP */
+.top-item{display:flex;align-items:center;gap:.75rem;padding:.65rem .85rem;border-radius:10px;border:1px solid var(--bdr);background:var(--bg3);margin-bottom:.45rem;opacity:0;transform:translateX(-8px);transition:all .25s}
+.top-item.vis{animation:tIn .4s cubic-bezier(.23,1,.32,1) forwards}
+@keyframes tIn{to{opacity:1;transform:translateX(0)}}
+.top-item:hover{border-color:rgba(0,255,30,.25);transform:translateX(3px)}
+.top-rank{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;color:var(--mut);width:22px;text-align:center;flex-shrink:0}
+.top-rank.gold{color:#FFD700}.top-rank.silver{color:#C0C0C0}.top-rank.bronze{color:#CD7F32}
+.top-av{width:32px;height:32px;border-radius:50%;background:var(--gdim);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:.85rem;color:var(--g);font-weight:700;flex-shrink:0}
+.top-name{font-weight:600;font-size:.86rem;flex:1}
+.top-lks{font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;color:var(--g);text-align:right}
+.top-ll{color:var(--mut);font-size:.6rem;text-transform:uppercase;text-align:right}
+
+/* HISTORIAL */
+.hist-item{display:flex;align-items:center;gap:.72rem;padding:.62rem .82rem;border-radius:10px;border:1px solid var(--bdr);background:var(--bg3);margin-bottom:.42rem;opacity:0;transform:translateY(5px);transition:border-color .2s}
+.hist-item.vis{animation:cIn .35s cubic-bezier(.23,1,.32,1) forwards}
+.hist-item:hover{border-color:rgba(0,255,30,.2)}
+.hico{width:34px;height:34px;border-radius:9px;background:var(--gdim);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.hinfo{flex:1;min-width:0}
+.hname{font-weight:700;font-size:.83rem;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.huid{color:var(--mut);font-size:.7rem;font-family:monospace}
+.hright{text-align:right;flex-shrink:0}
+.hlikes{font-family:'Rajdhani',sans-serif;font-size:.98rem;font-weight:700;color:var(--g)}
+.hdate{color:var(--mut);font-size:.63rem;margin-top:.04rem}
+
+/* PERFIL */
+.phdr{display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem}
+.pav{width:58px;height:58px;border-radius:50%;background:var(--gdim);border:2px solid var(--g);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:1.6rem;font-weight:700;color:var(--g);flex-shrink:0;animation:avIn .5s cubic-bezier(.23,1,.32,1)}
+@keyframes avIn{from{transform:scale(0) rotate(-180deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
+.pname{font-family:'Rajdhani',sans-serif;font-size:1.35rem;font-weight:700}
+.uidrow{display:flex;align-items:center;gap:.45rem;background:var(--bg3);border:1px solid var(--bdr);border-radius:8px;padding:.42rem .75rem;margin-top:.35rem;font-size:.78rem}
+.uidrow code{flex:1;color:var(--g);font-family:monospace;letter-spacing:1px}
+.cpbtn{background:none;border:none;color:var(--mut);cursor:pointer;padding:.1rem;display:flex;transition:color .2s}
+.cpbtn:hover{color:var(--g)}
+.ir{display:flex;justify-content:space-between;align-items:center;padding:.55rem 0;border-bottom:1px solid var(--bdr)}
+.ir:last-child{border-bottom:none}
+.ik{color:var(--mut);font-size:.82rem;display:flex;align-items:center;gap:.38rem}
+.iv{font-weight:700;font-size:.86rem}
+
+/* ACCESO */
+.copt{display:flex;align-items:center;gap:.85rem;padding:.82rem;border-radius:11px;border:1px solid var(--bdr);background:var(--bg3);margin-bottom:.55rem;cursor:pointer;transition:all .24s;text-decoration:none;color:var(--txt)}
+.copt:hover{border-color:rgba(0,255,30,.28);transform:translateX(3px);background:rgba(0,255,30,.03)}
+.cico{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.tgico{background:rgba(0,136,204,.14);border:1px solid rgba(0,136,204,.28)}
+.waico{background:rgba(37,211,102,.14);border:1px solid rgba(37,211,102,.28)}
+.ctit2{font-weight:700;font-size:.88rem;margin-bottom:.1rem}
+.csub{color:var(--mut);font-size:.74rem}
+
+/* STEPS */
+.sdots{display:flex;gap:.38rem;margin-bottom:1.1rem}
+.sdot{width:7px;height:7px;border-radius:50%;background:var(--bdr);transition:background .3s,box-shadow .3s}
+.sdot.active{background:var(--g);box-shadow:0 0 7px rgba(0,255,30,.5)}
+
+/* CANJEAR ROW */
+.crow{display:flex;gap:.55rem;align-items:flex-end}
+.crow .fg{flex:1;margin:0}
+
+/* SECTION HDR */
+.shdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
+.shdr h3{font-family:'Rajdhani',sans-serif;font-size:.96rem;font-weight:700;display:flex;align-items:center;gap:.4rem}
+
+/* EMPTY */
+.empty{text-align:center;padding:2.2rem 1rem;color:var(--mut)}
+.empty svg{opacity:.25;margin-bottom:.6rem;display:block;margin-left:auto;margin-right:auto}
+.empty p{font-size:.83rem}
+
+/* LOADING DOTS */
+.ldg{display:flex;align-items:center;justify-content:center;gap:.45rem;padding:1.8rem;color:var(--mut);font-size:.82rem}
+.ld{width:6px;height:6px;border-radius:50%;background:var(--g);animation:ld .8s ease-in-out infinite}
+.ld:nth-child(2){animation-delay:.15s}.ld:nth-child(3){animation-delay:.3s}
+@keyframes ld{0%,60%,100%{transform:scale(1);opacity:.35}30%{transform:scale(1.6);opacity:1}}
+
+/* BOTTOM NAV */
+.bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(7,7,7,.97);backdrop-filter:blur(22px);border-top:1px solid var(--bdr);display:flex;justify-content:space-around;padding:.28rem .4rem;z-index:100;animation:sU .5s cubic-bezier(.23,1,.32,1)}
+@keyframes sU{from{transform:translateY(100%)}to{transform:translateY(0)}}
+.bn{display:flex;flex-direction:column;align-items:center;gap:.14rem;padding:.38rem .55rem;border-radius:9px;background:transparent;border:none;color:var(--mut);font-family:'Exo 2',sans-serif;font-size:.58rem;font-weight:700;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.3px;min-width:50px}
+.bn:hover,.bn.active{color:var(--g)}
+.bnI{width:30px;height:30px;border-radius:8px;display:flex;align-items:center;justify-content:center;border:1px solid transparent;transition:all .2s}
+.bn.active .bnI{background:var(--gdim);border-color:rgba(0,255,30,.28)}
+.bn.active .bnI svg,.bn:hover .bnI svg{stroke:var(--g)}
+
+/* DIVIDER */
+.div{height:1px;background:linear-gradient(90deg,transparent,var(--bdr),transparent);margin:.85rem 0;overflow:hidden;position:relative}
+.div::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,255,30,.4),transparent);animation:dv 3s ease-in-out infinite}
+@keyframes dv{0%{left:-50%}100%{left:150%}}
+</style>
 </head>
 <body>
+<div id="ptcl"></div>
+<div class="bggl"></div>
 
-<div class="topbar">
+<div class="tb">
   <a class="logo" href="/"><div class="pulse"></div>Boost<span>Speed</span></a>
-  <div class="tab-nav">
-    <button class="tb active" onclick="tab('inicio')" id="tb-inicio">⚡ Inicio</button>
-    <button class="tb" onclick="tab('perfil')" id="tb-perfil">👤 Perfil</button>
-  </div>
-  <div class="topbar-r">
-    <div class="chip"><div class="av" id="nav-av">?</div><span class="uname" id="nav-un">...</span></div>
-    <button class="btn-out" onclick="salir()">Salir</button>
-  </div>
+  <div class="uchip"><div class="uav" id="nav-av">?</div><span id="nav-un">...</span></div>
 </div>
 
 <main>
-  <!-- ═══ PESTAÑA INICIO ═══ -->
-  <div class="pane active" id="pane-inicio">
 
-    <div class="sg">
-      <div class="sb"><div class="sv" id="st-likes">0</div><div class="sl">Likes disponibles</div></div>
-      <div class="sb"><div class="sv" id="st-envios">0</div><div class="sl">Envíos restantes hoy</div></div>
-      <div class="sb"><div class="sv" id="st-dias">—</div><div class="sl">Días restantes</div></div>
+<!-- ═══ INICIO ═══ -->
+<div class="pane active" id="pane-inicio">
+  <div class="sg">
+    <div class="sb"><div class="sv" id="st-likes">—</div><div class="sl">Likes</div></div>
+    <div class="sb"><div class="sv" id="st-envios">—</div><div class="sl">Hoy</div></div>
+    <div class="sb"><div class="sv" id="st-dias">—</div><div class="sl">Días</div></div>
+  </div>
+  <div class="card">
+    <div class="ctit">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
+      Mi plan
     </div>
-
-    <!-- Plan / Canjear código -->
-    <div class="card">
-      <div class="ct">🎟️ Estado del plan</div>
-      <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.9rem">
-        <div>
-          <div class="pb off" id="plan-badge">Sin plan activo</div>
-          <p style="color:var(--mut);font-size:.83rem;margin-top:.45rem" id="plan-desc">Canjea un código para activar tu plan.</p>
-        </div>
-        <button class="btn btn-o" onclick="toggleSec('sec-canjear')">🎁 Canjear código</button>
-      </div>
-      <div id="sec-canjear" style="display:none;margin-top:1.1rem;padding-top:1.1rem;border-top:1px solid var(--bdr)">
-        <div class="msg" id="msg-canjear"></div>
-        <div style="display:flex;gap:.65rem;flex-wrap:wrap">
-          <div class="fg" style="flex:1;min-width:150px;margin:0">
-            <input type="text" id="cod-input" placeholder="Ej: XY4Z9A" style="text-transform:uppercase"/>
-          </div>
-          <button class="btn btn-p" onclick="canjear()">Activar →</button>
-        </div>
+    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.7rem">
+      <div>
+        <div class="pbadge poff" id="plan-badge">Sin plan</div>
+        <p style="color:var(--mut);font-size:.79rem;margin-top:.38rem" id="plan-desc">Ve a Acceso para obtener un plan.</p>
       </div>
     </div>
-
-    <!-- Enviar likes -->
-    <div class="card">
-      <div class="ct">❤️ Enviar Likes</div>
-      <div class="msg" id="msg-likes"></div>
-      <div class="fg"><label>UID de Free Fire</label><input type="text" id="ff-uid" placeholder="Ej: 1234567890" inputmode="numeric" onkeydown="if(event.key==='Enter')enviarLikes()"/></div>
-      <button class="btn btn-p btn-full" id="btn-likes" onclick="enviarLikes()" style="margin-bottom:.9rem">
-        <div class="spin" id="spin-likes"></div>
-        <span id="txt-likes">⚡ Enviar likes ahora</span>
+    <div class="progbar" id="plan-progbar" style="display:none">
+      <div class="progfill" id="plan-prog" style="width:0%"></div>
+    </div>
+    <p style="color:var(--mut);font-size:.7rem;margin-top:.4rem;display:none" id="plan-prog-label"></p>
+  </div>
+  <div class="card">
+    <div class="shdr">
+      <h3>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/><polyline points="17 6 23 6 23 12"/></svg>
+        Top Usuarios
+      </h3>
+      <button class="btn bo bsm" onclick="cargarTop()">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="23 4 23 10 17 10"/><path d="M20.49 15a9 9 0 1 1-2.12-9.36L23 10"/></svg>
       </button>
-      <!-- Resultado del envío -->
-      <div id="resultado-box" style="display:none;background:var(--bg3);border:1px solid rgba(0,255,30,.25);border-radius:11px;padding:1.1rem;margin-top:.2rem">
-        <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.9rem">
-          <div style="width:40px;height:40px;border-radius:50%;background:var(--gdim);border:2px solid var(--g);display:flex;align-items:center;justify-content:center;font-size:1.2rem">🎮</div>
-          <div>
-            <div style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700" id="r-nombre">—</div>
-            <div style="color:var(--mut);font-size:.78rem">UID: <span id="r-uid">—</span> · Nivel <span id="r-nivel">—</span> · <span id="r-region">—</span></div>
-          </div>
-          <div style="margin-left:auto;text-align:right">
-            <div style="color:var(--g);font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700" id="r-agregados">+0</div>
-            <div style="color:var(--mut);font-size:.72rem;text-transform:uppercase">likes enviados</div>
-          </div>
-        </div>
-        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.55rem;text-align:center">
-          <div style="background:var(--sur);border-radius:8px;padding:.55rem">
-            <div style="color:var(--mut);font-size:.7rem;text-transform:uppercase;margin-bottom:.2rem">Antes</div>
-            <div style="font-weight:700;font-size:.95rem" id="r-antes">—</div>
-          </div>
-          <div style="background:var(--sur);border-radius:8px;padding:.55rem">
-            <div style="color:var(--mut);font-size:.7rem;text-transform:uppercase;margin-bottom:.2rem">Después</div>
-            <div style="font-weight:700;font-size:.95rem;color:var(--g)" id="r-despues">—</div>
-          </div>
-          <div style="background:var(--sur);border-radius:8px;padding:.55rem">
-            <div style="color:var(--mut);font-size:.7rem;text-transform:uppercase;margin-bottom:.2rem">Tiempo</div>
-            <div style="font-weight:700;font-size:.95rem" id="r-tiempo">—</div>
-          </div>
-        </div>
+    </div>
+    <div id="top-list"><div class="ldg"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div></div>
+  </div>
+</div>
+
+<!-- ═══ LIKES ═══ -->
+<div class="pane" id="pane-likes">
+  <div class="card">
+    <div class="ctit">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      Enviar Likes
+    </div>
+    <div class="msg" id="msg-likes"></div>
+    <div class="fg">
+      <label>UID de Free Fire</label>
+      <div class="uiw">
+        <input type="text" id="ff-uid" placeholder="Ej: 273968086" inputmode="numeric" onkeydown="if(event.key==='Enter')enviarLikes()"/>
+        <button class="usb" id="btn-send" onclick="enviarLikes()">
+          <div class="spin" id="spin-send"></div>
+          <svg id="ico-send" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        </button>
       </div>
     </div>
-
-    <!-- Historial -->
-    <div class="card">
-      <div class="ct">📋 Historial de envíos</div>
-      <div class="tw">
-        <table>
-          <thead><tr><th>Fecha</th><th>Jugador</th><th>UID FF</th><th>Likes enviados</th><th>Estado</th></tr></thead>
-          <tbody id="hist-body"><tr><td colspan="5" style="text-align:center;color:var(--mut);padding:2rem">Sin registros aún</td></tr></tbody>
-        </table>
+    <div class="rbox" id="rbox">
+      <div class="rplayer">
+        <div class="rav" id="r-av">?</div>
+        <div>
+          <div class="rname" id="r-nombre">—</div>
+          <div class="rsub">UID <span id="r-uid">—</span> &nbsp;·&nbsp; Nivel <span id="r-nivel">—</span> &nbsp;·&nbsp; <span id="r-region">—</span></div>
+        </div>
+        <div class="rsent">
+          <div class="rnum" id="r-agregados">+0</div>
+          <div class="rlbl">likes enviados</div>
+        </div>
+      </div>
+      <div class="rcols">
+        <div class="rc"><div class="rcl">Antes</div><div class="rcv" id="r-antes">—</div></div>
+        <div class="rc"><div class="rcl">Después</div><div class="rcv green" id="r-despues">—</div></div>
+        <div class="rc"><div class="rcl">Tiempo</div><div class="rcv" id="r-tiempo">—</div></div>
       </div>
     </div>
   </div>
-
-  <!-- ═══ PESTAÑA PERFIL ═══ -->
-  <div class="pane" id="pane-perfil">
-    <div class="card">
-      <div class="ph">
-        <div class="ava" id="p-av">?</div>
-        <div class="pi">
-          <h3 id="p-name">Usuario</h3>
-          <p id="p-contact">—</p>
-          <div class="uid-row">
-            <code id="p-uid">BS-000000</code>
-            <button class="copy-btn" onclick="copiarUID()" title="Copiar ID">📋</button>
-          </div>
-        </div>
-      </div>
-      <div class="ir"><span class="k">Estado del plan</span><span class="v" id="p-plan">—</span></div>
-      <div class="ir"><span class="k">Likes disponibles</span><span class="v" id="p-likes">0</span></div>
-      <div class="ir"><span class="k">Envíos por día</span><span class="v" id="p-dia">0</span></div>
-      <div class="ir"><span class="k">Vencimiento del plan</span><span class="v" id="p-vence">—</span></div>
-      <div class="ir"><span class="k">Miembro desde</span><span class="v" id="p-desde">—</span></div>
+  <div class="card">
+    <div class="ctit">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      Canjear código
     </div>
-
-    <!-- Cambiar contraseña -->
-    <div class="card">
-      <div class="ct">🔐 Cambiar contraseña</div>
-      <div class="msg" id="msg-pass"></div>
-      <div class="fg"><label>Contraseña actual</label><input type="password" id="p-old" placeholder="••••••••"/></div>
-      <div class="fg"><label>Nueva contraseña</label><input type="password" id="p-new" placeholder="Mínimo 6 caracteres"/></div>
-      <button class="btn btn-p" onclick="cambiarPass()">Guardar cambios</button>
+    <div class="msg" id="msg-can"></div>
+    <div class="crow">
+      <div class="fg"><input type="text" id="cod-inp" placeholder="Ej: XY4Z9A8B" style="text-transform:uppercase"/></div>
+      <button class="btn bp" onclick="canjear()" style="margin-bottom:.8rem">Activar</button>
     </div>
   </div>
+</div>
+
+<!-- ═══ HISTORIAL ═══ -->
+<div class="pane" id="pane-hist">
+  <div class="card">
+    <div class="shdr">
+      <h3>
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+        Historial de envíos
+      </h3>
+    </div>
+    <div id="hist-list"><div class="ldg"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div></div>
+  </div>
+</div>
+
+<!-- ═══ ACCESO ═══ -->
+<div class="pane" id="pane-acceso">
+  <div class="card">
+    <div class="ctit">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Recuperar contraseña
+    </div>
+    <p style="color:var(--mut);font-size:.81rem;margin-bottom:.9rem;line-height:1.55">Ingresa el correo o teléfono que registraste. Si está en el sistema podrás cambiar la contraseña con un código del administrador.</p>
+    <div class="msg" id="msg-rec"></div>
+    <div class="sdots"><div class="sdot active" id="sd1"></div><div class="sdot" id="sd2"></div><div class="sdot" id="sd3"></div></div>
+    <div id="rs1">
+      <div class="fg"><label>Correo o teléfono registrado</label><input type="text" id="rc-contact" placeholder="correo@ejemplo.com o +57..."/></div>
+      <button class="btn bp bf" onclick="recP1()">Verificar →</button>
+    </div>
+    <div id="rs2" style="display:none">
+      <div class="fg">
+        <label>Código de recuperación</label>
+        <p style="color:var(--mut);font-size:.76rem;margin-bottom:.4rem;line-height:1.5">Contáctame vía Telegram o WhatsApp con prueba de tu cuenta y te daré el código.</p>
+        <input type="text" id="rc-code" placeholder="Código del admin" style="text-transform:uppercase"/>
+      </div>
+      <button class="btn bp bf" onclick="recP2()">Verificar código →</button>
+      <button class="btn bo bf" onclick="recVolver()" style="margin-top:.45rem">← Volver</button>
+    </div>
+    <div id="rs3" style="display:none">
+      <div class="fg"><label>Nueva contraseña</label><input type="password" id="rc-new" placeholder="Mínimo 6 caracteres"/></div>
+      <div class="fg"><label>Confirmar contraseña</label><input type="password" id="rc-confirm" placeholder="Repite la contraseña"/></div>
+      <button class="btn bp bf" onclick="recP3()">Guardar contraseña →</button>
+    </div>
+  </div>
+  <div class="card">
+    <div class="ctit">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
+      Adquirir plan / Soporte
+    </div>
+    <p style="color:var(--mut);font-size:.81rem;margin-bottom:.9rem;line-height:1.55">Contáctame para adquirir un plan de acceso o resolver cualquier problema.</p>
+    <a class="copt" href="https://t.me/DuarteStoreX" target="_blank">
+      <div class="cico tgico">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0088CC" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </div>
+      <div><div class="ctit2">Telegram</div><div class="csub">@DuarteStoreX</div></div>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--mut)" stroke-width="2" style="margin-left:auto;flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+    </a>
+    <a class="copt" href="https://wa.me/573164377140" target="_blank">
+      <div class="cico waico">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+      </div>
+      <div><div class="ctit2">WhatsApp</div><div class="csub">+57 316 437 7140</div></div>
+      <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--mut)" stroke-width="2" style="margin-left:auto;flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
+    </a>
+  </div>
+</div>
+
+<!-- ═══ PERFIL ═══ -->
+<div class="pane" id="pane-perfil">
+  <div class="card">
+    <div class="phdr">
+      <div class="pav" id="p-av">?</div>
+      <div>
+        <div class="pname" id="p-name">—</div>
+        <div style="color:var(--mut);font-size:.8rem;margin-top:.1rem" id="p-contact">—</div>
+        <div class="uidrow">
+          <code id="p-uid">BS-000000</code>
+          <button class="cpbtn" onclick="copiarUID()" title="Copiar ID">
+            <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>
+          </button>
+        </div>
+      </div>
+    </div>
+    <div class="ir"><span class="ik"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> Plan</span><span class="iv" id="p-plan">—</span></div>
+    <div class="ir"><span class="ik"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 0-7.78z"/></svg> Likes disp.</span><span class="iv" id="p-likes">0</span></div>
+    <div class="ir"><span class="ik"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Envíos/día</span><span class="iv" id="p-dia">0</span></div>
+    <div class="ir" id="p-vence-row"><span class="ik"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Vence</span><span class="iv" id="p-vence">—</span></div>
+    <div class="ir"><span class="ik"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Miembro desde</span><span class="iv" id="p-desde">—</span></div>
+  </div>
+  <div class="card">
+    <div class="ctit">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Cambiar contraseña
+    </div>
+    <div class="msg" id="msg-pass"></div>
+    <div class="fg"><label>Contraseña actual</label><input type="password" id="p-old" placeholder="••••••••"/></div>
+    <div class="fg"><label>Nueva contraseña</label><input type="password" id="p-new" placeholder="Mínimo 6 caracteres"/></div>
+    <button class="btn bp" onclick="cambiarPass()">Guardar cambios</button>
+  </div>
+  <button class="btn bred bf" onclick="salir()" style="margin-bottom:1rem">
+    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg>
+    Cerrar sesión
+  </button>
+</div>
+
 </main>
 
-<!-- NAV MÓVIL -->
-<nav class="mobn">
-  <button class="mb active" id="mb-inicio" onclick="tab('inicio');mobActive(this)"><div class="ico">⚡</div>Inicio</button>
-  <button class="mb" id="mb-perfil" onclick="tab('perfil');mobActive(this)"><div class="ico">👤</div>Perfil</button>
-  <button class="mb" onclick="salir()"><div class="ico">🚪</div>Salir</button>
+<!-- BOTTOM NAV -->
+<nav class="bnav">
+  <button class="bn active" id="bn-inicio" onclick="tab('inicio')">
+    <div class="bnI"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg></div>Inicio
+  </button>
+  <button class="bn" id="bn-likes" onclick="tab('likes')">
+    <div class="bnI"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 0-7.78z"/></svg></div>Likes
+  </button>
+  <button class="bn" id="bn-hist" onclick="tab('hist')">
+    <div class="bnI"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>Historial
+  </button>
+  <button class="bn" id="bn-acceso" onclick="tab('acceso')">
+    <div class="bnI"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>Acceso
+  </button>
+  <button class="bn" id="bn-perfil" onclick="tab('perfil')">
+    <div class="bnI"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>Perfil
+  </button>
 </nav>
 
 <script src="/js/api.js"></script>
 <script>
 let userData = null;
+let recUserId = null;
+
+// Partículas
+(()=>{const c=document.getElementById('ptcl');for(let i=0;i<15;i++){const p=document.createElement('div');p.className='pt';const s=Math.random()*2.5+.8;p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;animation-duration:${Math.random()*18+10}s;animation-delay:${Math.random()*15}s`;c.appendChild(p);}})();
 
 window.addEventListener('DOMContentLoaded', async () => {
-  const token = localStorage.getItem('bs_token');
-  if (!token) return location.href = '/';
+  if (!localStorage.getItem('bs_token')) { location.href='/'; return; }
   await cargarPerfil();
+  cargarTop();
+  setTimeout(()=>document.querySelectorAll('.sb').forEach((el,i)=>setTimeout(()=>el.classList.add('vis'),i*80+150)), 100);
 });
 
 async function cargarPerfil() {
@@ -266,128 +447,229 @@ async function cargarPerfil() {
   pintarUI(res.user, res.historial);
 }
 
-function pintarUI(u, historial) {
+function pintarUI(u, hist) {
   const ini = u.username.slice(0,2).toUpperCase();
-  // Topbar
   document.getElementById('nav-av').textContent = ini;
-  document.getElementById('nav-un').textContent = u.username;
+  document.getElementById('nav-un').textContent  = u.username;
+
   // Stats
-  const envRestantes = Math.max(0, u.envios_por_dia - u.envios_hoy);
-  document.getElementById('st-likes').textContent   = u.likes_disponibles.toLocaleString();
-  document.getElementById('st-envios').textContent  = envRestantes + '/' + u.envios_por_dia;
-  // Días restantes
-  if (u.plan_vence) {
-    const dias = Math.ceil((new Date(u.plan_vence) - Date.now()) / 86400000);
-    document.getElementById('st-dias').textContent = dias > 0 ? dias : '0';
-  } else { document.getElementById('st-dias').textContent = '—'; }
+  const envRest = Math.max(0, u.envios_por_dia - u.envios_hoy);
+  animCount('st-likes', u.likes_disponibles);
+  document.getElementById('st-envios').textContent = envRest + '/' + u.envios_por_dia;
+  if (u.plan_tipo === 'dias' && u.plan_vence) {
+    const d = Math.ceil((new Date(u.plan_vence) - Date.now()) / 86400000);
+    document.getElementById('st-dias').textContent = d > 0 ? d : '0';
+  } else if (u.plan_tipo === 'likes') {
+    document.getElementById('st-dias').textContent = '∞';
+    document.querySelector('#sg .sb:last-child .sl').textContent = 'Tipo';
+  } else {
+    document.getElementById('st-dias').textContent = '—';
+  }
 
   // Plan badge
   const badge = document.getElementById('plan-badge');
   const desc  = document.getElementById('plan-desc');
+  const pbar  = document.getElementById('plan-progbar');
+  const pfill = document.getElementById('plan-prog');
+  const plbl  = document.getElementById('plan-prog-label');
   if (u.plan_activo) {
-    badge.textContent = '✅ ' + u.plan_nombre;
-    badge.className = 'pb';
-    desc.textContent = u.likes_disponibles + ' likes disponibles · ' + u.envios_por_dia + ' envíos/día';
+    badge.textContent = u.plan_nombre;
+    badge.className = 'pbadge pon';
+    if (u.plan_tipo === 'likes' && u.likes_limite_plan > 0) {
+      const enviados = u.likes_enviados_plan || 0;
+      const pct = Math.min((enviados / u.likes_limite_plan) * 100, 100);
+      desc.textContent = u.envios_por_dia + ' envíos/día · Plan por cantidad';
+      pbar.style.display = 'block';
+      pfill.style.width = pct + '%';
+      plbl.style.display = 'block';
+      plbl.textContent = `${enviados.toLocaleString('es')} / ${u.likes_limite_plan.toLocaleString('es')} likes enviados`;
+    } else {
+      desc.textContent = u.likes_disponibles.toLocaleString('es') + ' likes · ' + u.envios_por_dia + ' envíos/día';
+      pbar.style.display = 'none';
+      plbl.style.display = 'none';
+    }
   } else {
     badge.textContent = 'Sin plan activo';
-    badge.className = 'pb off';
-    desc.textContent = 'Canjea un código para activar tu plan.';
+    badge.className = 'pbadge poff';
+    desc.textContent = 'Ve a Acceso para adquirir un plan.';
+    pbar.style.display = 'none';
+    plbl.style.display = 'none';
   }
 
   // Perfil tab
-  document.getElementById('p-av').textContent   = ini;
-  document.getElementById('p-name').textContent = u.username;
+  document.getElementById('p-av').textContent = ini;
+  document.getElementById('p-name').textContent    = u.username;
   document.getElementById('p-contact').textContent = u.contact;
-  document.getElementById('p-uid').textContent  = u.uid;
-  document.getElementById('p-plan').textContent = u.plan_activo ? u.plan_nombre : 'Sin plan';
-  document.getElementById('p-likes').textContent = u.likes_disponibles.toLocaleString();
-  document.getElementById('p-dia').textContent  = u.envios_por_dia + ' envíos/día';
-  document.getElementById('p-vence').textContent = u.plan_vence ? new Date(u.plan_vence).toLocaleDateString('es') : '—';
-  document.getElementById('p-desde').textContent = new Date(u.creado_en).toLocaleDateString('es');
+  document.getElementById('p-uid').textContent     = u.uid;
+  document.getElementById('p-plan').textContent    = u.plan_activo ? u.plan_nombre : 'Sin plan';
+  document.getElementById('p-likes').textContent   = u.likes_disponibles.toLocaleString('es');
+  document.getElementById('p-dia').textContent     = u.envios_por_dia + ' / día';
+  document.getElementById('p-vence').textContent   = u.plan_vence ? new Date(u.plan_vence).toLocaleDateString('es') : (u.plan_tipo === 'likes' ? '(por likes)' : '—');
+  document.getElementById('p-desde').textContent   = new Date(u.creado_en).toLocaleDateString('es');
 
-  // Historial
-  const tbody = document.getElementById('hist-body');
-  if (!historial || !historial.length) {
-    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--mut);padding:2rem">Sin registros aún</td></tr>';
-  } else {
-    tbody.innerHTML = historial.map(h => `
-      <tr>
-        <td style="color:var(--mut);font-size:.8rem">${new Date(h.fecha).toLocaleDateString('es')} ${new Date(h.fecha).toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})}</td>
-        <td style="font-weight:700">${h.player_name || '—'}</td>
-        <td><code style="color:var(--g);font-size:.8rem">${h.ff_uid}</code></td>
-        <td style="color:var(--g);font-weight:700">+${h.likes_agregados || 0}</td>
-        <td><span class="badge bOk">✅ Enviado</span></td>
-      </tr>
-    `).join('');
+  pintarHistorial(hist);
+}
+
+function animCount(id, target) {
+  const el = document.getElementById(id);
+  if (!target) { el.textContent = '0'; return; }
+  const s = performance.now();
+  (function f(now) {
+    const t = Math.min((now - s) / 900, 1), e = 1 - Math.pow(1 - t, 3);
+    el.textContent = Math.round(e * target).toLocaleString('es');
+    if (t < 1) requestAnimationFrame(f);
+  })(performance.now());
+}
+
+function pintarHistorial(hist) {
+  const list = document.getElementById('hist-list');
+  if (!hist || !hist.length) {
+    list.innerHTML = `<div class="empty"><svg width="38" height="38" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="12" cy="12" r="10"/><line x1="8" y1="15" x2="8.01" y2="15"/><line x1="12" y1="9" x2="12" y2="13"/></svg><p>Sin envíos aún</p></div>`;
+    return;
+  }
+  list.innerHTML = hist.map((h, i) => `
+    <div class="hist-item" style="animation-delay:${i*40}ms">
+      <div class="hico"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+      <div class="hinfo">
+        <div class="hname">${h.player_name || '—'}</div>
+        <div class="huid">${h.ff_uid} · Nv.${h.nivel || '—'} · ${h.region || '—'}</div>
+      </div>
+      <div class="hright">
+        <div class="hlikes">+${(h.likes_agregados || 0).toLocaleString('es')}</div>
+        <div class="hdate">${new Date(h.fecha).toLocaleDateString('es')} ${new Date(h.fecha).toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})}</div>
+      </div>
+    </div>`).join('');
+  setTimeout(() => document.querySelectorAll('.hist-item').forEach(el => el.classList.add('vis')), 50);
+}
+
+async function cargarTop() {
+  const list = document.getElementById('top-list');
+  list.innerHTML = `<div class="ldg"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div>`;
+  try {
+    const res = await API.get('/api/top-usuarios');
+    if (!res.ok || !res.top || !res.top.length) {
+      list.innerHTML = `<div class="empty"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg><p>Sin datos aún</p></div>`;
+      return;
+    }
+    const rc = ['gold','silver','bronze'];
+    list.innerHTML = res.top.map((u, i) => `
+      <div class="top-item" style="animation-delay:${i*55}ms">
+        <div class="top-rank ${rc[i]||''}">${i+1}</div>
+        <div class="top-av">${u.username.slice(0,2).toUpperCase()}</div>
+        <div class="top-name">${u.username}</div>
+        <div><div class="top-lks">${parseInt(u.total_likes||0).toLocaleString('es')}</div><div class="top-ll">likes</div></div>
+      </div>`).join('');
+    setTimeout(() => document.querySelectorAll('.top-item').forEach(el => el.classList.add('vis')), 50);
+  } catch (e) {
+    list.innerHTML = '<div class="empty"><p>Error cargando top</p></div>';
   }
 }
 
+// TABS
 function tab(t) {
-  document.querySelectorAll('.pane').forEach(p=>p.classList.remove('active'));
-  document.querySelectorAll('.tb').forEach(b=>b.classList.remove('active'));
-  document.getElementById('pane-'+t).classList.add('active');
-  const tb = document.getElementById('tb-'+t); if(tb) tb.classList.add('active');
+  document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
+  document.querySelectorAll('.bn').forEach(b => b.classList.remove('active'));
+  document.getElementById('pane-' + t).classList.add('active');
+  document.getElementById('bn-' + t).classList.add('active');
+  if (t === 'hist') cargarHistFull();
+  if (t === 'inicio') cargarTop();
 }
-function mobActive(el) {
-  document.querySelectorAll('.mb').forEach(b=>b.classList.remove('active'));
-  el.classList.add('active');
-}
-function toggleSec(id) {
-  const el = document.getElementById(id);
-  el.style.display = el.style.display==='none' ? 'block' : 'none';
-}
-function salir() { localStorage.clear(); location.href = '/'; }
-function copiarUID() {
-  const uid = document.getElementById('p-uid').textContent;
-  navigator.clipboard.writeText(uid).then(()=>mostrarMsg('p-uid','✅ ID copiado','ok'));
-  alert('ID copiado: ' + uid);
+async function cargarHistFull() {
+  const res = await API.get('/api/perfil');
+  if (res.ok) pintarHistorial(res.historial);
 }
 
+// CANJEAR
 async function canjear() {
-  const cod = document.getElementById('cod-input').value.trim().toUpperCase();
+  const cod = document.getElementById('cod-inp').value.trim().toUpperCase();
+  if (!cod) return mostrarMsg('msg-can', 'Ingresa un código', 'err');
   const res = await API.post('/api/canjear', { codigo: cod });
-  if (!res.ok) return mostrarMsg('msg-canjear', res.error, 'err');
-  mostrarMsg('msg-canjear', res.message, 'ok');
-  document.getElementById('cod-input').value = '';
-  setTimeout(cargarPerfil, 1000);
+  if (!res.ok) return mostrarMsg('msg-can', res.error, 'err');
+  mostrarMsg('msg-can', res.message, 'ok');
+  document.getElementById('cod-inp').value = '';
+  setTimeout(cargarPerfil, 700);
 }
 
+// ENVIAR LIKES
 async function enviarLikes() {
-  const uid  = document.getElementById('ff-uid').value.trim();
-  const btn  = document.getElementById('btn-likes');
-  const spin = document.getElementById('spin-likes');
-  const txt  = document.getElementById('txt-likes');
-  const box  = document.getElementById('resultado-box');
-
+  const uid = document.getElementById('ff-uid').value.trim();
   if (!uid) return mostrarMsg('msg-likes', 'Ingresa el UID de Free Fire', 'err');
+  if (!/^\d+$/.test(uid)) return mostrarMsg('msg-likes', 'El UID solo debe contener números', 'err');
 
+  const btn  = document.getElementById('btn-send');
+  const spin = document.getElementById('spin-send');
+  const ico  = document.getElementById('ico-send');
+  const box  = document.getElementById('rbox');
   box.style.display = 'none';
-  spin.style.display='block'; txt.style.display='none'; btn.disabled=true;
+  spin.style.display = 'block'; ico.style.display = 'none'; btn.disabled = true;
+
   const res = await API.post('/api/enviar-likes', { ff_uid: uid });
-  spin.style.display='none'; txt.style.display='inline'; btn.disabled=false;
+  spin.style.display = 'none'; ico.style.display = 'block'; btn.disabled = false;
 
   if (!res.ok) return mostrarMsg('msg-likes', res.error, 'err');
 
-  // Mostrar tarjeta de resultado bonita
   const d = res.data;
+  document.getElementById('r-av').textContent       = (d.jugador || '?').slice(0, 2).toUpperCase();
   document.getElementById('r-nombre').textContent   = d.jugador || '—';
   document.getElementById('r-uid').textContent      = d.uid || uid;
   document.getElementById('r-nivel').textContent    = d.nivel || '—';
   document.getElementById('r-region').textContent   = d.region || '—';
-  document.getElementById('r-agregados').textContent = '+' + (d.likes_agregados || 0);
-  document.getElementById('r-antes').textContent    = (d.likes_antes || 0).toLocaleString();
-  document.getElementById('r-despues').textContent  = (d.likes_despues || 0).toLocaleString();
+  document.getElementById('r-agregados').textContent= '+' + (d.likes_agregados || 0).toLocaleString('es');
+  document.getElementById('r-antes').textContent    = (d.likes_antes || 0).toLocaleString('es');
+  document.getElementById('r-despues').textContent  = (d.likes_despues || 0).toLocaleString('es');
   document.getElementById('r-tiempo').textContent   = d.tiempo || '—';
   box.style.display = 'block';
-
   mostrarMsg('msg-likes', res.message, 'ok');
   document.getElementById('ff-uid').value = '';
-  setTimeout(cargarPerfil, 800);
+  setTimeout(cargarPerfil, 600);
 }
 
+// RECUPERAR CONTRASEÑA
+async function recP1() {
+  const contact = document.getElementById('rc-contact').value.trim();
+  if (!contact) return mostrarMsg('msg-rec', 'Ingresa tu correo o teléfono', 'err');
+  const res = await API.post('/api/recuperar-check', { contact });
+  if (!res.ok) return mostrarMsg('msg-rec', res.error, 'err');
+  recUserId = res.userId;
+  document.getElementById('rs1').style.display = 'none';
+  document.getElementById('rs2').style.display = 'block';
+  document.getElementById('sd1').classList.remove('active');
+  document.getElementById('sd2').classList.add('active');
+  mostrarMsg('msg-rec', `Cuenta de "${res.username}" encontrada. Solicita el código al administrador.`, 'ok');
+}
+async function recP2() {
+  const code = document.getElementById('rc-code').value.trim().toUpperCase();
+  if (!code) return mostrarMsg('msg-rec', 'Ingresa el código de recuperación', 'err');
+  const res = await API.post('/api/recuperar-verificar', { userId: recUserId, codigo: code });
+  if (!res.ok) return mostrarMsg('msg-rec', res.error, 'err');
+  document.getElementById('rs2').style.display = 'none';
+  document.getElementById('rs3').style.display = 'block';
+  document.getElementById('sd2').classList.remove('active');
+  document.getElementById('sd3').classList.add('active');
+  mostrarMsg('msg-rec', 'Código válido. Elige tu nueva contraseña.', 'ok');
+}
+async function recP3() {
+  const nueva    = document.getElementById('rc-new').value;
+  const confirma = document.getElementById('rc-confirm').value;
+  if (!nueva || nueva.length < 6) return mostrarMsg('msg-rec', 'Mínimo 6 caracteres', 'err');
+  if (nueva !== confirma) return mostrarMsg('msg-rec', 'Las contraseñas no coinciden', 'err');
+  const res = await API.post('/api/recuperar-cambiar', { userId: recUserId, password_nueva: nueva });
+  if (!res.ok) return mostrarMsg('msg-rec', res.error, 'err');
+  mostrarMsg('msg-rec', '✓ ' + res.message, 'ok');
+  setTimeout(salir, 2600);
+}
+function recVolver() {
+  document.getElementById('rs2').style.display = 'none';
+  document.getElementById('rs1').style.display = 'block';
+  document.getElementById('sd2').classList.remove('active');
+  document.getElementById('sd1').classList.add('active');
+  document.getElementById('msg-rec').style.display = 'none';
+}
+
+// CAMBIAR PASS
 async function cambiarPass() {
   const vieja = document.getElementById('p-old').value;
-  const nueva = document.getElementById('p-new').value;
+  const nueva  = document.getElementById('p-new').value;
   const res = await API.post('/api/cambiar-pass', { password_actual: vieja, password_nueva: nueva });
   if (!res.ok) return mostrarMsg('msg-pass', res.error, 'err');
   mostrarMsg('msg-pass', res.message, 'ok');
@@ -395,11 +677,25 @@ async function cambiarPass() {
   document.getElementById('p-new').value = '';
 }
 
+// COPIAR UID
+function copiarUID() {
+  const uid = document.getElementById('p-uid').textContent;
+  navigator.clipboard.writeText(uid).then(() => {
+    const btn = document.querySelector('.cpbtn');
+    btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>';
+    setTimeout(() => { btn.innerHTML = '<svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="9" y="9" width="13" height="13" rx="2"/><path d="M5 15H4a2 2 0 0 1-2-2V4a2 2 0 0 1 2-2h9a2 2 0 0 1 2 2v1"/></svg>'; }, 1600);
+  });
+}
+
+function salir() { localStorage.clear(); location.href = '/'; }
+
 function mostrarMsg(id, txt, tipo) {
   const el = document.getElementById(id);
   if (!el) return;
-  el.textContent = txt; el.className = 'msg '+tipo; el.style.display = 'block';
-  setTimeout(()=>el.style.display='none', 5000);
+  el.textContent = txt;
+  el.className = 'msg ' + tipo;
+  el.style.display = txt ? 'block' : 'none';
+  if (txt) setTimeout(() => { if (el.textContent === txt) el.style.display = 'none'; }, 5500);
 }
 </script>
 </body>
