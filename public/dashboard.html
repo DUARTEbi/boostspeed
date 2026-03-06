@@ -17,14 +17,12 @@
 html,body{height:100%}
 body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;padding-bottom:72px}
 
-/* BG */
 #ptcl{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
 .pt{position:absolute;border-radius:50%;background:var(--g);animation:ptf linear infinite;opacity:0}
 @keyframes ptf{0%{transform:translateY(100vh);opacity:0}10%{opacity:.15}90%{opacity:.05}100%{transform:translateY(-8vh);opacity:0}}
 .bggl{position:fixed;top:-20%;left:50%;transform:translateX(-50%);width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,30,.045) 0%,transparent 65%);pointer-events:none;z-index:0;animation:bgp 6s ease-in-out infinite}
 @keyframes bgp{0%,100%{opacity:.6}50%{opacity:1}}
 
-/* TOPBAR */
 .tb{position:sticky;top:0;z-index:100;background:rgba(7,7,7,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);height:56px;display:flex;align-items:center;padding:0 1rem;justify-content:space-between;animation:sD .5s cubic-bezier(.23,1,.32,1)}
 @keyframes sD{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
 .logo{font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--g);letter-spacing:2px;display:flex;align-items:center;gap:.4rem;text-decoration:none}
@@ -36,20 +34,18 @@ body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-he
 .uchip{display:flex;align-items:center;gap:.45rem;background:var(--sur);border:1px solid var(--bdr);border-radius:100px;padding:.22rem .65rem .22rem .28rem;font-size:.8rem;font-weight:600}
 .uav{width:27px;height:27px;border-radius:50%;background:var(--gdim);border:1px solid rgba(0,255,30,.28);display:flex;align-items:center;justify-content:center;font-size:.78rem;color:var(--g);font-weight:700;font-family:'Rajdhani',sans-serif;flex-shrink:0}
 
-/* MAIN */
 main{position:relative;z-index:1;flex:1;padding:1rem 1rem 0;max-width:760px;margin:0 auto;width:100%}
 .pane{display:none;animation:pIn .38s cubic-bezier(.23,1,.32,1)}
 .pane.active{display:block}
 @keyframes pIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 
-/* CARD */
 .card{background:var(--sur);border:1px solid var(--bdr);border-radius:14px;padding:1.2rem;margin-bottom:.9rem;position:relative;overflow:hidden;transition:border-color .3s,box-shadow .3s}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g),transparent)}
 .card:hover{border-color:rgba(0,255,30,.22);box-shadow:0 6px 28px rgba(0,0,0,.45)}
 .ctit{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.9rem;display:flex;align-items:center;gap:.45rem;color:var(--txt)}
 .ctit svg{flex-shrink:0;opacity:.75}
 
-/* STAT GRID */
+/* STAT GRID — inicio tiene 3 stats */
 .sg{display:grid;grid-template-columns:repeat(3,1fr);gap:.65rem;margin-bottom:.9rem}
 .sb{background:var(--sur);border:1px solid var(--bdr);border-radius:12px;padding:.85rem .6rem;text-align:center;position:relative;overflow:hidden;opacity:0;transform:translateY(10px);transition:transform .3s,border-color .3s}
 .sb.vis{animation:cIn .4s cubic-bezier(.23,1,.32,1) forwards}
@@ -59,25 +55,58 @@ main{position:relative;z-index:1;flex:1;padding:1rem 1rem 0;max-width:760px;marg
 .sv{font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;color:var(--g);line-height:1.1}
 .sl{color:var(--mut);font-size:.62rem;text-transform:uppercase;letter-spacing:.5px;margin-top:.18rem}
 
-/* PLAN BADGE */
+/* ENVÍO STATS (pestaña likes) */
+.esg{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:.9rem}
+.esb{background:var(--bg3);border:1px solid var(--bdr);border-radius:12px;padding:.85rem;display:flex;align-items:center;gap:.75rem}
+.esico{width:36px;height:36px;border-radius:9px;background:var(--gdim);border:1px solid rgba(0,255,30,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.esvv{font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--g);line-height:1.1}
+.esll{color:var(--mut);font-size:.62rem;text-transform:uppercase;letter-spacing:.4px;margin-top:.1rem}
+
+/* LIMIT BAR */
+.limitbar-wrap{background:var(--bg3);border:1px solid var(--bdr);border-radius:12px;padding:.9rem 1rem;margin-bottom:.9rem}
+.limitbar-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.55rem}
+.limitbar-lbl{font-size:.76rem;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
+.limitbar-val{font-family:'Rajdhani',sans-serif;font-size:.98rem;font-weight:700;color:var(--g)}
+.limitbar{height:6px;background:rgba(0,255,30,.1);border-radius:100px;overflow:hidden}
+.limitfill{height:100%;background:linear-gradient(90deg,var(--g),var(--gm));border-radius:100px;transition:width .8s cubic-bezier(.23,1,.32,1)}
+
+/* PLAN BANNER (en likes) */
+.plan-banner{background:var(--bg3);border:1px solid var(--bdr);border-radius:12px;padding:.9rem 1rem;margin-bottom:.9rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem}
 .pbadge{display:inline-flex;align-items:center;gap:.35rem;padding:.28rem .75rem;border-radius:100px;font-size:.73rem;font-weight:700;letter-spacing:.4px;text-transform:uppercase}
 .pon{background:var(--gdim);border:1px solid rgba(0,255,30,.28);color:var(--g)}
 .poff{background:rgba(255,71,87,.07);border:1px solid rgba(255,71,87,.22);color:var(--red)}
+.plan-info{flex:1;min-width:0}
+.plan-name{font-weight:700;font-size:.88rem;margin-bottom:.18rem}
+.plan-sub{color:var(--mut);font-size:.74rem}
 
-/* PROGRESS BAR */
+/* INFO CARDS */
+.info-grid{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:.9rem}
+.info-card{background:var(--bg3);border:1px solid var(--bdr);border-radius:11px;padding:.9rem;position:relative;overflow:hidden}
+.info-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(0,255,30,.4),transparent)}
+.info-ico{font-size:1.3rem;margin-bottom:.45rem}
+.info-title{font-family:'Rajdhani',sans-serif;font-size:.88rem;font-weight:700;margin-bottom:.25rem}
+.info-desc{color:var(--mut);font-size:.73rem;line-height:1.5}
+
+/* INVITE CARD */
+.invite-card{background:linear-gradient(135deg,rgba(0,255,30,.06) 0%,rgba(0,255,30,.02) 100%);border:1px solid rgba(0,255,30,.18);border-radius:13px;padding:1.1rem;margin-bottom:.9rem;text-align:center;position:relative;overflow:hidden}
+.invite-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 110%,rgba(0,255,30,.08),transparent 60%);pointer-events:none}
+.invite-title{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.3rem;color:var(--g)}
+.invite-desc{color:var(--mut);font-size:.78rem;line-height:1.5;margin-bottom:.75rem}
+.invite-btns{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
+
 .progbar{height:5px;background:rgba(0,255,30,.1);border-radius:100px;margin-top:.7rem;overflow:hidden}
 .progfill{height:100%;background:linear-gradient(90deg,var(--g),var(--gm));border-radius:100px;transition:width .8s cubic-bezier(.23,1,.32,1)}
 
-/* BUTTONS */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.55rem 1.1rem;border-radius:9px;font-family:'Exo 2',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;border:none;transition:all .2s;position:relative;overflow:hidden}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.55rem 1.1rem;border-radius:9px;font-family:'Exo 2',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;border:none;transition:all .2s;position:relative;overflow:hidden;text-decoration:none}
 .bp{background:var(--g);color:#000}.bp:hover{background:var(--gm);box-shadow:var(--glow);transform:translateY(-1px)}
 .bp:disabled{opacity:.4;cursor:not-allowed;transform:none;box-shadow:none}
 .bo{background:transparent;border:1px solid var(--bdr);color:var(--txt)}.bo:hover{border-color:var(--g);color:var(--g)}
+.btg{background:rgba(0,136,204,.12);border:1px solid rgba(0,136,204,.25);color:#4dabff}.btg:hover{background:rgba(0,136,204,.22)}
+.bwa{background:rgba(37,211,102,.12);border:1px solid rgba(37,211,102,.25);color:#25D366}.bwa:hover{background:rgba(37,211,102,.22)}
 .bf{width:100%}
 .bsm{padding:.3rem .65rem;font-size:.75rem;border-radius:7px}
 .bred{background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.25);color:var(--red)}.bred:hover{background:rgba(255,71,87,.18)}
 
-/* FORMS */
 .fg{margin-bottom:.8rem}
 .fg label{display:block;font-size:.72rem;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.32rem}
 .fg input,.fg select,.fg textarea{width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:9px;padding:.62rem .9rem;color:var(--txt);font-family:'Exo 2',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s,box-shadow .2s;resize:none}
@@ -85,7 +114,6 @@ main{position:relative;z-index:1;flex:1;padding:1rem 1rem 0;max-width:760px;marg
 .fg input::placeholder,.fg textarea::placeholder{color:var(--mut)}
 select option{background:var(--bg2)}
 
-/* UID INPUT */
 .uiw{position:relative}
 .uiw input{padding-right:3.2rem;font-size:.95rem;letter-spacing:.5px;font-family:'Rajdhani',sans-serif;font-weight:600}
 .usb{position:absolute;right:.4rem;top:50%;transform:translateY(-50%);background:var(--g);border:none;border-radius:7px;width:34px;height:34px;cursor:pointer;display:flex;align-items:center;justify-content:center;transition:all .2s}
@@ -95,14 +123,12 @@ select option{background:var(--bg2)}
 .spin{display:none;width:14px;height:14px;border:2px solid rgba(0,0,0,.25);border-top-color:#000;border-radius:50%;animation:sp .6s linear infinite}
 @keyframes sp{to{transform:rotate(360deg)}}
 
-/* MSGS */
 .msg{padding:.58rem .9rem;border-radius:9px;font-size:.82rem;margin-bottom:.8rem;display:none;animation:fadeIn .3s ease}
 @keyframes fadeIn{from{opacity:0;transform:translateY(-4px)}to{opacity:1;transform:translateY(0)}}
 .ok{background:rgba(0,255,30,.08);border:1px solid rgba(0,255,30,.22);color:var(--g)}
 .err{background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.22);color:var(--red)}
 .warn{background:rgba(255,193,7,.08);border:1px solid rgba(255,193,7,.22);color:var(--warn)}
 
-/* RESULT BOX */
 .rbox{background:var(--bg3);border:1px solid rgba(0,255,30,.2);border-radius:13px;padding:1.1rem;margin-top:.7rem;display:none;animation:fadeIn .4s cubic-bezier(.23,1,.32,1)}
 .rplayer{display:flex;align-items:center;gap:.85rem;margin-bottom:.9rem;padding-bottom:.9rem;border-bottom:1px solid var(--bdr)}
 .rav{width:46px;height:46px;border-radius:50%;background:var(--gdim);border:2px solid var(--g);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:1.2rem;color:var(--g);font-weight:700;flex-shrink:0}
@@ -117,7 +143,6 @@ select option{background:var(--bg2)}
 .rcv{font-weight:700;font-size:.88rem}.rcv.green{color:var(--g)}
 .rcl{color:var(--mut);font-size:.62rem;text-transform:uppercase;margin-bottom:.18rem}
 
-/* TOP */
 .top-item{display:flex;align-items:center;gap:.75rem;padding:.65rem .85rem;border-radius:10px;border:1px solid var(--bdr);background:var(--bg3);margin-bottom:.45rem;opacity:0;transform:translateX(-8px);transition:all .25s}
 .top-item.vis{animation:tIn .4s cubic-bezier(.23,1,.32,1) forwards}
 @keyframes tIn{to{opacity:1;transform:translateX(0)}}
@@ -129,7 +154,6 @@ select option{background:var(--bg2)}
 .top-lks{font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;color:var(--g);text-align:right}
 .top-ll{color:var(--mut);font-size:.6rem;text-transform:uppercase;text-align:right}
 
-/* HISTORIAL */
 .hist-item{display:flex;align-items:center;gap:.72rem;padding:.62rem .82rem;border-radius:10px;border:1px solid var(--bdr);background:var(--bg3);margin-bottom:.42rem;opacity:0;transform:translateY(5px);transition:border-color .2s}
 .hist-item.vis{animation:cIn .35s cubic-bezier(.23,1,.32,1) forwards}
 .hist-item:hover{border-color:rgba(0,255,30,.2)}
@@ -141,7 +165,6 @@ select option{background:var(--bg2)}
 .hlikes{font-family:'Rajdhani',sans-serif;font-size:.98rem;font-weight:700;color:var(--g)}
 .hdate{color:var(--mut);font-size:.63rem;margin-top:.04rem}
 
-/* PERFIL */
 .phdr{display:flex;align-items:center;gap:1rem;margin-bottom:1.2rem}
 .pav{width:58px;height:58px;border-radius:50%;background:var(--gdim);border:2px solid var(--g);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:1.6rem;font-weight:700;color:var(--g);flex-shrink:0;animation:avIn .5s cubic-bezier(.23,1,.32,1)}
 @keyframes avIn{from{transform:scale(0) rotate(-180deg);opacity:0}to{transform:scale(1) rotate(0);opacity:1}}
@@ -155,7 +178,7 @@ select option{background:var(--bg2)}
 .ik{color:var(--mut);font-size:.82rem;display:flex;align-items:center;gap:.38rem}
 .iv{font-weight:700;font-size:.86rem}
 
-/* ACCESO */
+/* ACCESO - soporte */
 .copt{display:flex;align-items:center;gap:.85rem;padding:.82rem;border-radius:11px;border:1px solid var(--bdr);background:var(--bg3);margin-bottom:.55rem;cursor:pointer;transition:all .24s;text-decoration:none;color:var(--txt)}
 .copt:hover{border-color:rgba(0,255,30,.28);transform:translateX(3px);background:rgba(0,255,30,.03)}
 .cico{width:40px;height:40px;border-radius:9px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -164,7 +187,7 @@ select option{background:var(--bg2)}
 .ctit2{font-weight:700;font-size:.88rem;margin-bottom:.1rem}
 .csub{color:var(--mut);font-size:.74rem}
 
-/* STEPS */
+/* STEPS recuperar */
 .sdots{display:flex;gap:.38rem;margin-bottom:1.1rem}
 .sdot{width:7px;height:7px;border-radius:50%;background:var(--bdr);transition:background .3s,box-shadow .3s}
 .sdot.active{background:var(--g);box-shadow:0 0 7px rgba(0,255,30,.5)}
@@ -173,22 +196,22 @@ select option{background:var(--bg2)}
 .crow{display:flex;gap:.55rem;align-items:flex-end}
 .crow .fg{flex:1;margin:0}
 
-/* SECTION HDR */
 .shdr{display:flex;align-items:center;justify-content:space-between;margin-bottom:.75rem}
 .shdr h3{font-family:'Rajdhani',sans-serif;font-size:.96rem;font-weight:700;display:flex;align-items:center;gap:.4rem}
 
-/* EMPTY */
 .empty{text-align:center;padding:2.2rem 1rem;color:var(--mut)}
 .empty svg{opacity:.25;margin-bottom:.6rem;display:block;margin-left:auto;margin-right:auto}
 .empty p{font-size:.83rem}
 
-/* LOADING DOTS */
 .ldg{display:flex;align-items:center;justify-content:center;gap:.45rem;padding:1.8rem;color:var(--mut);font-size:.82rem}
 .ld{width:6px;height:6px;border-radius:50%;background:var(--g);animation:ld .8s ease-in-out infinite}
 .ld:nth-child(2){animation-delay:.15s}.ld:nth-child(3){animation-delay:.3s}
 @keyframes ld{0%,60%,100%{transform:scale(1);opacity:.35}30%{transform:scale(1.6);opacity:1}}
 
-/* BOTTOM NAV */
+/* STATUS BADGE */
+.live-chip{display:inline-flex;align-items:center;gap:.4rem;background:rgba(0,255,30,.07);border:1px solid rgba(0,255,30,.18);border-radius:100px;padding:.22rem .7rem;font-size:.68rem;font-weight:700;color:var(--g);letter-spacing:.6px;text-transform:uppercase;margin-bottom:.75rem}
+.live-dot{width:5px;height:5px;border-radius:50%;background:var(--g);animation:bl 1.2s infinite;flex-shrink:0}
+
 .bnav{position:fixed;bottom:0;left:0;right:0;background:rgba(7,7,7,.97);backdrop-filter:blur(22px);border-top:1px solid var(--bdr);display:flex;justify-content:space-around;padding:.28rem .4rem;z-index:100;animation:sU .5s cubic-bezier(.23,1,.32,1)}
 @keyframes sU{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .bn{display:flex;flex-direction:column;align-items:center;gap:.14rem;padding:.38rem .55rem;border-radius:9px;background:transparent;border:none;color:var(--mut);font-family:'Exo 2',sans-serif;font-size:.58rem;font-weight:700;cursor:pointer;transition:all .2s;text-transform:uppercase;letter-spacing:.3px;min-width:50px}
@@ -197,10 +220,18 @@ select option{background:var(--bg2)}
 .bn.active .bnI{background:var(--gdim);border-color:rgba(0,255,30,.28)}
 .bn.active .bnI svg,.bn:hover .bnI svg{stroke:var(--g)}
 
-/* DIVIDER */
 .div{height:1px;background:linear-gradient(90deg,transparent,var(--bdr),transparent);margin:.85rem 0;overflow:hidden;position:relative}
 .div::after{content:'';position:absolute;top:0;left:-100%;width:50%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,255,30,.4),transparent);animation:dv 3s ease-in-out infinite}
 @keyframes dv{0%{left:-50%}100%{left:150%}}
+
+/* CANJE desde acceso */
+.crow2{display:flex;gap:.55rem;align-items:flex-end;margin-bottom:.4rem}
+.crow2 .fg{flex:1;margin:0}
+
+/* UPTIME BADGE */
+.uptime-row{display:flex;align-items:center;justify-content:center;gap:1.2rem;padding:.65rem;background:var(--bg3);border:1px solid var(--bdr);border-radius:10px;margin-bottom:.9rem;flex-wrap:wrap}
+.ut-item{display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:var(--mut)}
+.ut-item strong{color:var(--g);font-family:'Rajdhani',sans-serif;font-size:.9rem}
 </style>
 </head>
 <body>
@@ -216,27 +247,22 @@ select option{background:var(--bg2)}
 
 <!-- ═══ INICIO ═══ -->
 <div class="pane active" id="pane-inicio">
+  <!-- Stats plataforma -->
   <div class="sg">
-    <div class="sb"><div class="sv" id="st-likes">—</div><div class="sl">Likes</div></div>
-    <div class="sb"><div class="sv" id="st-envios">—</div><div class="sl">Hoy</div></div>
-    <div class="sb"><div class="sv" id="st-dias">—</div><div class="sl">Días</div></div>
+    <div class="sb"><div class="sv" id="st-usuarios">—</div><div class="sl">Usuarios</div></div>
+    <div class="sb"><div class="sv" id="st-likes-total">—</div><div class="sl">Likes enviados</div></div>
+    <div class="sb"><div class="sv" id="st-misLikes">—</div><div class="sl">Mis likes</div></div>
   </div>
-  <div class="card">
-    <div class="ctit">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg>
-      Mi plan
-    </div>
-    <div style="display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:.7rem">
-      <div>
-        <div class="pbadge poff" id="plan-badge">Sin plan</div>
-        <p style="color:var(--mut);font-size:.79rem;margin-top:.38rem" id="plan-desc">Ve a Acceso para obtener un plan.</p>
-      </div>
-    </div>
-    <div class="progbar" id="plan-progbar" style="display:none">
-      <div class="progfill" id="plan-prog" style="width:0%"></div>
-    </div>
-    <p style="color:var(--mut);font-size:.7rem;margin-top:.4rem;display:none" id="plan-prog-label"></p>
+
+  <!-- Status plataforma -->
+  <div class="uptime-row">
+    <div class="ut-item"><div class="pulse" style="width:6px;height:6px"></div><strong>Online 24/7</strong></div>
+    <div class="ut-item">⚡ <strong>Instantáneo</strong></div>
+    <div class="ut-item">🛡️ <strong>Anti-ban activo</strong></div>
+    <div class="ut-item">📊 <strong>99.9% uptime</strong></div>
   </div>
+
+  <!-- TOP Usuarios -->
   <div class="card">
     <div class="shdr">
       <h3>
@@ -249,10 +275,85 @@ select option{background:var(--bg2)}
     </div>
     <div id="top-list"><div class="ldg"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div></div>
   </div>
+
+  <!-- Info cómo funciona -->
+  <div class="card">
+    <div class="ctit">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><circle cx="12" cy="12" r="10"/><line x1="12" y1="8" x2="12" y2="12"/><line x1="12" y1="16" x2="12.01" y2="16"/></svg>
+      ¿Cómo funciona?
+    </div>
+    <div class="info-grid">
+      <div class="info-card">
+        <div class="info-ico">⏰</div>
+        <div class="info-title">1 ID cada 24h</div>
+        <div class="info-desc">Puedes enviar likes a un mismo UID de Free Fire una vez cada 24 horas. Al día siguiente se renueva automáticamente.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-ico">🛡️</div>
+        <div class="info-title">Sin riesgos</div>
+        <div class="info-desc">Nuestro sistema es 100% seguro. Sin riesgo de ban ni suspensión de cuenta. Usado por cientos de jugadores.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-ico">⚡</div>
+        <div class="info-title">Entrega rápida</div>
+        <div class="info-desc">Los likes se reflejan en tu perfil en minutos. Sin esperas innecesarias, todo en tiempo real.</div>
+      </div>
+      <div class="info-card">
+        <div class="info-ico">🎟️</div>
+        <div class="info-title">Plan de acceso</div>
+        <div class="info-desc">Adquiere un plan contactando al administrador. Una vez tengas el código, canjearlo desde la sección Acceso.</div>
+      </div>
+    </div>
+    <div class="invite-card">
+      <div class="invite-title">🚀 Invita a tus amigos</div>
+      <div class="invite-desc">¿Conoces jugadores de Free Fire? Invítalos a usar BoostSpeed. Cada uno necesita su propio plan de acceso y podrá enviar likes a sus perfiles favoritos.</div>
+      <div class="invite-btns">
+        <a class="btn btg bsm" href="https://t.me/DuarteStoreX" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+          Telegram
+        </a>
+        <a class="btn bwa bsm" href="https://wa.me/573164377140" target="_blank">
+          <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>
+          WhatsApp
+        </a>
+      </div>
+    </div>
+  </div>
 </div>
 
 <!-- ═══ LIKES ═══ -->
 <div class="pane" id="pane-likes">
+  <!-- Plan activo banner -->
+  <div class="plan-banner" id="likes-plan-banner">
+    <div class="plan-info">
+      <div class="plan-name" id="lp-nombre">Cargando...</div>
+      <div class="plan-sub" id="lp-sub">—</div>
+    </div>
+    <div class="pbadge poff" id="lp-badge">Sin plan</div>
+  </div>
+
+  <!-- Límite del día -->
+  <div class="limitbar-wrap" id="likes-limit-wrap">
+    <div class="limitbar-top">
+      <span class="limitbar-lbl">Envíos de hoy</span>
+      <span class="limitbar-val" id="limit-val">0/0</span>
+    </div>
+    <div class="limitbar"><div class="limitfill" id="limit-fill" style="width:0%"></div></div>
+  </div>
+
+  <!-- Estadísticas rápidas -->
+  <div class="esg">
+    <div class="esb">
+      <div class="esico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+      <div><div class="esvv" id="es-likes">—</div><div class="esll">Likes disponibles</div></div>
+    </div>
+    <div class="esb">
+      <div class="esico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <div><div class="esvv" id="es-enviados">—</div><div class="esll">Total enviados</div></div>
+    </div>
+  </div>
+
+  <!-- Enviar likes -->
   <div class="card">
     <div class="ctit">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 0-7.78z"/></svg>
@@ -288,15 +389,16 @@ select option{background:var(--bg2)}
       </div>
     </div>
   </div>
-  <div class="card">
-    <div class="ctit">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
-      Canjear código
-    </div>
-    <div class="msg" id="msg-can"></div>
-    <div class="crow">
-      <div class="fg"><input type="text" id="cod-inp" placeholder="Ej: XY4Z9A8B" style="text-transform:uppercase"/></div>
-      <button class="btn bp" onclick="canjear()" style="margin-bottom:.8rem">Activar</button>
+
+  <!-- Invitar amigos -->
+  <div class="invite-card">
+    <div class="invite-title">🎮 Invita a tus amigos</div>
+    <div class="invite-desc">¿Juegas con amigos? Diles que también pueden usar BoostSpeed para impulsar sus perfiles en Free Fire. Contácta al admin para obtener un plan.</div>
+    <div class="invite-btns">
+      <a class="btn btg bsm" href="https://t.me/DuarteStoreX" target="_blank">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+        Contactar admin
+      </a>
     </div>
   </div>
 </div>
@@ -316,6 +418,21 @@ select option{background:var(--bg2)}
 
 <!-- ═══ ACCESO ═══ -->
 <div class="pane" id="pane-acceso">
+  <!-- Canjear código -->
+  <div class="card">
+    <div class="ctit">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      Canjear código de acceso
+    </div>
+    <p style="color:var(--mut);font-size:.8rem;line-height:1.55;margin-bottom:.9rem">Ingresa el código que te compartió el administrador para activar tu plan y comenzar a enviar likes.</p>
+    <div class="msg" id="msg-can"></div>
+    <div class="crow2">
+      <div class="fg"><input type="text" id="cod-inp" placeholder="Ej: XY4Z9A8B" style="text-transform:uppercase"/></div>
+      <button class="btn bp" onclick="canjear()" style="margin-bottom:.8rem">Activar</button>
+    </div>
+  </div>
+
+  <!-- Recuperar contraseña -->
   <div class="card">
     <div class="ctit">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
@@ -343,17 +460,33 @@ select option{background:var(--bg2)}
       <button class="btn bp bf" onclick="recP3()">Guardar contraseña →</button>
     </div>
   </div>
+
+  <!-- Soporte / Adquirir plan -->
   <div class="card">
     <div class="ctit">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
       Adquirir plan / Soporte
     </div>
-    <p style="color:var(--mut);font-size:.81rem;margin-bottom:.9rem;line-height:1.55">Contáctame para adquirir un plan de acceso o resolver cualquier problema.</p>
+    <p style="color:var(--mut);font-size:.81rem;margin-bottom:.9rem;line-height:1.55">Contáctame para adquirir un plan de acceso o resolver cualquier problema técnico.</p>
+
+    <!-- Qué decirle al admin -->
+    <div style="background:var(--bg3);border:1px solid var(--bdr);border-radius:10px;padding:.85rem;margin-bottom:.85rem">
+      <p style="font-size:.76rem;font-weight:700;color:var(--g);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem">📋 Qué decirle al administrador:</p>
+      <p style="font-size:.78rem;color:var(--mut);line-height:1.65">
+        Para adquirir un plan, comparte tu <strong style="color:var(--txt)">nombre de usuario</strong> y tu <strong style="color:var(--txt)">ID único</strong> (visible en tu perfil). El admin te enviará un código para activar tu plan.<br><br>
+        Para recuperar la contraseña, comparte tu <strong style="color:var(--txt)">correo o teléfono registrado</strong> y el admin te dará un código de recuperación.
+      </p>
+      <div style="background:var(--bg2);border:1px solid rgba(0,255,30,.15);border-radius:7px;padding:.6rem .8rem;margin-top:.65rem;display:flex;align-items:center;gap:.5rem">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
+        <span style="font-size:.76rem;color:var(--mut)">Tu ID: <code id="acc-uid" style="color:var(--g);font-family:monospace;letter-spacing:1px">—</code></span>
+      </div>
+    </div>
+
     <a class="copt" href="https://t.me/DuarteStoreX" target="_blank">
       <div class="cico tgico">
         <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0088CC" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </div>
-      <div><div class="ctit2">Telegram</div><div class="csub">@DuarteStoreX</div></div>
+      <div><div class="ctit2">Telegram</div><div class="csub">@DuarteStoreX · Respuesta rápida</div></div>
       <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--mut)" stroke-width="2" style="margin-left:auto;flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
     </a>
     <a class="copt" href="https://wa.me/573164377140" target="_blank">
@@ -385,7 +518,7 @@ select option{background:var(--bg2)}
     <div class="ir"><span class="ik"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> Plan</span><span class="iv" id="p-plan">—</span></div>
     <div class="ir"><span class="ik"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 0-7.78z"/></svg> Likes disp.</span><span class="iv" id="p-likes">0</span></div>
     <div class="ir"><span class="ik"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Envíos/día</span><span class="iv" id="p-dia">0</span></div>
-    <div class="ir" id="p-vence-row"><span class="ik"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Vence</span><span class="iv" id="p-vence">—</span></div>
+    <div class="ir"><span class="ik"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Vence</span><span class="iv" id="p-vence">—</span></div>
     <div class="ir"><span class="ik"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Miembro desde</span><span class="iv" id="p-desde">—</span></div>
   </div>
   <div class="card">
@@ -430,13 +563,13 @@ select option{background:var(--bg2)}
 let userData = null;
 let recUserId = null;
 
-// Partículas
 (()=>{const c=document.getElementById('ptcl');for(let i=0;i<15;i++){const p=document.createElement('div');p.className='pt';const s=Math.random()*2.5+.8;p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;animation-duration:${Math.random()*18+10}s;animation-delay:${Math.random()*15}s`;c.appendChild(p);}})();
 
 window.addEventListener('DOMContentLoaded', async () => {
   if (!localStorage.getItem('bs_token')) { location.href='/'; return; }
   await cargarPerfil();
   cargarTop();
+  cargarPublicStats();
   setTimeout(()=>document.querySelectorAll('.sb').forEach((el,i)=>setTimeout(()=>el.classList.add('vis'),i*80+150)), 100);
 });
 
@@ -447,65 +580,72 @@ async function cargarPerfil() {
   pintarUI(res.user, res.historial);
 }
 
+async function cargarPublicStats() {
+  try {
+    const res = await API.get('/api/public-stats');
+    if (res.ok) {
+      animCount('st-usuarios', res.usuarios);
+      animCount('st-likes-total', res.likes);
+    }
+  } catch(e) {}
+}
+
 function pintarUI(u, hist) {
   const ini = u.username.slice(0,2).toUpperCase();
   document.getElementById('nav-av').textContent = ini;
   document.getElementById('nav-un').textContent  = u.username;
 
-  // Stats
-  const envRest = Math.max(0, u.envios_por_dia - u.envios_hoy);
-  animCount('st-likes', u.likes_disponibles);
-  document.getElementById('st-envios').textContent = envRest + '/' + u.envios_por_dia;
-  if (u.plan_tipo === 'dias' && u.plan_vence) {
-    const d = Math.ceil((new Date(u.plan_vence) - Date.now()) / 86400000);
-    document.getElementById('st-dias').textContent = d > 0 ? d : '0';
-  } else if (u.plan_tipo === 'likes') {
-    document.getElementById('st-dias').textContent = '∞';
-    document.querySelector('#sg .sb:last-child .sl').textContent = 'Tipo';
-  } else {
-    document.getElementById('st-dias').textContent = '—';
-  }
+  // Mis likes enviados total
+  animCount('st-misLikes', u.total_likes_enviados || 0);
 
-  // Plan badge
-  const badge = document.getElementById('plan-badge');
-  const desc  = document.getElementById('plan-desc');
-  const pbar  = document.getElementById('plan-progbar');
-  const pfill = document.getElementById('plan-prog');
-  const plbl  = document.getElementById('plan-prog-label');
+  // Pestaña likes - plan banner
+  const badge = document.getElementById('lp-badge');
+  const pnombre = document.getElementById('lp-nombre');
+  const psub = document.getElementById('lp-sub');
   if (u.plan_activo) {
-    badge.textContent = u.plan_nombre;
+    badge.textContent = u.ilimitado ? '🚀 Ilimitado' : 'Activo';
     badge.className = 'pbadge pon';
-    if (u.plan_tipo === 'likes' && u.likes_limite_plan > 0) {
-      const enviados = u.likes_enviados_plan || 0;
-      const pct = Math.min((enviados / u.likes_limite_plan) * 100, 100);
-      desc.textContent = u.envios_por_dia + ' envíos/día · Plan por cantidad';
-      pbar.style.display = 'block';
-      pfill.style.width = pct + '%';
-      plbl.style.display = 'block';
-      plbl.textContent = `${enviados.toLocaleString('es')} / ${u.likes_limite_plan.toLocaleString('es')} likes enviados`;
+    pnombre.textContent = u.plan_nombre;
+    if (u.ilimitado) {
+      psub.textContent = 'Plan sin límites · Envíos ilimitados';
+    } else if (u.plan_tipo === 'likes') {
+      psub.textContent = `${(u.likes_disponibles||0).toLocaleString('es')} likes disp. · ${u.envios_por_dia} envíos/día`;
     } else {
-      desc.textContent = u.likes_disponibles.toLocaleString('es') + ' likes · ' + u.envios_por_dia + ' envíos/día';
-      pbar.style.display = 'none';
-      plbl.style.display = 'none';
+      const d = u.plan_vence ? Math.max(0, Math.ceil((new Date(u.plan_vence) - Date.now()) / 86400000)) : 0;
+      psub.textContent = `${(u.likes_disponibles||0).toLocaleString('es')} likes · ${d} días restantes`;
     }
   } else {
-    badge.textContent = 'Sin plan activo';
+    badge.textContent = 'Sin plan';
     badge.className = 'pbadge poff';
-    desc.textContent = 'Ve a Acceso para adquirir un plan.';
-    pbar.style.display = 'none';
-    plbl.style.display = 'none';
+    pnombre.textContent = 'Sin plan activo';
+    psub.textContent = 'Ve a Acceso para canjear tu código';
   }
+
+  // Límite del día
+  const enviados = u.envios_hoy || 0;
+  const limite = u.ilimitado ? 999 : (u.envios_por_dia || 0);
+  const pct = limite > 0 ? Math.min((enviados / limite) * 100, 100) : 0;
+  document.getElementById('limit-val').textContent = u.ilimitado ? `${enviados}/∞` : `${enviados}/${limite}`;
+  document.getElementById('limit-fill').style.width = u.ilimitado ? '15%' : pct + '%';
+
+  // Stats likes tab
+  document.getElementById('es-likes').textContent = u.ilimitado ? '∞' : (u.likes_disponibles||0).toLocaleString('es');
+  document.getElementById('es-enviados').textContent = (u.total_likes_enviados||0).toLocaleString('es');
 
   // Perfil tab
   document.getElementById('p-av').textContent = ini;
   document.getElementById('p-name').textContent    = u.username;
   document.getElementById('p-contact').textContent = u.contact;
   document.getElementById('p-uid').textContent     = u.uid;
-  document.getElementById('p-plan').textContent    = u.plan_activo ? u.plan_nombre : 'Sin plan';
-  document.getElementById('p-likes').textContent   = u.likes_disponibles.toLocaleString('es');
-  document.getElementById('p-dia').textContent     = u.envios_por_dia + ' / día';
-  document.getElementById('p-vence').textContent   = u.plan_vence ? new Date(u.plan_vence).toLocaleDateString('es') : (u.plan_tipo === 'likes' ? '(por likes)' : '—');
+  document.getElementById('p-plan').textContent    = u.plan_activo ? (u.ilimitado ? '🚀 Ilimitado' : u.plan_nombre) : 'Sin plan';
+  document.getElementById('p-likes').textContent   = u.ilimitado ? '∞' : (u.likes_disponibles||0).toLocaleString('es');
+  document.getElementById('p-dia').textContent     = u.ilimitado ? '∞ / día' : (u.envios_por_dia + ' / día');
+  document.getElementById('p-vence').textContent   = u.ilimitado ? '∞ (sin vencimiento)' : (u.plan_vence ? new Date(u.plan_vence).toLocaleDateString('es') : (u.plan_tipo==='likes' ? '(por likes)' : '—'));
   document.getElementById('p-desde').textContent   = new Date(u.creado_en).toLocaleDateString('es');
+
+  // Acceso - mostrar UID
+  const accUid = document.getElementById('acc-uid');
+  if (accUid) accUid.textContent = u.uid;
 
   pintarHistorial(hist);
 }
@@ -548,7 +688,7 @@ async function cargarTop() {
   try {
     const res = await API.get('/api/top-usuarios');
     if (!res.ok || !res.top || !res.top.length) {
-      list.innerHTML = `<div class="empty"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg><p>Sin datos aún</p></div>`;
+      list.innerHTML = `<div class="empty"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg><p>Sin datos aún. ¡Sé el primero en enviar likes!</p></div>`;
       return;
     }
     const rc = ['gold','silver','bronze'];
@@ -557,7 +697,7 @@ async function cargarTop() {
         <div class="top-rank ${rc[i]||''}">${i+1}</div>
         <div class="top-av">${u.username.slice(0,2).toUpperCase()}</div>
         <div class="top-name">${u.username}</div>
-        <div><div class="top-lks">${parseInt(u.total_likes||0).toLocaleString('es')}</div><div class="top-ll">likes</div></div>
+        <div><div class="top-lks">${parseInt(u.total_likes||0).toLocaleString('es')}</div><div class="top-ll">likes enviados</div></div>
       </div>`).join('');
     setTimeout(() => document.querySelectorAll('.top-item').forEach(el => el.classList.add('vis')), 50);
   } catch (e) {
@@ -565,21 +705,20 @@ async function cargarTop() {
   }
 }
 
-// TABS
 function tab(t) {
   document.querySelectorAll('.pane').forEach(p => p.classList.remove('active'));
   document.querySelectorAll('.bn').forEach(b => b.classList.remove('active'));
   document.getElementById('pane-' + t).classList.add('active');
   document.getElementById('bn-' + t).classList.add('active');
   if (t === 'hist') cargarHistFull();
-  if (t === 'inicio') cargarTop();
+  if (t === 'inicio') { cargarTop(); cargarPublicStats(); }
+  if (t === 'likes') cargarPerfil();
 }
 async function cargarHistFull() {
   const res = await API.get('/api/perfil');
   if (res.ok) pintarHistorial(res.historial);
 }
 
-// CANJEAR
 async function canjear() {
   const cod = document.getElementById('cod-inp').value.trim().toUpperCase();
   if (!cod) return mostrarMsg('msg-can', 'Ingresa un código', 'err');
@@ -590,7 +729,6 @@ async function canjear() {
   setTimeout(cargarPerfil, 700);
 }
 
-// ENVIAR LIKES
 async function enviarLikes() {
   const uid = document.getElementById('ff-uid').value.trim();
   if (!uid) return mostrarMsg('msg-likes', 'Ingresa el UID de Free Fire', 'err');
@@ -666,7 +804,6 @@ function recVolver() {
   document.getElementById('msg-rec').style.display = 'none';
 }
 
-// CAMBIAR PASS
 async function cambiarPass() {
   const vieja = document.getElementById('p-old').value;
   const nueva  = document.getElementById('p-new').value;
@@ -677,7 +814,6 @@ async function cambiarPass() {
   document.getElementById('p-new').value = '';
 }
 
-// COPIAR UID
 function copiarUID() {
   const uid = document.getElementById('p-uid').textContent;
   navigator.clipboard.writeText(uid).then(() => {
