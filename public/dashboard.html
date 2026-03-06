@@ -163,22 +163,39 @@
     <div class="card">
       <div class="ct">❤️ Enviar Likes</div>
       <div class="msg" id="msg-likes"></div>
-      <div class="fg"><label>UID de Free Fire</label><input type="text" id="ff-uid" placeholder="Ej: 1234567890" inputmode="numeric"/></div>
-      <div class="fg">
-        <label>Región</label>
-        <select id="ff-region">
-          <option value="BR">Brasil (BR)</option>
-          <option value="SAC">Sudamérica (SAC)</option>
-          <option value="NA">Norteamérica (NA)</option>
-          <option value="EU">Europa (EU)</option>
-          <option value="ASIA">Asia (ASIA)</option>
-          <option value="ME">Medio Oriente (ME)</option>
-        </select>
-      </div>
-      <button class="btn btn-p btn-full" id="btn-likes" onclick="enviarLikes()">
+      <div class="fg"><label>UID de Free Fire</label><input type="text" id="ff-uid" placeholder="Ej: 1234567890" inputmode="numeric" onkeydown="if(event.key==='Enter')enviarLikes()"/></div>
+      <button class="btn btn-p btn-full" id="btn-likes" onclick="enviarLikes()" style="margin-bottom:.9rem">
         <div class="spin" id="spin-likes"></div>
         <span id="txt-likes">⚡ Enviar likes ahora</span>
       </button>
+      <!-- Resultado del envío -->
+      <div id="resultado-box" style="display:none;background:var(--bg3);border:1px solid rgba(0,255,30,.25);border-radius:11px;padding:1.1rem;margin-top:.2rem">
+        <div style="display:flex;align-items:center;gap:.7rem;margin-bottom:.9rem">
+          <div style="width:40px;height:40px;border-radius:50%;background:var(--gdim);border:2px solid var(--g);display:flex;align-items:center;justify-content:center;font-size:1.2rem">🎮</div>
+          <div>
+            <div style="font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:700" id="r-nombre">—</div>
+            <div style="color:var(--mut);font-size:.78rem">UID: <span id="r-uid">—</span> · Nivel <span id="r-nivel">—</span> · <span id="r-region">—</span></div>
+          </div>
+          <div style="margin-left:auto;text-align:right">
+            <div style="color:var(--g);font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700" id="r-agregados">+0</div>
+            <div style="color:var(--mut);font-size:.72rem;text-transform:uppercase">likes enviados</div>
+          </div>
+        </div>
+        <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:.55rem;text-align:center">
+          <div style="background:var(--sur);border-radius:8px;padding:.55rem">
+            <div style="color:var(--mut);font-size:.7rem;text-transform:uppercase;margin-bottom:.2rem">Antes</div>
+            <div style="font-weight:700;font-size:.95rem" id="r-antes">—</div>
+          </div>
+          <div style="background:var(--sur);border-radius:8px;padding:.55rem">
+            <div style="color:var(--mut);font-size:.7rem;text-transform:uppercase;margin-bottom:.2rem">Después</div>
+            <div style="font-weight:700;font-size:.95rem;color:var(--g)" id="r-despues">—</div>
+          </div>
+          <div style="background:var(--sur);border-radius:8px;padding:.55rem">
+            <div style="color:var(--mut);font-size:.7rem;text-transform:uppercase;margin-bottom:.2rem">Tiempo</div>
+            <div style="font-weight:700;font-size:.95rem" id="r-tiempo">—</div>
+          </div>
+        </div>
+      </div>
     </div>
 
     <!-- Historial -->
@@ -186,8 +203,8 @@
       <div class="ct">📋 Historial de envíos</div>
       <div class="tw">
         <table>
-          <thead><tr><th>Fecha</th><th>UID FF</th><th>Región</th><th>Estado</th></tr></thead>
-          <tbody id="hist-body"><tr><td colspan="4" style="text-align:center;color:var(--mut);padding:2rem">Sin registros aún</td></tr></tbody>
+          <thead><tr><th>Fecha</th><th>Jugador</th><th>UID FF</th><th>Likes enviados</th><th>Estado</th></tr></thead>
+          <tbody id="hist-body"><tr><td colspan="5" style="text-align:center;color:var(--mut);padding:2rem">Sin registros aún</td></tr></tbody>
         </table>
       </div>
     </div>
@@ -291,13 +308,14 @@ function pintarUI(u, historial) {
   // Historial
   const tbody = document.getElementById('hist-body');
   if (!historial || !historial.length) {
-    tbody.innerHTML = '<tr><td colspan="4" style="text-align:center;color:var(--mut);padding:2rem">Sin registros aún</td></tr>';
+    tbody.innerHTML = '<tr><td colspan="5" style="text-align:center;color:var(--mut);padding:2rem">Sin registros aún</td></tr>';
   } else {
     tbody.innerHTML = historial.map(h => `
       <tr>
-        <td>${new Date(h.fecha).toLocaleDateString('es')} ${new Date(h.fecha).toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})}</td>
-        <td><code style="color:var(--g)">${h.ff_uid}</code></td>
-        <td>${h.region}</td>
+        <td style="color:var(--mut);font-size:.8rem">${new Date(h.fecha).toLocaleDateString('es')} ${new Date(h.fecha).toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'})}</td>
+        <td style="font-weight:700">${h.player_name || '—'}</td>
+        <td><code style="color:var(--g);font-size:.8rem">${h.ff_uid}</code></td>
+        <td style="color:var(--g);font-weight:700">+${h.likes_agregados || 0}</td>
         <td><span class="badge bOk">✅ Enviado</span></td>
       </tr>
     `).join('');
@@ -335,17 +353,33 @@ async function canjear() {
 }
 
 async function enviarLikes() {
-  const uid    = document.getElementById('ff-uid').value.trim();
-  const region = document.getElementById('ff-region').value;
-  const btn    = document.getElementById('btn-likes');
-  const spin   = document.getElementById('spin-likes');
-  const txt    = document.getElementById('txt-likes');
+  const uid  = document.getElementById('ff-uid').value.trim();
+  const btn  = document.getElementById('btn-likes');
+  const spin = document.getElementById('spin-likes');
+  const txt  = document.getElementById('txt-likes');
+  const box  = document.getElementById('resultado-box');
 
+  if (!uid) return mostrarMsg('msg-likes', 'Ingresa el UID de Free Fire', 'err');
+
+  box.style.display = 'none';
   spin.style.display='block'; txt.style.display='none'; btn.disabled=true;
-  const res = await API.post('/api/enviar-likes', { ff_uid: uid, region });
+  const res = await API.post('/api/enviar-likes', { ff_uid: uid });
   spin.style.display='none'; txt.style.display='inline'; btn.disabled=false;
 
   if (!res.ok) return mostrarMsg('msg-likes', res.error, 'err');
+
+  // Mostrar tarjeta de resultado bonita
+  const d = res.data;
+  document.getElementById('r-nombre').textContent   = d.jugador || '—';
+  document.getElementById('r-uid').textContent      = d.uid || uid;
+  document.getElementById('r-nivel').textContent    = d.nivel || '—';
+  document.getElementById('r-region').textContent   = d.region || '—';
+  document.getElementById('r-agregados').textContent = '+' + (d.likes_agregados || 0);
+  document.getElementById('r-antes').textContent    = (d.likes_antes || 0).toLocaleString();
+  document.getElementById('r-despues').textContent  = (d.likes_despues || 0).toLocaleString();
+  document.getElementById('r-tiempo').textContent   = d.tiempo || '—';
+  box.style.display = 'block';
+
   mostrarMsg('msg-likes', res.message, 'ok');
   document.getElementById('ff-uid').value = '';
   setTimeout(cargarPerfil, 800);
