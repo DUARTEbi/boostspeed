@@ -28,10 +28,13 @@
     .logo{font-family:'Rajdhani',sans-serif;font-size:1.55rem;font-weight:700;color:var(--g);letter-spacing:2px;text-decoration:none;display:flex;align-items:center;gap:.45rem;transition:all .25s}
     .logo:hover{text-shadow:0 0 18px rgba(0,255,30,.6);letter-spacing:3px}
     .logo span{color:var(--txt);font-weight:500}
+
+    /* Punto animado reutilizable */
     .pulse{position:relative;width:8px;height:8px;border-radius:50%;background:var(--g);box-shadow:var(--glow);animation:blink 1.6s infinite;flex-shrink:0}
     .pulse::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(0,255,30,.4);animation:ripple 1.6s ease-out infinite}
     @keyframes blink{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.25;transform:scale(.7)}}
     @keyframes ripple{0%{transform:scale(.5);opacity:.8}100%{transform:scale(2.5);opacity:0}}
+
     .nav-btns{display:flex;gap:.6rem}
 
     .btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;padding:.55rem 1.2rem;border-radius:7px;font-family:'Exo 2',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;border:none;text-decoration:none;transition:all .25s;letter-spacing:.3px;position:relative;overflow:hidden}
@@ -42,8 +45,6 @@
     .btn-p:active,.btn-ghost:active{transform:scale(.97)}
     .btn-lg{padding:.82rem 2rem;font-size:1rem;border-radius:9px}
     .btn-full{width:100%}
-    .btn-tg{background:rgba(0,136,204,.12);border:1px solid rgba(0,136,204,.25);color:#4dabff}.btn-tg:hover{background:rgba(0,136,204,.22)}
-    .btn-wa{background:rgba(37,211,102,.12);border:1px solid rgba(37,211,102,.25);color:#25D366}.btn-wa:hover{background:rgba(37,211,102,.22)}
 
     .hero{position:relative;z-index:1;min-height:calc(100vh - 62px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3rem 1.5rem}
     .hero-chip{display:inline-flex;align-items:center;gap:.5rem;background:var(--gdim);border:1px solid var(--bdr);padding:.32rem .9rem;border-radius:100px;font-size:.75rem;font-weight:700;color:var(--g);letter-spacing:1.2px;margin-bottom:1.6rem;text-transform:uppercase;animation:fadeUp .7s .1s cubic-bezier(.23,1,.32,1) both;overflow:hidden;position:relative}
@@ -57,17 +58,25 @@
     .hero-cta{display:flex;gap:.9rem;flex-wrap:wrap;justify-content:center;animation:fadeUp .7s .4s cubic-bezier(.23,1,.32,1) both}
     @keyframes fadeUp{from{transform:translateY(24px);opacity:0}to{transform:translateY(0);opacity:1}}
 
-    /* STATUS CHIPS */
+    /* STATUS CHIPS — SVG icons, sin emojis */
     .hero-status{display:flex;gap:.55rem;flex-wrap:wrap;justify-content:center;margin-bottom:2rem;animation:fadeUp .7s .35s cubic-bezier(.23,1,.32,1) both}
-    .hs-chip{display:inline-flex;align-items:center;gap:.35rem;background:rgba(0,255,30,.06);border:1px solid rgba(0,255,30,.12);border-radius:100px;padding:.22rem .65rem;font-size:.72rem;font-weight:700;color:var(--mut);letter-spacing:.4px}
+    .hs-chip{display:inline-flex;align-items:center;gap:.38rem;background:rgba(0,255,30,.06);border:1px solid rgba(0,255,30,.12);border-radius:100px;padding:.25rem .7rem;font-size:.72rem;font-weight:700;color:var(--mut);letter-spacing:.4px}
+    .hs-chip svg{flex-shrink:0}
     .hs-chip strong{color:var(--g)}
 
+    /* TICKER */
     .hero-ticker{position:relative;z-index:1;display:flex;align-items:center;gap:1.2rem;margin-top:2.8rem;background:var(--sur);border:1px solid var(--bdr);border-radius:12px;padding:.9rem 1.6rem;animation:fadeUp .7s .6s cubic-bezier(.23,1,.32,1) both;flex-wrap:wrap;justify-content:center}
     .ticker-item{display:flex;flex-direction:column;align-items:center;min-width:90px}
+    /* Punto animado individual encima del número */
+    .ticker-pulse{position:relative;width:7px;height:7px;border-radius:50%;background:var(--g);box-shadow:0 0 8px rgba(0,255,30,.55);animation:blink 1.6s infinite;margin-bottom:.32rem;flex-shrink:0}
+    .ticker-pulse::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(0,255,30,.3);animation:ripple 1.6s ease-out infinite}
+    .ticker-pulse.blue{background:#4dabff;box-shadow:0 0 8px rgba(77,171,255,.55)}
+    .ticker-pulse.blue::after{border-color:rgba(77,171,255,.3)}
     .ticker-num{font-family:'Rajdhani',sans-serif;font-size:1.6rem;font-weight:700;color:var(--g);line-height:1;transition:text-shadow .3s}
+    .ticker-num.blue{color:#4dabff}
     .ticker-item:hover .ticker-num{text-shadow:0 0 18px rgba(0,255,30,.7)}
     .ticker-lbl{color:var(--mut);font-size:.7rem;text-transform:uppercase;letter-spacing:.8px;margin-top:.1rem}
-    .ticker-div{width:1px;height:36px;background:var(--bdr)}
+    .ticker-div{width:1px;height:42px;background:var(--bdr)}
 
     .scroll-hint{position:absolute;bottom:2rem;left:50%;transform:translateX(-50%);display:flex;flex-direction:column;align-items:center;gap:.4rem;color:var(--mut);font-size:.7rem;letter-spacing:1px;text-transform:uppercase;animation:fadeUp .7s .8s cubic-bezier(.23,1,.32,1) both}
     .scroll-arrow{width:16px;height:16px;border-right:2px solid var(--g);border-bottom:2px solid var(--g);transform:rotate(45deg);animation:bounceArrow 1.4s ease-in-out infinite}
@@ -90,7 +99,7 @@
     .card:hover{border-color:rgba(0,255,30,.4);transform:translateY(-6px) !important;box-shadow:0 12px 40px rgba(0,255,30,.1)}
     .card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g),transparent);opacity:0;transition:opacity .3s}
     .card:hover::after{opacity:1}
-    .c-ico{width:46px;height:46px;border-radius:10px;background:var(--gdim);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:1.35rem;margin-bottom:.9rem;transition:all .3s}
+    .c-ico{width:46px;height:46px;border-radius:10px;background:var(--gdim);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;margin-bottom:.9rem;transition:all .3s}
     .card:hover .c-ico{background:rgba(0,255,30,.2);border-color:rgba(0,255,30,.4);box-shadow:0 0 18px rgba(0,255,30,.25);transform:scale(1.1) rotate(-4deg)}
     .card h3{font-family:'Rajdhani',sans-serif;font-size:1.15rem;font-weight:600;margin-bottom:.4rem;transition:color .3s}
     .card:hover h3{color:var(--g)}
@@ -141,7 +150,7 @@
     .spin{display:none;width:16px;height:16px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:spin .6s linear infinite}
     @keyframes spin{to{transform:rotate(360deg)}}
 
-    /* RECUPERAR MODAL - soporte links */
+    /* RECUPERAR */
     .sup-link{display:flex;align-items:center;gap:.75rem;padding:.75rem;border-radius:10px;border:1px solid var(--bdr);background:rgba(255,255,255,.03);margin-bottom:.5rem;cursor:pointer;transition:all .22s;text-decoration:none;color:var(--txt)}
     .sup-link:hover{border-color:rgba(0,255,30,.22);transform:translateX(3px)}
     .sup-ico{width:36px;height:36px;border-radius:8px;display:flex;align-items:center;justify-content:center;flex-shrink:0}
@@ -151,8 +160,6 @@
     .sup-handle{color:var(--mut);font-size:.73rem}
     .rec-info{background:rgba(0,255,30,.05);border:1px solid rgba(0,255,30,.12);border-radius:9px;padding:.75rem .9rem;margin-bottom:1rem;font-size:.8rem;color:var(--mut);line-height:1.6}
     .rec-info strong{color:var(--g)}
-
-    /* STEPS DOTS */
     .sdots{display:flex;gap:.4rem;margin-bottom:1rem}
     .sdot{width:7px;height:7px;border-radius:50%;background:var(--bdr);transition:background .3s,box-shadow .3s}
     .sdot.active{background:var(--g);box-shadow:0 0 7px rgba(0,255,30,.5)}
@@ -177,26 +184,52 @@
   <h1>Aumenta tus <em>Likes de Free Fire</em><br>de forma rápida y segura</h1>
   <p>BoostSpeed es la plataforma para impulsar tu perfil en Free Fire. Seguro, instantáneo y siempre disponible.</p>
 
-  <!-- Status chips -->
+  <!-- Status chips — SVG icons, sin emojis -->
   <div class="hero-status">
-    <div class="hs-chip">⚡ Entrega <strong>Instantánea</strong></div>
-    <div class="hs-chip">🛡️ <strong>Anti-ban</strong> activo</div>
-    <div class="hs-chip">🕐 Disponible <strong>24/7</strong></div>
-    <div class="hs-chip">📊 <strong>99.9%</strong> uptime</div>
+    <div class="hs-chip">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      Entrega <strong>Instantánea</strong>
+    </div>
+    <div class="hs-chip">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <strong>Anti-ban</strong> activo
+    </div>
+    <div class="hs-chip">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>
+      Disponible <strong>24/7</strong>
+    </div>
+    <div class="hs-chip">
+      <svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <strong>99.9%</strong> uptime
+    </div>
   </div>
 
   <div class="hero-cta">
     <button class="btn btn-p btn-lg" onclick="abrirModal('registro')">Empezar Ahora →</button>
     <button class="btn btn-ghost btn-lg" onclick="abrirModal('login')">Ya tengo cuenta</button>
   </div>
+
+  <!-- Ticker: cada stat tiene su propio punto animado encima del número -->
   <div class="hero-ticker">
-    <div class="live-dot"></div>
-    <div class="ticker-item"><div class="ticker-num" id="tk-users">0</div><div class="ticker-lbl">Usuarios registrados</div></div>
+    <div class="ticker-item">
+      <div class="ticker-pulse"></div>
+      <div class="ticker-num" id="tk-users">0</div>
+      <div class="ticker-lbl">Usuarios registrados</div>
+    </div>
     <div class="ticker-div"></div>
-    <div class="ticker-item"><div class="ticker-num" id="tk-likes">0</div><div class="ticker-lbl">Likes enviados</div></div>
+    <div class="ticker-item">
+      <div class="ticker-pulse"></div>
+      <div class="ticker-num" id="tk-likes">0</div>
+      <div class="ticker-lbl">Likes enviados</div>
+    </div>
     <div class="ticker-div"></div>
-    <div class="ticker-item"><div class="ticker-num" id="tk-uptime">99.9%</div><div class="ticker-lbl">Tiempo activo</div></div>
+    <div class="ticker-item">
+      <div class="ticker-pulse blue"></div>
+      <div class="ticker-num blue" id="tk-uptime">99.9%</div>
+      <div class="ticker-lbl">Tiempo activo</div>
+    </div>
   </div>
+
   <div class="scroll-hint"><div class="scroll-arrow"></div>scroll</div>
 </section>
 
@@ -208,12 +241,30 @@
     <p>Todo lo que necesitas para aumentar tu presencia en Free Fire en un solo lugar.</p>
   </div>
   <div class="grid">
-    <div class="card"><div class="c-ico">⚡</div><h3>Envío Instantáneo</h3><p>Los likes se reflejan en tu perfil en minutos. Sin esperas innecesarias.</p></div>
-    <div class="card"><div class="c-ico">🛡️</div><h3>100% Seguro</h3><p>Sistema anti-ban activo. Tu cuenta siempre protegida, sin ningún riesgo.</p></div>
-    <div class="card"><div class="c-ico">🎟️</div><h3>Códigos de Plan</h3><p>Canjea tu código y activa tu plan al instante. Sin complicaciones.</p></div>
-    <div class="card"><div class="c-ico">📱</div><h3>Optimizado Mobile</h3><p>Gestiona todo desde tu celular. Diseño adaptado para cualquier pantalla.</p></div>
-    <div class="card"><div class="c-ico">📊</div><h3>Panel Completo</h3><p>Monitorea envíos, historial y plan activo desde un solo panel intuitivo.</p></div>
-    <div class="card"><div class="c-ico">🕐</div><h3>Activo 24/7</h3><p>Funciona los 7 días de la semana, las 24 horas. Siempre disponible para ti.</p></div>
+    <div class="card">
+      <div class="c-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+      <h3>Envío Instantáneo</h3><p>Los likes se reflejan en tu perfil en minutos. Sin esperas innecesarias.</p>
+    </div>
+    <div class="card">
+      <div class="c-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
+      <h3>100% Seguro</h3><p>Sistema anti-ban activo. Tu cuenta siempre protegida, sin ningún riesgo.</p>
+    </div>
+    <div class="card">
+      <div class="c-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2" ry="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
+      <h3>Códigos de Plan</h3><p>Canjea tu código y activa tu plan al instante. Sin complicaciones.</p>
+    </div>
+    <div class="card">
+      <div class="c-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="5" y="2" width="14" height="20" rx="2" ry="2"/><line x1="12" y1="18" x2="12.01" y2="18"/></svg></div>
+      <h3>Optimizado Mobile</h3><p>Gestiona todo desde tu celular. Diseño adaptado para cualquier pantalla.</p>
+    </div>
+    <div class="card">
+      <div class="c-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"/><line x1="3" y1="9" x2="21" y2="9"/><line x1="9" y1="21" x2="9" y2="9"/></svg></div>
+      <h3>Panel Completo</h3><p>Monitorea envíos, historial y plan activo desde un solo panel intuitivo.</p>
+    </div>
+    <div class="card">
+      <div class="c-ico"><svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
+      <h3>Activo 24/7</h3><p>Funciona los 7 días de la semana, las 24 horas. Siempre disponible para ti.</p>
+    </div>
   </div>
 </section>
 
@@ -227,7 +278,7 @@
   <div class="steps">
     <div class="step"><div class="sn">01</div><div class="sb"><h3>Crea tu cuenta</h3><p>Regístrate con usuario, contraseña y correo o teléfono. Obtienes tu ID único al instante.</p></div></div>
     <div class="step"><div class="sn">02</div><div class="sb"><h3>Canjea tu código</h3><p>Ingresa el código que recibiste del administrador. Tu plan se activa automáticamente.</p></div></div>
-    <div class="step"><div class="sn">03</div><div class="sb"><h3>Envía los likes</h3><p>Ingresa el UID de Free Fire y pulsa enviar. Los likes llegan en minutos. ¡Así de fácil!</p></div></div>
+    <div class="step"><div class="sn">03</div><div class="sb"><h3>Envía los likes</h3><p>Ingresa el UID de Free Fire y pulsa enviar. Los likes llegan en minutos.</p></div></div>
   </div>
 </section>
 
@@ -282,14 +333,11 @@
     <h2>Recuperar contraseña</h2>
     <p class="sub">Sigue estos pasos para recuperar el acceso a tu cuenta</p>
 
-    <!-- PASO 1: Verificar cuenta -->
+    <!-- PASO 1 -->
     <div id="rec-step1">
       <div class="sdots"><div class="sdot active"></div><div class="sdot"></div><div class="sdot"></div></div>
       <div class="msg" id="msg-recuperar"></div>
-
-      <div class="rec-info">
-        <strong>Paso 1:</strong> Ingresa el correo o teléfono con el que te registraste para verificar tu cuenta.
-      </div>
+      <div class="rec-info"><strong>Paso 1:</strong> Ingresa el correo o teléfono con el que te registraste para verificar tu cuenta.</div>
       <div class="fg">
         <label>Correo o teléfono registrado</label>
         <input type="text" id="rec-contact" placeholder="correo@ejemplo.com o +57..."/>
@@ -298,16 +346,14 @@
       <div class="fl"><a href="#" onclick="cerrarModal('recuperar');abrirModal('login')">← Volver a iniciar sesión</a></div>
     </div>
 
-    <!-- PASO 2: Contactar admin y pedir código -->
+    <!-- PASO 2 -->
     <div id="rec-step2" style="display:none">
       <div class="sdots"><div class="sdot"></div><div class="sdot active"></div><div class="sdot"></div></div>
       <div class="msg" id="msg-recuperar2"></div>
-
       <div class="rec-info">
-        ✅ Cuenta encontrada: <strong id="rec-found-name">—</strong><br><br>
+        Cuenta encontrada: <strong id="rec-found-name">—</strong><br><br>
         <strong>Paso 2:</strong> Contacta al administrador por Telegram o WhatsApp. Dile tu <strong>nombre de usuario</strong> e <strong>ID único</strong> para que te envíe un código de recuperación.
       </div>
-
       <p style="font-size:.78rem;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.55rem">Contactar administrador:</p>
       <a class="sup-link" href="https://t.me/DuarteStoreX" target="_blank">
         <div class="sup-ico sup-tg">
@@ -323,7 +369,6 @@
         <div><div class="sup-name">WhatsApp</div><div class="sup-handle">+57 316 437 7140</div></div>
         <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--mut)" stroke-width="2" style="margin-left:auto;flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg>
       </a>
-
       <div style="margin-top:1rem">
         <div class="fg" style="margin-bottom:.5rem">
           <label>Código de recuperación del admin</label>
@@ -334,11 +379,11 @@
       <div class="fl"><a href="#" onclick="recReset()">← Volver</a></div>
     </div>
 
-    <!-- PASO 3: Nueva contraseña -->
+    <!-- PASO 3 -->
     <div id="rec-step3" style="display:none">
       <div class="sdots"><div class="sdot"></div><div class="sdot"></div><div class="sdot active"></div></div>
       <div class="msg" id="msg-recuperar3"></div>
-      <div class="rec-info"><strong>Paso 3:</strong> ¡Código verificado! Elige tu nueva contraseña.</div>
+      <div class="rec-info"><strong>Paso 3:</strong> Codigo verificado. Elige tu nueva contraseña.</div>
       <div class="fg"><label>Nueva contraseña</label><input type="password" id="rec-new" placeholder="Mínimo 6 caracteres"/></div>
       <div class="fg"><label>Confirmar contraseña</label><input type="password" id="rec-confirm" placeholder="Repite la contraseña"/></div>
       <button class="btn btn-p btn-full" onclick="recuperarP3()">Guardar nueva contraseña →</button>
@@ -395,8 +440,7 @@
   function cerrarModal(n){
     document.getElementById('ov-'+n).classList.remove('open');
     document.querySelectorAll('#ov-'+n+' input').forEach(i=>i.value='');
-    const msgs=['msg-'+n,'msg-'+n+'2','msg-'+n+'3'];
-    msgs.forEach(id=>{const m=document.getElementById(id);if(m)m.style.display='none'});
+    ['msg-'+n,'msg-'+n+'2','msg-'+n+'3'].forEach(id=>{const m=document.getElementById(id);if(m)m.style.display='none'});
     if(n==='recuperar') recReset();
   }
   document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')}));
@@ -427,7 +471,6 @@
     location.href='/dashboard.html';
   }
 
-  // RECUPERAR - 3 pasos
   function recReset(){
     document.getElementById('rec-step1').style.display='block';
     document.getElementById('rec-step2').style.display='none';
@@ -462,7 +505,7 @@
     if(nueva!==confirma)return mostrarMsg('msg-recuperar3','Las contraseñas no coinciden','err');
     const res=await API.post('/api/recuperar-cambiar',{userId:recUserId,password_nueva:nueva});
     if(!res.ok)return mostrarMsg('msg-recuperar3',res.error,'err');
-    mostrarMsg('msg-recuperar3','✅ Contraseña actualizada. Inicia sesión.','ok');
+    mostrarMsg('msg-recuperar3','Contrasena actualizada. Inicia sesion.','ok');
     setTimeout(()=>{cerrarModal('recuperar');abrirModal('login');},2200);
   }
 
