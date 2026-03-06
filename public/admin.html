@@ -54,12 +54,14 @@ main{position:relative;z-index:1;flex:1;padding:1.4rem;max-width:1060px;margin:0
 .card:hover{border-color:rgba(0,255,30,.2);box-shadow:0 6px 26px rgba(0,0,0,.45)}
 .ct{font-family:'Rajdhani',sans-serif;font-size:1.08rem;font-weight:700;margin-bottom:.95rem;display:flex;align-items:center;gap:.45rem}
 
-.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(125px,1fr));gap:.85rem;margin-bottom:1.1rem}
+.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:.85rem;margin-bottom:1.1rem}
 .sb{background:var(--sur);border:1px solid var(--bdr);border-radius:11px;padding:.95rem;text-align:center;position:relative;overflow:hidden;opacity:0;transform:translateY(10px);transition:transform .3s,border-color .3s}
 .sb.vis{animation:cIn .4s cubic-bezier(.23,1,.32,1) forwards}
 @keyframes cIn{to{opacity:1;transform:translateY(0)}}
 .sb:hover{transform:translateY(-3px);border-color:rgba(0,255,30,.28)}
 .sb::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g),transparent)}
+.sb.warn-sb::after{background:linear-gradient(90deg,transparent,var(--warn),transparent)}
+.sb.warn-sb .sv{color:var(--warn)}
 .sv{font-family:'Rajdhani',sans-serif;font-size:1.7rem;font-weight:700;color:var(--g)}
 .sl{color:var(--mut);font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;margin-top:.1rem}
 
@@ -67,16 +69,20 @@ main{position:relative;z-index:1;flex:1;padding:1.4rem;max-width:1060px;margin:0
 .bp{background:var(--g);color:#000}.bp:hover{background:var(--gm);box-shadow:var(--glow);transform:translateY(-1px)}
 .br{background:var(--red);color:#fff}.br:hover{opacity:.85;transform:translateY(-1px)}
 .bo{background:transparent;border:1px solid var(--bdr);color:var(--txt)}.bo:hover{border-color:var(--g);color:var(--g)}
+.bpur{background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.28);color:#a78bfa}.bpur:hover{background:rgba(167,139,250,.22)}
 .bsm{padding:.3rem .65rem;font-size:.75rem;border-radius:6px}
 .bf{width:100%}
 
-/* TIPO PLAN SELECTOR */
-.tipo-grid{display:grid;grid-template-columns:1fr 1fr;gap:.6rem;margin-bottom:.85rem}
-.topt{border:2px solid var(--bdr);border-radius:10px;padding:.75rem;cursor:pointer;transition:all .2s;text-align:center;background:var(--bg2)}
+/* TIPO PLAN */
+.tipo-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem;margin-bottom:.85rem}
+.topt{border:2px solid var(--bdr);border-radius:10px;padding:.7rem .5rem;cursor:pointer;transition:all .2s;text-align:center;background:var(--bg2)}
 .topt.sel{border-color:var(--g);background:var(--gdim)}
-.topt h4{font-family:'Rajdhani',sans-serif;font-size:.98rem;font-weight:700;margin-bottom:.15rem}
-.topt p{color:var(--mut);font-size:.73rem;line-height:1.4}
+.topt h4{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:.12rem}
+.topt p{color:var(--mut);font-size:.68rem;line-height:1.3}
 .topt.sel h4{color:var(--g)}
+.topt.ilim-opt{border-color:rgba(167,139,250,.25);background:rgba(167,139,250,.04)}
+.topt.ilim-opt.sel{border-color:#a78bfa;background:rgba(167,139,250,.12)}
+.topt.ilim-opt.sel h4{color:#a78bfa}
 
 .fr{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.65rem;margin-bottom:.65rem}
 .fg{margin-bottom:.72rem}
@@ -92,8 +98,11 @@ select option{background:var(--bg2)}
 .err{background:rgba(255,71,87,.08);border:1px solid rgba(255,71,87,.2);color:var(--red)}
 
 .cbox{background:var(--bg3);border:1px solid rgba(0,255,30,.26);border-radius:11px;padding:1.1rem;text-align:center;margin-top:.85rem;position:relative;display:none;animation:fadeIn .4s cubic-bezier(.23,1,.32,1)}
+.cbox.ilim-box{border-color:rgba(167,139,250,.4);background:rgba(167,139,250,.06)}
 .cbig{font-family:monospace;font-size:1.9rem;font-weight:700;color:var(--g);letter-spacing:4px;animation:tg 2s ease-in-out infinite}
+.ilim-box .cbig{color:#a78bfa;animation:tgp 2s ease-in-out infinite}
 @keyframes tg{0%,100%{text-shadow:0 0 12px rgba(0,255,30,.4)}50%{text-shadow:0 0 26px rgba(0,255,30,.8)}}
+@keyframes tgp{0%,100%{text-shadow:0 0 12px rgba(167,139,250,.4)}50%{text-shadow:0 0 26px rgba(167,139,250,.8)}}
 .cbox p{color:var(--mut);font-size:.78rem;margin-top:.3rem}
 .ccpy{position:absolute;top:.65rem;right:.65rem;background:var(--gdim);border:1px solid var(--bdr);border-radius:6px;padding:.26rem .52rem;color:var(--g);font-size:.74rem;cursor:pointer;font-weight:700;transition:all .2s}
 .ccpy:hover{background:rgba(0,255,30,.18)}
@@ -110,12 +119,21 @@ tr:hover td{background:rgba(0,255,30,.02)}
 .bnone{background:rgba(255,255,255,.04);color:var(--mut);border:1px solid rgba(255,255,255,.07)}
 .bdias{background:rgba(77,171,255,.1);color:var(--blue);border:1px solid rgba(77,171,255,.2)}
 .blikes{background:rgba(255,71,87,.1);color:#ff8a93;border:1px solid rgba(255,71,87,.2)}
+.bilim{background:rgba(167,139,250,.1);color:#a78bfa;border:1px solid rgba(167,139,250,.2)}
 
 .udet{background:var(--bg3);border:1px solid var(--bdr);border-radius:10px;padding:1rem}
 .ir{display:flex;justify-content:space-between;align-items:center;padding:.54rem 0;border-bottom:1px solid var(--bdr)}
 .ir:last-child{border-bottom:none}
 .ir .ik{color:var(--mut);font-size:.82rem}
 .ir .iv{font-weight:700;font-size:.86rem}
+
+/* API STATS */
+.api-stats{background:var(--bg3);border:1px solid rgba(255,193,7,.15);border-radius:11px;padding:1rem 1.2rem;margin-bottom:1.1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
+.api-ico{width:38px;height:38px;border-radius:9px;background:rgba(255,193,7,.1);border:1px solid rgba(255,193,7,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem}
+.api-info{flex:1}
+.api-title{font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;color:var(--warn);margin-bottom:.1rem}
+.api-sub{color:var(--mut);font-size:.76rem;line-height:1.5}
+.api-val{font-family:'Rajdhani',sans-serif;font-size:1.4rem;font-weight:700;color:var(--warn)}
 
 /* MODAL ELIMINAR */
 .ov{position:fixed;inset:0;background:rgba(0,0,0,.88);backdrop-filter:blur(8px);z-index:400;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .25s}
@@ -172,6 +190,16 @@ tr:hover td{background:rgba(0,255,30,.02)}
 
   <!-- DASHBOARD -->
   <div class="pane active" id="pane-dash">
+    <!-- API Envíos del día -->
+    <div class="api-stats">
+      <div class="api-ico">⚡</div>
+      <div class="api-info">
+        <div class="api-title">Envíos de la API hoy</div>
+        <div class="api-sub">Total de envíos realizados hoy desde esta plataforma. La API puede tener un límite diario. Monitorea para evitar errores.</div>
+      </div>
+      <div class="api-val" id="api-hoy">—</div>
+    </div>
+
     <div class="sg">
       <div class="sb"><div class="sv" id="a-tu">0</div><div class="sl">Usuarios</div></div>
       <div class="sb"><div class="sv" id="a-tc">0</div><div class="sl">Códigos</div></div>
@@ -192,35 +220,65 @@ tr:hover td{background:rgba(0,255,30,.02)}
     <div class="card">
       <div class="ct">Crear código de acceso</div>
       <div class="msg" id="msg-cod"></div>
+
       <div class="fg"><label>Tipo de plan</label></div>
       <div class="tipo-grid">
         <div class="topt sel" id="topt-dias" onclick="selTipo('dias')">
-          <h4>Por días</h4>
-          <p>El plan dura X días desde que el usuario lo canjea</p>
+          <h4>📅 Por días</h4>
+          <p>El plan dura X días desde que se canjea</p>
         </div>
         <div class="topt" id="topt-likes" onclick="selTipo('likes')">
-          <h4>Por likes</h4>
-          <p>El plan dura hasta que el usuario agota los likes totales</p>
+          <h4>❤️ Por likes</h4>
+          <p>El plan dura hasta agotar los likes</p>
+        </div>
+        <div class="topt ilim-opt" id="topt-ilimitado" onclick="selTipo('ilimitado')">
+          <h4>🚀 Ilimitado</h4>
+          <p>Sin límite de likes, días ni envíos</p>
         </div>
       </div>
-      <div class="fr">
-        <div class="fg" id="cdias-f"><label>Días del plan</label><input type="number" id="c-dias" min="1" value="30" placeholder="30"/></div>
-        <div class="fg" id="clikes-f" style="display:none"><label>Total de likes</label><input type="number" id="c-lktotal" min="1" value="500" placeholder="500"/></div>
-        <div class="fg"><label>Likes al canjear</label><input type="number" id="c-lk" min="1" value="300" placeholder="300"/></div>
-        <div class="fg"><label>Envíos por día</label><input type="number" id="c-env" min="1" value="3" placeholder="3"/></div>
-        <div class="fg"><label>Código personalizado</label><input type="text" id="c-cust" placeholder="Vacío = aleatorio" style="text-transform:uppercase" maxlength="12"/></div>
+
+      <!-- Campos por días -->
+      <div id="campos-dias">
+        <div class="fr">
+          <div class="fg"><label>Días del plan</label><input type="number" id="c-dias" min="1" value="30" placeholder="30"/></div>
+          <div class="fg"><label>Envíos por día</label><input type="number" id="c-env-dias" min="1" value="3" placeholder="3"/></div>
+          <div class="fg"><label>Código personalizado</label><input type="text" id="c-cust-dias" placeholder="Vacío = aleatorio" style="text-transform:uppercase" maxlength="12"/></div>
+        </div>
       </div>
-      <button class="btn bp" onclick="crearCod()">
+
+      <!-- Campos por likes -->
+      <div id="campos-likes" style="display:none">
+        <div class="fr">
+          <div class="fg"><label>Cantidad de likes</label><input type="number" id="c-lktotal" min="1" value="500" placeholder="500"/></div>
+          <div class="fg"><label>Envíos por día</label><input type="number" id="c-env-likes" min="1" value="3" placeholder="3"/></div>
+          <div class="fg"><label>Código personalizado</label><input type="text" id="c-cust-likes" placeholder="Vacío = aleatorio" style="text-transform:uppercase" maxlength="12"/></div>
+        </div>
+      </div>
+
+      <!-- Campos ilimitado -->
+      <div id="campos-ilimitado" style="display:none">
+        <div style="background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.2);border-radius:10px;padding:.9rem 1rem;margin-bottom:.75rem">
+          <p style="color:#a78bfa;font-size:.82rem;font-weight:700;margin-bottom:.3rem">⚠️ Plan Ilimitado</p>
+          <p style="color:var(--mut);font-size:.78rem;line-height:1.55">Este código otorgará acceso sin límite de likes, días ni envíos por día. Úsalo solo para cuentas de confianza. Los usuarios con plan ilimitado NO aparecen en el top.</p>
+        </div>
+        <div class="fr">
+          <div class="fg"><label>Código personalizado</label><input type="text" id="c-cust-ilim" placeholder="Vacío = aleatorio" style="text-transform:uppercase" maxlength="12"/></div>
+        </div>
+      </div>
+
+      <button class="btn bp" id="btn-crear-cod" onclick="crearCod()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Generar código
       </button>
+
       <div class="cbox" id="ncbox">
-        <p style="margin-bottom:.3rem">Código generado</p>
+        <p style="margin-bottom:.3rem" id="nc-tipo-lbl">Código generado</p>
         <div class="cbig" id="nc-val">—</div>
         <p id="nc-det">—</p>
         <button class="ccpy" onclick="copiarCod()">Copiar</button>
       </div>
     </div>
+
     <div class="card">
       <div class="ct" style="justify-content:space-between">
         <span>Todos los códigos</span>
@@ -291,7 +349,7 @@ tr:hover td{background:rgba(0,255,30,.02)}
   <div class="pane" id="pane-rec">
     <div class="card">
       <div class="ct">Generar código de recuperación</div>
-      <p style="color:var(--mut);font-size:.81rem;margin-bottom:1rem;line-height:1.55">Genera un código de recuperación para un usuario que no puede acceder. El código expira en 48 horas. Dáselo al usuario para que lo use en el formulario de recuperación del dashboard.</p>
+      <p style="color:var(--mut);font-size:.81rem;margin-bottom:1rem;line-height:1.55">Genera un código de recuperación para un usuario que no puede acceder. El código expira en 48 horas. Dáselo al usuario para que lo use en la sección Acceso del dashboard.</p>
       <div class="msg" id="msg-rec-a"></div>
       <div style="display:flex;gap:.6rem;flex-wrap:wrap;align-items:flex-end">
         <div class="fg" style="flex:1;min-width:170px;margin:0">
@@ -359,7 +417,7 @@ tr:hover td{background:rgba(0,255,30,.02)}
 <script src="/js/api.js"></script>
 <script>
 let admTok = null, editUID = null, recUID = null, tipoPlan = 'dias';
-let admUser = 'admin'; // guardamos el usuario para verificar eliminar
+let admUser = 'admin';
 
 (()=>{const c=document.getElementById('ptcl');for(let i=0;i<13;i++){const p=document.createElement('div');p.className='pt';const s=Math.random()*2.5+.8;p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;animation-duration:${Math.random()*20+12}s;animation-delay:${Math.random()*16}s`;c.appendChild(p);}})();
 
@@ -400,10 +458,19 @@ function mAct(el) { document.querySelectorAll('#mobn .mb').forEach(b => b.classL
 // TIPO SELECTOR
 function selTipo(tipo) {
   tipoPlan = tipo;
-  document.getElementById('topt-dias').classList.toggle('sel', tipo === 'dias');
-  document.getElementById('topt-likes').classList.toggle('sel', tipo === 'likes');
-  document.getElementById('cdias-f').style.display  = tipo === 'dias'  ? 'block' : 'none';
-  document.getElementById('clikes-f').style.display = tipo === 'likes' ? 'block' : 'none';
+  ['dias','likes','ilimitado'].forEach(t => {
+    document.getElementById('topt-'+t).classList.toggle('sel', t === tipo);
+    document.getElementById('campos-'+t).style.display = t === tipo ? 'block' : 'none';
+  });
+  // Color del botón generar para ilimitado
+  const btn = document.getElementById('btn-crear-cod');
+  if (tipo === 'ilimitado') {
+    btn.style.background = '#a78bfa';
+    btn.style.color = '#fff';
+  } else {
+    btn.style.background = '';
+    btn.style.color = '';
+  }
 }
 
 // DASHBOARD
@@ -411,6 +478,8 @@ async function loadDash() {
   const r = await API.getAdmin('/api/admin/stats', admTok); if (!r.ok) return;
   animN('a-tu', r.totalUsuarios); animN('a-tc', r.totalCodigos);
   animN('a-uc', r.codigosUsados); animN('a-ap', r.planesActivos);
+  // Envíos de la API hoy
+  document.getElementById('api-hoy').textContent = (r.enviosHoy || 0).toLocaleString('es');
   document.getElementById('dash-rec').innerHTML = r.usuariosRecientes.length
     ? r.usuariosRecientes.map(u => `
       <tr>
@@ -428,27 +497,48 @@ function animN(id, target) {
 
 // CÓDIGOS
 async function crearCod() {
-  const envDia = parseInt(document.getElementById('c-env').value);
-  const lkAl   = parseInt(document.getElementById('c-lk').value);
-  const custom  = document.getElementById('c-cust').value.trim();
-  let body = { tipo: tipoPlan, envios_dia: envDia, custom, likes: lkAl };
-  if (tipoPlan === 'dias') {
-    body.dias  = parseInt(document.getElementById('c-dias').value);
+  let body = { tipo: tipoPlan };
+
+  if (tipoPlan === 'ilimitado') {
+    body.ilimitado = true;
+    body.custom = document.getElementById('c-cust-ilim').value.trim();
+  } else if (tipoPlan === 'dias') {
+    body.dias = parseInt(document.getElementById('c-dias').value);
+    body.envios_dia = parseInt(document.getElementById('c-env-dias').value);
+    body.custom = document.getElementById('c-cust-dias').value.trim();
   } else {
     body.likes = parseInt(document.getElementById('c-lktotal').value);
-    body.dias  = 0;
+    body.envios_dia = parseInt(document.getElementById('c-env-likes').value);
+    body.custom = document.getElementById('c-cust-likes').value.trim();
   }
+
   const r = await API.postAdmin('/api/admin/codigos', body, admTok);
   if (!r.ok) return showMsg('msg-cod', r.error, 'err');
-  showMsg('msg-cod', '✓ Código creado', 'ok');
+  showMsg('msg-cod', '✓ Código creado exitosamente', 'ok');
+
   const c = r.codigo;
-  const det = c.tipo === 'likes'
-    ? `${(c.likes||0).toLocaleString('es')} likes totales · ${c.envios_dia} envíos/día`
-    : `${c.dias} días · ${(c.likes||0).toLocaleString('es')} likes · ${c.envios_dia} envíos/día`;
+  const cbox = document.getElementById('ncbox');
+
+  if (c.ilimitado) {
+    cbox.className = 'cbox ilim-box';
+    document.getElementById('nc-tipo-lbl').textContent = '🚀 Código ILIMITADO generado';
+    document.getElementById('nc-det').textContent = 'Sin límite de likes · Sin límite de días · Envíos ilimitados';
+  } else {
+    cbox.className = 'cbox';
+    document.getElementById('nc-tipo-lbl').textContent = 'Código generado';
+    const det = c.tipo === 'likes'
+      ? `${(c.likes||0).toLocaleString('es')} likes · ${c.envios_dia} envíos/día`
+      : `${c.dias} días · ${c.envios_dia} envíos/día`;
+    document.getElementById('nc-det').textContent = det;
+  }
+
   document.getElementById('nc-val').textContent = c.codigo;
-  document.getElementById('nc-det').textContent = det;
-  document.getElementById('ncbox').style.display = 'block';
-  document.getElementById('c-cust').value = '';
+  cbox.style.display = 'block';
+
+  // Limpiar campos
+  ['c-cust-dias','c-cust-likes','c-cust-ilim'].forEach(id => {
+    const el = document.getElementById(id); if (el) el.value = '';
+  });
   loadCods();
 }
 function copiarCod() { navigator.clipboard.writeText(document.getElementById('nc-val').textContent); }
@@ -456,17 +546,27 @@ function copiarCod() { navigator.clipboard.writeText(document.getElementById('nc
 async function loadCods() {
   const r = await API.getAdmin('/api/admin/codigos', admTok); if (!r.ok) return;
   document.getElementById('tb-cod').innerHTML = r.codigos.length
-    ? r.codigos.map(c => `
-      <tr>
-        <td><code style="color:var(--g);font-weight:700;letter-spacing:2px;font-size:.82rem">${c.codigo}</code></td>
-        <td><span class="badge ${c.tipo==='likes'?'blikes':'bdias'}">${c.tipo==='likes'?'Likes':'Días'}</span></td>
-        <td style="font-size:.78rem">${c.tipo==='likes'?`${(c.likes||0).toLocaleString('es')} lk`:`${c.dias||0}d · ${(c.likes||0).toLocaleString('es')} lk`}</td>
-        <td>${c.envios_dia}</td>
-        <td><span class="badge ${c.usado?'boff':'bok'}">${c.usado?'Usado':'Disponible'}</span></td>
-        <td style="color:var(--mut);font-size:.76rem">${c.usado_por||'—'}</td>
-        <td style="color:var(--mut);font-size:.76rem">${new Date(c.creado_en).toLocaleDateString('es')}</td>
-        <td><button class="btn bsm" style="background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.2);color:var(--red);font-weight:700;font-family:'Exo 2',sans-serif;border-radius:5px;cursor:pointer;padding:.24rem .5rem;font-size:.72rem" onclick="delCod('${c.codigo}')">Eliminar</button></td>
-      </tr>`).join('')
+    ? r.codigos.map(c => {
+        const tipo = c.ilimitado ? 'ilimitado' : (c.tipo || 'dias');
+        const tipoBadge = c.ilimitado ? '<span class="badge bilim">🚀 Ilimitado</span>'
+          : tipo === 'likes' ? '<span class="badge blikes">Likes</span>'
+          : '<span class="badge bdias">Días</span>';
+        const detalle = c.ilimitado ? '∞ · ∞ envíos/día'
+          : tipo === 'likes' ? `${(c.likes||0).toLocaleString('es')} lk`
+          : `${c.dias||0}d`;
+        const envDia = c.ilimitado ? '∞' : c.envios_dia;
+        return `
+        <tr>
+          <td><code style="color:var(--g);font-weight:700;letter-spacing:2px;font-size:.82rem">${c.codigo}</code></td>
+          <td>${tipoBadge}</td>
+          <td style="font-size:.78rem">${detalle}</td>
+          <td>${envDia}</td>
+          <td><span class="badge ${c.usado?'boff':'bok'}">${c.usado?'Usado':'Disponible'}</span></td>
+          <td style="color:var(--mut);font-size:.76rem">${c.usado_por||'—'}</td>
+          <td style="color:var(--mut);font-size:.76rem">${new Date(c.creado_en).toLocaleDateString('es')}</td>
+          <td><button class="btn bsm" style="background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.2);color:var(--red);font-weight:700;font-family:'Exo 2',sans-serif;border-radius:5px;cursor:pointer;padding:.24rem .5rem;font-size:.72rem" onclick="delCod('${c.codigo}')">Eliminar</button></td>
+        </tr>`;
+      }).join('')
     : '<tr><td colspan="8" style="text-align:center;color:var(--mut);padding:1.8rem">Sin códigos</td></tr>';
 }
 async function delCod(cod) {
@@ -484,25 +584,22 @@ async function buscarUsr() {
 function mostrarDetUsr(u) {
   editUID = u.id;
   document.getElementById('usr-det-card').style.display = 'block';
-  const vence = u.plan_vence ? new Date(u.plan_vence).toLocaleDateString('es') : (u.plan_tipo==='likes'?'(por likes)':'—');
-  const diasR = u.plan_vence ? Math.max(0, Math.ceil((new Date(u.plan_vence) - Date.now()) / 86400000)) : 0;
-  const progLikes = u.plan_tipo==='likes' && u.likes_limite_plan > 0
-    ? `<div class="ir"><span class="ik">Likes usados</span><span class="iv">${(u.likes_enviados_plan||0).toLocaleString('es')} / ${u.likes_limite_plan.toLocaleString('es')}</span></div>` : '';
+  const vence = u.ilimitado ? '∞ (Ilimitado)' : (u.plan_vence ? new Date(u.plan_vence).toLocaleDateString('es') : (u.plan_tipo==='likes'?'(por likes)':'—'));
+  const diasR = (u.plan_vence && !u.ilimitado) ? Math.max(0, Math.ceil((new Date(u.plan_vence) - Date.now()) / 86400000)) : 0;
   document.getElementById('usr-det').innerHTML = `
     <div class="ir"><span class="ik">ID único</span><span class="iv"><code style="color:var(--g)">${u.uid}</code></span></div>
     <div class="ir"><span class="ik">Usuario</span><span class="iv">${u.username}</span></div>
     <div class="ir"><span class="ik">Contacto</span><span class="iv">${u.contact}</span></div>
     <div class="ir"><span class="ik">Plan</span><span class="iv"><span class="badge ${u.plan_activo?'bok':'bnone'}">${u.plan_activo?u.plan_nombre:'Sin plan'}</span></span></div>
-    <div class="ir"><span class="ik">Tipo de plan</span><span class="iv"><span class="badge ${u.plan_tipo==='likes'?'blikes':'bdias'}">${u.plan_tipo||'días'}</span></span></div>
-    <div class="ir"><span class="ik">Likes disponibles</span><span class="iv">${(u.likes_disponibles||0).toLocaleString('es')}</span></div>
-    ${progLikes}
-    <div class="ir"><span class="ik">Envíos por día</span><span class="iv">${u.envios_por_dia}</span></div>
+    <div class="ir"><span class="ik">Tipo</span><span class="iv"><span class="badge ${u.ilimitado?'bilim':u.plan_tipo==='likes'?'blikes':'bdias'}">${u.ilimitado?'🚀 Ilimitado':u.plan_tipo||'días'}</span></span></div>
+    <div class="ir"><span class="ik">Likes disponibles</span><span class="iv">${u.ilimitado?'∞':(u.likes_disponibles||0).toLocaleString('es')}</span></div>
+    <div class="ir"><span class="ik">Envíos por día</span><span class="iv">${u.ilimitado?'∞':u.envios_por_dia}</span></div>
     <div class="ir"><span class="ik">Envíos hoy</span><span class="iv">${u.envios_hoy}</span></div>
     <div class="ir"><span class="ik">Vence</span><span class="iv">${vence}</span></div>
     <div class="ir"><span class="ik">Registrado</span><span class="iv">${new Date(u.creado_en).toLocaleDateString('es')}</span></div>
   `;
-  document.getElementById('e-lk').value   = u.likes_disponibles;
-  document.getElementById('e-env').value  = u.envios_por_dia;
+  document.getElementById('e-lk').value   = u.ilimitado ? 999999 : u.likes_disponibles;
+  document.getElementById('e-env').value  = u.ilimitado ? 999 : u.envios_por_dia;
   document.getElementById('e-dias').value = diasR;
   document.getElementById('e-stat').value = u.plan_activo ? 'true' : 'false';
   document.getElementById('usr-det-card').scrollIntoView({ behavior: 'smooth' });
@@ -551,8 +648,8 @@ async function loadUsrs() {
         <td>${u.username}</td>
         <td style="color:var(--mut);font-size:.78rem;max-width:120px;overflow:hidden;text-overflow:ellipsis">${u.contact}</td>
         <td><span class="badge ${u.plan_activo?'bok':'bnone'}">${u.plan_activo?'Activo':'Sin plan'}</span></td>
-        <td><span class="badge ${u.plan_tipo==='likes'?'blikes':'bdias'}">${u.plan_tipo||'días'}</span></td>
-        <td>${(u.likes_disponibles||0).toLocaleString('es')}</td>
+        <td><span class="badge ${u.ilimitado?'bilim':u.plan_tipo==='likes'?'blikes':'bdias'}">${u.ilimitado?'🚀 Ilim.':u.plan_tipo||'días'}</span></td>
+        <td>${u.ilimitado?'∞':(u.likes_disponibles||0).toLocaleString('es')}</td>
         <td style="color:var(--mut);font-size:.78rem">${new Date(u.creado_en).toLocaleDateString('es')}</td>
         <td><button class="btn bo bsm" onclick='mostrarDetUsr(${JSON.stringify(u).replace(/'/g,"&#39;")})'>Ver</button></td>
       </tr>`).join('')
