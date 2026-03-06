@@ -4,14 +4,13 @@ const cors    = require('cors');
 const bcrypt  = require('bcryptjs');
 const jwt     = require('jsonwebtoken');
 const https   = require('https');
-const http    = require('http');
 const { Pool } = require('pg');
 const path    = require('path');
 
 const app  = express();
 const PORT = process.env.PORT || 3000;
 
-// ── Base de datos ────────────────────────────────────────────
+// ── Base de datos ─────────────────────────────────────────────
 const pool = new Pool({
   connectionString: process.env.DATABASE_URL,
   ssl: { rejectUnauthorized: false },
@@ -22,7 +21,7 @@ app.use(cors());
 app.use(express.json());
 app.use(express.static(path.join(__dirname, '../public')));
 
-// ── Crear tablas ─────────────────────────────────────────────
+// ── Crear tablas ──────────────────────────────────────────────
 async function initDB() {
   const client = await pool.connect();
   try {
@@ -89,8 +88,12 @@ function genCodigo(custom) {
 function authMiddleware(req, res, next) {
   const token = req.headers.authorization?.split(' ')[1];
   if (!token) return res.status(401).json({ error: 'Token requerido' });
-  try { req.user = jwt.verify(token, process.env.JWT_SECRET || 'bs_secret_2026'); next(); }
-  catch { res.status(401).json({ error: 'Token inválido o expirado' }); }
+  try {
+    req.user = jwt.verify(token, process.env.JWT_SECRET || 'bs_secret_2026');
+    next();
+  } catch {
+    res.status(401).json({ error: 'Token inválido o expirado' });
+  }
 }
 function adminMiddleware(req, res, next) {
   const token = req.headers.authorization?.split(' ')[1];
@@ -98,27 +101,111 @@ function adminMiddleware(req, res, next) {
   try {
     const d = jwt.verify(token, process.env.JWT_SECRET || 'bs_secret_2026');
     if (!d.isAdmin) return res.status(403).json({ error: 'Acceso denegado' });
-    req.user = d; next();
-  } catch { res.status(401).json({ error: 'Token inválido' }); }
+    req.user = d;
+    next();
+  } catch {
+    res.status(401).json({ error: 'Token inválido' });
+  }
 }
 
 // ── API de Free Fire ──────────────────────────────────────────
-function llamarApiFF(uid) {
+// Igual que el bot de Telegram: uid + apikey + server como query params
+function llamarApiFF(uid, server = 'BR') {
   return new Promise((resolve, reject) => {
     const apiKey = process.env.FF_API_KEY;
-    const url = `https://rtpysistemsapi.squareweb.app/like?uid=${uid}&apikey=${apiKey}`;
-    const req = https.get(url, { timeout: 20000 }, (res) => {
+    const apiBase = process.env.FF_API_URL || 'https://rtpysistemsapi.squareweb.app';
+
+    if (!apiKey) {
+      return reject(new Error('FF_API_KEY no configurada en variables de entorno'));
+    }
+
+    // Construir URL exactamente igual que el bot de Telegram
+    const params = `uid=${encodeURIComponent(uid)}&apikey=${encodeURIComponent(apiKey)}&server=${encodeURIComponent(server)}`;
+    const fullUrl = `${apiBase}/like?${params}`;
+
+    console.log(`[API FF] Llamando: ${apiBase}/like?uid=${uid}&server=${server}&apikey=***`);
+
+    const req = https.get(fullUrl, { timeout: 30000 }, (res) => {
       let data = '';
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
-        try { resolve(JSON.parse(data)); }
-        catch { reject(new Error('Respuesta inválida de la API')); }
+        console.log(`[API FF] Status HTTP: ${res.statusCode} | Respuesta: ${data.slice(0, 200)}`);
+        try {
+          const parsed = JSON.parse(data);
+          parsed._httpStatus = res.statusCode;
+          resolve(parsed);
+        } catch {
+          reject(new Error(`Respuesta inválida de la API: ${data.slice(0, 100)}`));
+        }
       });
     });
-    req.on('error', reject);
-    req.on('timeout', () => { req.destroy(); reject(new Error('Tiempo de espera agotado')); });
+
+    req.on('error', (err) => {
+      console.error(`[API FF] Error de conexión:`, err.message);
+      reject(err);
+    });
+    req.on('timeout', () => {
+      req.destroy();
+      reject(new Error('Tiempo de espera agotado (30s)'));
+    });
   });
 }
+
+// ── Interpretar respuesta de la API (misma lógica que el bot) ──
+function interpretarRespuestaFF(apiData) {
+  // El bot usa: status == 1 OR likes_added > 0 OR successful_likes > 0
+  const status      = apiData.status;
+  const added       = parseInt(apiData.likes_added  || 0, 10);
+  const successful  = parseInt(apiData.successful_likes || 0, 10);
+  const before      = parseInt(apiData.likes_before || 0, 10);
+  const after       = parseInt(apiData.likes_after  || 0, 10);
+  const msgRaw      = String((apiData.message || '') + (apiData.error || '')).toLowerCase();
+
+  // Límite de API alcanzado (igual que el bot)
+  if (apiData._httpStatus === 429 || apiData._limit === true ||
+      ['limit','already','wait','espera','daily'].some(k => msgRaw.includes(k))) {
+    return { tipo: 'limite', data: apiData };
+  }
+
+  // Error de autenticación
+  if (apiData._httpStatus === 401 || msgRaw.includes('api key') || msgRaw.includes('apikey') ||
+      msgRaw.includes('unauthorized') || msgRaw.includes('access denied') || msgRaw.includes('denegado')) {
+    return { tipo: 'auth_error', data: apiData };
+  }
+
+  // Envío exitoso (igual que el bot)
+  if (status === 1 || added > 0 || successful > 0) {
+    // Verificar si el after no subió (ID ya recibió likes hoy)
+    if (after > 0 && after <= before && added === 0 && successful === 0) {
+      return { tipo: 'ya_recibio', data: apiData };
+    }
+    return { tipo: 'ok', data: apiData };
+  }
+
+  // Cualquier otro error
+  return { tipo: 'error', data: apiData };
+}
+
+// ════════════════════════════════════════════════════════════════
+//  PÚBLICO
+// ════════════════════════════════════════════════════════════════
+
+// Stats públicas para el ticker del index
+app.get('/api/public-stats', async (req, res) => {
+  try {
+    const [usuarios, likesTotal] = await Promise.all([
+      pool.query('SELECT COUNT(*) FROM usuarios'),
+      pool.query('SELECT COALESCE(SUM(likes_agregados),0) AS total FROM historial'),
+    ]);
+    res.json({
+      ok: true,
+      usuarios: parseInt(usuarios.rows[0].count, 10),
+      likes:    parseInt(likesTotal.rows[0].total, 10),
+    });
+  } catch (err) {
+    res.json({ ok: false, usuarios: 0, likes: 0 });
+  }
+});
 
 // ════════════════════════════════════════════════════════════════
 //  USUARIOS
@@ -129,10 +216,15 @@ app.post('/api/registro', async (req, res) => {
     const { username, password, contact } = req.body;
     if (!username || !password || !contact)
       return res.status(400).json({ error: 'Completa todos los campos' });
-    if (username.length < 3) return res.status(400).json({ error: 'El usuario debe tener al menos 3 caracteres' });
-    if (password.length < 6) return res.status(400).json({ error: 'La contraseña debe tener mínimo 6 caracteres' });
+    if (username.length < 3)
+      return res.status(400).json({ error: 'El usuario debe tener al menos 3 caracteres' });
+    if (password.length < 6)
+      return res.status(400).json({ error: 'La contraseña debe tener mínimo 6 caracteres' });
+
     const existe = await pool.query('SELECT id FROM usuarios WHERE LOWER(username)=LOWER($1)', [username]);
-    if (existe.rows.length) return res.status(400).json({ error: 'Ese nombre de usuario ya está en uso' });
+    if (existe.rows.length)
+      return res.status(400).json({ error: 'Ese nombre de usuario ya está en uso' });
+
     const hash = await bcrypt.hash(password, 10);
     let uid, intentos = 0;
     do {
@@ -140,41 +232,69 @@ app.post('/api/registro', async (req, res) => {
       const chk = await pool.query('SELECT id FROM usuarios WHERE uid=$1', [uid]);
       if (!chk.rows.length) break;
     } while (++intentos < 20);
+
     const result = await pool.query(
       `INSERT INTO usuarios (uid,username,password,contact) VALUES ($1,$2,$3,$4)
        RETURNING id,uid,username,contact,plan_activo,plan_nombre,likes_disponibles,envios_por_dia,plan_vence,creado_en`,
       [uid, username, hash, contact]
     );
     const user = result.rows[0];
-    const token = jwt.sign({ id: user.id, uid: user.uid, username: user.username },
-      process.env.JWT_SECRET || 'bs_secret_2026', { expiresIn: '30d' });
+    const token = jwt.sign(
+      { id: user.id, uid: user.uid, username: user.username },
+      process.env.JWT_SECRET || 'bs_secret_2026',
+      { expiresIn: '30d' }
+    );
     res.json({ ok: true, token, user });
-  } catch (err) { console.error(err); res.status(500).json({ error: 'Error interno del servidor' }); }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
 
 app.post('/api/login', async (req, res) => {
   try {
     const { username, password } = req.body;
-    if (!username || !password) return res.status(400).json({ error: 'Ingresa usuario y contraseña' });
+    if (!username || !password)
+      return res.status(400).json({ error: 'Ingresa usuario y contraseña' });
+
     const result = await pool.query('SELECT * FROM usuarios WHERE LOWER(username)=LOWER($1)', [username]);
-    if (!result.rows.length) return res.status(400).json({ error: 'Usuario o contraseña incorrectos' });
+    if (!result.rows.length)
+      return res.status(400).json({ error: 'Usuario o contraseña incorrectos' });
+
     const user = result.rows[0];
     if (!await bcrypt.compare(password, user.password))
       return res.status(400).json({ error: 'Usuario o contraseña incorrectos' });
-    const token = jwt.sign({ id: user.id, uid: user.uid, username: user.username },
-      process.env.JWT_SECRET || 'bs_secret_2026', { expiresIn: '30d' });
+
+    const token = jwt.sign(
+      { id: user.id, uid: user.uid, username: user.username },
+      process.env.JWT_SECRET || 'bs_secret_2026',
+      { expiresIn: '30d' }
+    );
     const { password: _, ...userSafe } = user;
     res.json({ ok: true, token, user: userSafe });
-  } catch (err) { console.error(err); res.status(500).json({ error: 'Error interno del servidor' }); }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
 
 app.post('/api/recuperar', async (req, res) => {
   try {
     const { contact } = req.body;
-    const result = await pool.query('SELECT uid FROM usuarios WHERE contact=$1', [contact]);
-    if (!result.rows.length) return res.status(404).json({ error: 'No se encontró ninguna cuenta con ese contacto' });
-    res.json({ ok: true, message: `Tu ID es: ${result.rows[0].uid} — Contacta al administrador para recuperar tu contraseña.` });
-  } catch (err) { res.status(500).json({ error: 'Error interno' }); }
+    if (!contact) return res.status(400).json({ error: 'Ingresa tu correo o teléfono' });
+
+    const result = await pool.query('SELECT uid, username FROM usuarios WHERE contact=$1', [contact]);
+    if (!result.rows.length)
+      return res.status(404).json({ error: 'No se encontró ninguna cuenta con ese contacto' });
+
+    const u = result.rows[0];
+    res.json({
+      ok: true,
+      message: `Tu usuario es "${u.username}" y tu ID único es: ${u.uid}. Contacta al administrador para recuperar tu contraseña.`
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Error interno' });
+  }
 });
 
 app.get('/api/perfil', authMiddleware, async (req, res) => {
@@ -188,9 +308,12 @@ app.get('/api/perfil', authMiddleware, async (req, res) => {
     const result = await pool.query(
       `SELECT id,uid,username,contact,plan_activo,plan_nombre,
        likes_disponibles,envios_por_dia,envios_hoy,plan_vence,creado_en
-       FROM usuarios WHERE id=$1`, [req.user.id]
+       FROM usuarios WHERE id=$1`,
+      [req.user.id]
     );
-    if (!result.rows.length) return res.status(404).json({ error: 'Usuario no encontrado' });
+    if (!result.rows.length)
+      return res.status(404).json({ error: 'Usuario no encontrado' });
+
     const u = result.rows[0];
     if (u.plan_activo && u.plan_vence && new Date(u.plan_vence) < new Date()) {
       await pool.query('UPDATE usuarios SET plan_activo=false WHERE id=$1', [u.id]);
@@ -198,110 +321,188 @@ app.get('/api/perfil', authMiddleware, async (req, res) => {
     }
     const hist = await pool.query(
       `SELECT ff_uid,player_name,likes_antes,likes_despues,likes_agregados,nivel,region,fecha
-       FROM historial WHERE usuario_id=$1 ORDER BY fecha DESC LIMIT 30`, [req.user.id]
+       FROM historial WHERE usuario_id=$1 ORDER BY fecha DESC LIMIT 30`,
+      [req.user.id]
     );
     res.json({ ok: true, user: u, historial: hist.rows });
-  } catch (err) { console.error(err); res.status(500).json({ error: 'Error interno' }); }
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error interno' });
+  }
 });
 
 app.post('/api/canjear', authMiddleware, async (req, res) => {
   try {
     const { codigo } = req.body;
     if (!codigo) return res.status(400).json({ error: 'Ingresa un código' });
+
     const codResult = await pool.query('SELECT * FROM codigos WHERE codigo=$1', [codigo.toUpperCase()]);
-    if (!codResult.rows.length) return res.status(400).json({ error: 'Código inválido o inexistente' });
+    if (!codResult.rows.length)
+      return res.status(400).json({ error: 'Código inválido o inexistente' });
+
     const cod = codResult.rows[0];
     if (cod.usado) return res.status(400).json({ error: 'Este código ya fue utilizado' });
+
     const user = await pool.query('SELECT uid FROM usuarios WHERE id=$1', [req.user.id]);
     const vence = new Date(Date.now() + cod.dias * 86400000).toISOString();
+
     await pool.query(
       `UPDATE usuarios SET plan_activo=true, plan_nombre=$1,
        likes_disponibles=likes_disponibles+$2, envios_por_dia=$3, plan_vence=$4 WHERE id=$5`,
       [`Plan ${cod.dias} días`, cod.likes, cod.envios_dia, vence, req.user.id]
     );
-    await pool.query('UPDATE codigos SET usado=true, usado_por=$1, usado_en=NOW() WHERE codigo=$2',
-      [user.rows[0].uid, cod.codigo]);
-    res.json({ ok: true, message: `✅ Plan activado: ${cod.likes.toLocaleString()} likes · ${cod.dias} días · ${cod.envios_dia} envíos/día` });
-  } catch (err) { console.error(err); res.status(500).json({ error: 'Error interno' }); }
+    await pool.query(
+      'UPDATE codigos SET usado=true, usado_por=$1, usado_en=NOW() WHERE codigo=$2',
+      [user.rows[0].uid, cod.codigo]
+    );
+    res.json({
+      ok: true,
+      message: `✅ Plan activado: ${cod.likes.toLocaleString()} likes · ${cod.dias} días · ${cod.envios_dia} envíos/día`
+    });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error interno' });
+  }
 });
 
 app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
   try {
-    const { ff_uid } = req.body;
+    const { ff_uid, server = 'BR' } = req.body;
     if (!ff_uid) return res.status(400).json({ error: 'Ingresa el UID de Free Fire' });
-    if (!/^\d+$/.test(ff_uid.trim())) return res.status(400).json({ error: 'El UID solo debe contener números' });
+    if (!/^\d+$/.test(ff_uid.trim()))
+      return res.status(400).json({ error: 'El UID solo debe contener números' });
 
+    // Resetear envíos si es un día nuevo
     const today = new Date().toISOString().slice(0, 10);
     await pool.query(
       `UPDATE usuarios SET envios_hoy=0, fecha_ultimo_envio=$1
        WHERE id=$2 AND (fecha_ultimo_envio IS NULL OR fecha_ultimo_envio < $1)`,
       [today, req.user.id]
     );
+
     const result = await pool.query('SELECT * FROM usuarios WHERE id=$1', [req.user.id]);
     const u = result.rows[0];
 
-    if (!u.plan_activo) return res.status(400).json({ error: 'Necesitas un plan activo para enviar likes' });
+    if (!u.plan_activo)
+      return res.status(400).json({ error: 'Necesitas un plan activo para enviar likes' });
     if (u.plan_vence && new Date(u.plan_vence) < new Date()) {
       await pool.query('UPDATE usuarios SET plan_activo=false WHERE id=$1', [u.id]);
       return res.status(400).json({ error: 'Tu plan ha vencido. Canjea un nuevo código' });
     }
     if (u.envios_hoy >= u.envios_por_dia)
-      return res.status(400).json({ error: `Límite diario alcanzado (${u.envios_por_dia} envíos/día). Vuelve mañana` });
+      return res.status(400).json({
+        error: `Límite diario alcanzado (${u.envios_por_dia} envíos/día). Vuelve mañana`
+      });
     if (u.likes_disponibles <= 0)
       return res.status(400).json({ error: 'No tienes likes disponibles en tu plan' });
 
-    // Llamar API real
+    // Validar server
+    const serverUpper = (server || 'BR').toUpperCase();
+    const serversValidos = ['BR', 'IND', 'US', 'SAC', 'NA'];
+    const serverFinal = serversValidos.includes(serverUpper) ? serverUpper : 'BR';
+
+    // Llamar a la API (misma lógica que el bot de Telegram)
     let apiData;
     try {
-      apiData = await llamarApiFF(ff_uid.trim());
+      apiData = await llamarApiFF(ff_uid.trim(), serverFinal);
     } catch (apiErr) {
+      console.error('[enviar-likes] Error API:', apiErr.message);
       return res.status(500).json({ error: 'Error al contactar la API: ' + apiErr.message });
     }
 
-    if (!apiData || apiData.status !== 1) {
-      const motivo = apiData?.message || apiData?.error || 'UID inválido o no encontrado';
-      return res.status(400).json({ error: '❌ Error de la API: ' + motivo });
+    // Interpretar respuesta igual que el bot
+    const interpretado = interpretarRespuestaFF(apiData);
+    console.log(`[enviar-likes] Interpretación: ${interpretado.tipo}`, apiData);
+
+    if (interpretado.tipo === 'auth_error') {
+      return res.status(500).json({
+        error: '❌ Error de autenticación con la API. Verifica que FF_API_KEY esté bien configurada en Railway.'
+      });
     }
 
+    if (interpretado.tipo === 'limite') {
+      return res.status(400).json({
+        error: '⚠️ Este ID ya recibió likes recientemente. Intenta en unas horas.'
+      });
+    }
+
+    if (interpretado.tipo === 'ya_recibio') {
+      return res.status(400).json({
+        error: `⚠️ ${apiData.player || 'Este jugador'} ya recibió likes hoy. Intenta más tarde.`
+      });
+    }
+
+    if (interpretado.tipo === 'error') {
+      const motivo = apiData.message || apiData.error || 'UID no encontrado o respuesta inesperada';
+      return res.status(400).json({ error: '❌ ' + motivo });
+    }
+
+    // Éxito — igual que el bot
+    const d = apiData;
+    const likesAdded = Math.min(
+      parseInt(d.likes_added || 0, 10) || parseInt(d.successful_likes || 0, 10),
+      230  // máximo por envío igual que el bot
+    );
+    const player = d.player || d.nickname || ff_uid.trim();
+    const level  = d.level  || '—';
+    const region = d.region || serverFinal;
+    const before = parseInt(d.likes_before || 0, 10);
+    const after  = parseInt(d.likes_after  || 0, 10);
+    const tiempo = d.processing_time_seconds ? `${d.processing_time_seconds}s` : '—';
+
+    // Actualizar BD
     await pool.query(
-      `UPDATE usuarios SET envios_hoy=envios_hoy+1, likes_disponibles=likes_disponibles-1, fecha_ultimo_envio=$1 WHERE id=$2`,
+      `UPDATE usuarios SET envios_hoy=envios_hoy+1,
+       likes_disponibles=GREATEST(likes_disponibles-1, 0),
+       fecha_ultimo_envio=$1 WHERE id=$2`,
       [today, req.user.id]
     );
     await pool.query(
       `INSERT INTO historial (usuario_id,ff_uid,player_name,likes_antes,likes_despues,likes_agregados,nivel,region)
        VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
-      [req.user.id, ff_uid.trim(), apiData.player||'?', apiData.likes_before||0,
-       apiData.likes_after||0, apiData.likes_added||0, apiData.level||0, apiData.region||'BR']
+      [req.user.id, ff_uid.trim(), player, before, after, likesAdded, level, region]
     );
 
     res.json({
       ok: true,
       data: {
-        jugador:         apiData.player,
-        uid:             apiData.uid,
-        nivel:           apiData.level,
-        region:          apiData.region,
-        likes_antes:     apiData.likes_before,
-        likes_despues:   apiData.likes_after,
-        likes_agregados: apiData.likes_added,
-        tiempo:          apiData.processing_time_seconds + 's',
+        jugador:         player,
+        uid:             d.uid || ff_uid.trim(),
+        nivel:           level,
+        region:          region,
+        likes_antes:     before,
+        likes_despues:   after,
+        likes_agregados: likesAdded,
+        tiempo:          tiempo,
       },
-      message: `✅ ¡Likes enviados a ${apiData.player}!`
+      message: `✅ ¡${likesAdded} likes enviados a ${player}!`
     });
-  } catch (err) { console.error(err); res.status(500).json({ error: 'Error interno del servidor' }); }
+  } catch (err) {
+    console.error('[enviar-likes] Error interno:', err);
+    res.status(500).json({ error: 'Error interno del servidor' });
+  }
 });
 
 app.post('/api/cambiar-pass', authMiddleware, async (req, res) => {
   try {
     const { password_actual, password_nueva } = req.body;
-    if (!password_actual || !password_nueva) return res.status(400).json({ error: 'Completa ambos campos' });
-    if (password_nueva.length < 6) return res.status(400).json({ error: 'Mínimo 6 caracteres' });
+    if (!password_actual || !password_nueva)
+      return res.status(400).json({ error: 'Completa ambos campos' });
+    if (password_nueva.length < 6)
+      return res.status(400).json({ error: 'Mínimo 6 caracteres' });
+
     const result = await pool.query('SELECT password FROM usuarios WHERE id=$1', [req.user.id]);
     if (!await bcrypt.compare(password_actual, result.rows[0].password))
       return res.status(400).json({ error: 'La contraseña actual es incorrecta' });
-    await pool.query('UPDATE usuarios SET password=$1 WHERE id=$2', [await bcrypt.hash(password_nueva, 10), req.user.id]);
+
+    await pool.query(
+      'UPDATE usuarios SET password=$1 WHERE id=$2',
+      [await bcrypt.hash(password_nueva, 10), req.user.id]
+    );
     res.json({ ok: true, message: '✅ Contraseña actualizada correctamente' });
-  } catch (err) { res.status(500).json({ error: 'Error interno' }); }
+  } catch (err) {
+    res.status(500).json({ error: 'Error interno' });
+  }
 });
 
 // ════════════════════════════════════════════════════════════════
@@ -310,95 +511,161 @@ app.post('/api/cambiar-pass', authMiddleware, async (req, res) => {
 
 app.post('/api/admin/login', async (req, res) => {
   const { username, password } = req.body;
-  if (username !== (process.env.ADMIN_USER||'admin') || password !== (process.env.ADMIN_PASS||'boostspeed2026'))
-    return res.status(401).json({ error: 'Credenciales incorrectas' });
-  const token = jwt.sign({ isAdmin: true, username }, process.env.JWT_SECRET||'bs_secret_2026', { expiresIn: '12h' });
+  if (
+    username !== (process.env.ADMIN_USER || 'admin') ||
+    password !== (process.env.ADMIN_PASS || 'boostspeed2026')
+  ) return res.status(401).json({ error: 'Credenciales incorrectas' });
+
+  const token = jwt.sign(
+    { isAdmin: true, username },
+    process.env.JWT_SECRET || 'bs_secret_2026',
+    { expiresIn: '12h' }
+  );
   res.json({ ok: true, token });
 });
 
 app.get('/api/admin/stats', adminMiddleware, async (req, res) => {
   try {
-    const [tu,tc,uc,ap,ru] = await Promise.all([
+    const [tu, tc, uc, ap, ru] = await Promise.all([
       pool.query('SELECT COUNT(*) FROM usuarios'),
       pool.query('SELECT COUNT(*) FROM codigos'),
       pool.query('SELECT COUNT(*) FROM codigos WHERE usado=true'),
       pool.query('SELECT COUNT(*) FROM usuarios WHERE plan_activo=true'),
-      pool.query(`SELECT id,uid,username,contact,plan_activo,plan_nombre,likes_disponibles,creado_en FROM usuarios ORDER BY creado_en DESC LIMIT 10`),
+      pool.query(`SELECT id,uid,username,contact,plan_activo,plan_nombre,likes_disponibles,creado_en
+                  FROM usuarios ORDER BY creado_en DESC LIMIT 10`),
     ]);
-    res.json({ ok:true, totalUsuarios:parseInt(tu.rows[0].count), totalCodigos:parseInt(tc.rows[0].count),
-      codigosUsados:parseInt(uc.rows[0].count), planesActivos:parseInt(ap.rows[0].count), usuariosRecientes:ru.rows });
-  } catch(err){ res.status(500).json({error:'Error interno'}); }
+    res.json({
+      ok: true,
+      totalUsuarios:    parseInt(tu.rows[0].count, 10),
+      totalCodigos:     parseInt(tc.rows[0].count, 10),
+      codigosUsados:    parseInt(uc.rows[0].count, 10),
+      planesActivos:    parseInt(ap.rows[0].count, 10),
+      usuariosRecientes: ru.rows,
+    });
+  } catch (err) {
+    res.status(500).json({ error: 'Error interno' });
+  }
 });
 
 app.post('/api/admin/codigos', adminMiddleware, async (req, res) => {
   try {
     const { dias, likes, envios_dia, custom } = req.body;
-    if (!dias||!likes||!envios_dia) return res.status(400).json({error:'Completa todos los campos'});
-    let codigo, intentos=0;
+    if (!dias || !likes || !envios_dia)
+      return res.status(400).json({ error: 'Completa todos los campos' });
+
+    let codigo, intentos = 0;
     do {
-      codigo = genCodigo(intentos===0?custom:'');
-      const chk = await pool.query('SELECT id FROM codigos WHERE codigo=$1',[codigo]);
-      if(!chk.rows.length) break;
-    } while(++intentos<20);
-    const result = await pool.query('INSERT INTO codigos (codigo,dias,likes,envios_dia) VALUES ($1,$2,$3,$4) RETURNING *',
-      [codigo,dias,likes,envios_dia]);
-    res.json({ok:true, codigo:result.rows[0]});
-  } catch(err){
-    if(err.code==='23505') return res.status(400).json({error:'Ese código ya existe'});
-    res.status(500).json({error:'Error interno'});
+      codigo = genCodigo(intentos === 0 ? custom : '');
+      const chk = await pool.query('SELECT id FROM codigos WHERE codigo=$1', [codigo]);
+      if (!chk.rows.length) break;
+    } while (++intentos < 20);
+
+    const result = await pool.query(
+      'INSERT INTO codigos (codigo,dias,likes,envios_dia) VALUES ($1,$2,$3,$4) RETURNING *',
+      [codigo, dias, likes, envios_dia]
+    );
+    res.json({ ok: true, codigo: result.rows[0] });
+  } catch (err) {
+    if (err.code === '23505') return res.status(400).json({ error: 'Ese código ya existe' });
+    res.status(500).json({ error: 'Error interno' });
   }
 });
 
-app.get('/api/admin/codigos', adminMiddleware, async (req,res) => {
-  try { const r = await pool.query('SELECT * FROM codigos ORDER BY creado_en DESC'); res.json({ok:true,codigos:r.rows}); }
-  catch(err){ res.status(500).json({error:'Error interno'}); }
-});
-
-app.delete('/api/admin/codigos/:codigo', adminMiddleware, async (req,res) => {
-  try { await pool.query('DELETE FROM codigos WHERE codigo=$1',[req.params.codigo]); res.json({ok:true}); }
-  catch(err){ res.status(500).json({error:'Error interno'}); }
-});
-
-app.get('/api/admin/usuarios', adminMiddleware, async (req,res) => {
+app.get('/api/admin/codigos', adminMiddleware, async (req, res) => {
   try {
-    const r = await pool.query(`SELECT id,uid,username,contact,plan_activo,plan_nombre,likes_disponibles,envios_por_dia,envios_hoy,plan_vence,creado_en FROM usuarios ORDER BY creado_en DESC`);
-    res.json({ok:true,usuarios:r.rows});
-  } catch(err){ res.status(500).json({error:'Error interno'}); }
+    const r = await pool.query('SELECT * FROM codigos ORDER BY creado_en DESC');
+    res.json({ ok: true, codigos: r.rows });
+  } catch (err) {
+    res.status(500).json({ error: 'Error interno' });
+  }
 });
 
-app.get('/api/admin/usuarios/buscar', adminMiddleware, async (req,res) => {
+app.delete('/api/admin/codigos/:codigo', adminMiddleware, async (req, res) => {
   try {
-    const {q} = req.query;
+    await pool.query('DELETE FROM codigos WHERE codigo=$1', [req.params.codigo]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Error interno' });
+  }
+});
+
+app.get('/api/admin/usuarios', adminMiddleware, async (req, res) => {
+  try {
     const r = await pool.query(
-      `SELECT id,uid,username,contact,plan_activo,plan_nombre,likes_disponibles,envios_por_dia,envios_hoy,plan_vence,creado_en
-       FROM usuarios WHERE uid ILIKE $1 OR LOWER(username) ILIKE LOWER($1) LIMIT 10`, [`%${q}%`]);
-    res.json({ok:true,usuarios:r.rows});
-  } catch(err){ res.status(500).json({error:'Error interno'}); }
+      `SELECT id,uid,username,contact,plan_activo,plan_nombre,likes_disponibles,
+       envios_por_dia,envios_hoy,plan_vence,creado_en
+       FROM usuarios ORDER BY creado_en DESC`
+    );
+    res.json({ ok: true, usuarios: r.rows });
+  } catch (err) {
+    res.status(500).json({ error: 'Error interno' });
+  }
 });
 
-app.put('/api/admin/usuarios/:id', adminMiddleware, async (req,res) => {
+app.get('/api/admin/usuarios/buscar', adminMiddleware, async (req, res) => {
   try {
-    const {likes_disponibles,dias_adicionales,envios_por_dia,plan_activo} = req.body;
+    const { q } = req.query;
+    const r = await pool.query(
+      `SELECT id,uid,username,contact,plan_activo,plan_nombre,likes_disponibles,
+       envios_por_dia,envios_hoy,plan_vence,creado_en
+       FROM usuarios WHERE uid ILIKE $1 OR LOWER(username) ILIKE LOWER($1) LIMIT 10`,
+      [`%${q}%`]
+    );
+    res.json({ ok: true, usuarios: r.rows });
+  } catch (err) {
+    res.status(500).json({ error: 'Error interno' });
+  }
+});
+
+app.put('/api/admin/usuarios/:id', adminMiddleware, async (req, res) => {
+  try {
+    const { likes_disponibles, dias_adicionales, envios_por_dia, plan_activo } = req.body;
     const id = req.params.id;
-    let extra=''; const params=[likes_disponibles,envios_por_dia,plan_activo]; let idx=4;
-    if(plan_activo && dias_adicionales>0){
-      const vence=new Date(Date.now()+dias_adicionales*86400000).toISOString();
-      params.push(vence); extra+=`, plan_vence=$${idx++}`;
-      params.push(`Plan ${dias_adicionales} días (Admin)`); extra+=`, plan_nombre=$${idx++}`;
-    } else if(!plan_activo){ params.push(null); extra+=`, plan_vence=$${idx++}`; }
+    let extra = '';
+    const params = [likes_disponibles, envios_por_dia, plan_activo];
+    let idx = 4;
+
+    if (plan_activo && dias_adicionales > 0) {
+      const vence = new Date(Date.now() + dias_adicionales * 86400000).toISOString();
+      params.push(vence);
+      extra += `, plan_vence=$${idx++}`;
+      params.push(`Plan ${dias_adicionales} días (Admin)`);
+      extra += `, plan_nombre=$${idx++}`;
+    } else if (!plan_activo) {
+      params.push(null);
+      extra += `, plan_vence=$${idx++}`;
+    }
     params.push(id);
-    await pool.query(`UPDATE usuarios SET likes_disponibles=$1,envios_por_dia=$2,plan_activo=$3${extra} WHERE id=$${idx}`,params);
-    const updated = await pool.query(`SELECT id,uid,username,contact,plan_activo,plan_nombre,likes_disponibles,envios_por_dia,envios_hoy,plan_vence,creado_en FROM usuarios WHERE id=$1`,[id]);
-    res.json({ok:true,usuario:updated.rows[0]});
-  } catch(err){ console.error(err); res.status(500).json({error:'Error interno'}); }
+
+    await pool.query(
+      `UPDATE usuarios SET likes_disponibles=$1, envios_por_dia=$2, plan_activo=$3${extra} WHERE id=$${idx}`,
+      params
+    );
+    const updated = await pool.query(
+      `SELECT id,uid,username,contact,plan_activo,plan_nombre,likes_disponibles,
+       envios_por_dia,envios_hoy,plan_vence,creado_en FROM usuarios WHERE id=$1`,
+      [id]
+    );
+    res.json({ ok: true, usuario: updated.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error interno' });
+  }
 });
 
-app.delete('/api/admin/usuarios/:id', adminMiddleware, async (req,res) => {
-  try { await pool.query('DELETE FROM usuarios WHERE id=$1',[req.params.id]); res.json({ok:true}); }
-  catch(err){ res.status(500).json({error:'Error interno'}); }
+app.delete('/api/admin/usuarios/:id', adminMiddleware, async (req, res) => {
+  try {
+    await pool.query('DELETE FROM usuarios WHERE id=$1', [req.params.id]);
+    res.json({ ok: true });
+  } catch (err) {
+    res.status(500).json({ error: 'Error interno' });
+  }
 });
 
-app.get('*', (req,res) => res.sendFile(path.join(__dirname,'../public','index.html')));
+// Fallback SPA
+app.get('*', (req, res) =>
+  res.sendFile(path.join(__dirname, '../public', 'index.html'))
+);
 
 // ── Iniciar ───────────────────────────────────────────────────
 initDB().then(() => {
