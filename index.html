@@ -1,0 +1,295 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>BoostSpeed – Likes de Free Fire</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Exo+2:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --g:    #00FF1E;
+      --gm:   #00e61a;
+      --gdim: rgba(0,255,30,.10);
+      --glow: 0 0 22px rgba(0,255,30,.38);
+      --bg:   #070707;
+      --bg2:  #0e0e0e;
+      --bg3:  #141414;
+      --sur:  #181818;
+      --bdr:  rgba(0,255,30,.14);
+      --txt:  #eef2ee;
+      --mut:  #7a8f7a;
+      --red:  #ff4757;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    html{scroll-behavior:smooth}
+    body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden}
+
+    /* Resplandor de fondo */
+    body::before{content:'';position:fixed;top:-30%;left:50%;transform:translateX(-50%);width:800px;height:800px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,30,.06) 0%,transparent 65%);pointer-events:none;z-index:0}
+
+    /* NAV */
+    nav{position:sticky;top:0;z-index:200;background:rgba(7,7,7,.92);backdrop-filter:blur(18px);border-bottom:1px solid var(--bdr);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:62px}
+    .logo{font-family:'Rajdhani',sans-serif;font-size:1.55rem;font-weight:700;color:var(--g);letter-spacing:2px;text-decoration:none;display:flex;align-items:center;gap:.45rem}
+    .logo span{color:var(--txt);font-weight:500}
+    .pulse{width:8px;height:8px;border-radius:50%;background:var(--g);box-shadow:var(--glow);animation:blink 1.6s infinite}
+    @keyframes blink{0%,100%{opacity:1}50%{opacity:.25}}
+    .nav-btns{display:flex;gap:.6rem}
+
+    /* BOTONES */
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:.45rem;padding:.55rem 1.2rem;border-radius:7px;font-family:'Exo 2',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;border:none;text-decoration:none;transition:all .2s;letter-spacing:.3px}
+    .btn-ghost{background:transparent;border:1px solid var(--bdr);color:var(--txt)}
+    .btn-ghost:hover{border-color:var(--g);color:var(--g)}
+    .btn-p{background:var(--g);color:#000}
+    .btn-p:hover{background:var(--gm);box-shadow:var(--glow);transform:translateY(-1px)}
+    .btn-p:active,.btn-ghost:active{transform:scale(.97)}
+    .btn-lg{padding:.82rem 2rem;font-size:1rem;border-radius:9px}
+    .btn-full{width:100%}
+
+    /* HERO */
+    .hero{position:relative;z-index:1;min-height:calc(100vh - 62px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3rem 1.5rem}
+    .hero-chip{display:inline-flex;align-items:center;gap:.5rem;background:var(--gdim);border:1px solid var(--bdr);padding:.32rem .9rem;border-radius:100px;font-size:.75rem;font-weight:700;color:var(--g);letter-spacing:1.2px;margin-bottom:1.6rem;text-transform:uppercase}
+    .hero h1{font-family:'Rajdhani',sans-serif;font-size:clamp(2.1rem,7vw,4.4rem);font-weight:700;line-height:1.08;margin-bottom:1rem;max-width:820px}
+    .hero h1 em{font-style:normal;color:var(--g);text-shadow:0 0 28px rgba(0,255,30,.45)}
+    .hero p{color:var(--mut);font-size:1.02rem;max-width:510px;line-height:1.75;margin-bottom:2.5rem}
+    .hero-cta{display:flex;gap:.9rem;flex-wrap:wrap;justify-content:center}
+    .hero-stats{display:flex;gap:3rem;margin-top:3.5rem;flex-wrap:wrap;justify-content:center}
+    .hs-num{font-family:'Rajdhani',sans-serif;font-size:1.95rem;font-weight:700;color:var(--g)}
+    .hs-lbl{color:var(--mut);font-size:.78rem;text-transform:uppercase;letter-spacing:1px;margin-top:.1rem}
+
+    /* SECCIONES */
+    .sec{position:relative;z-index:1;padding:5rem 1.5rem}
+    .sec-title{text-align:center;margin-bottom:3rem}
+    .sec-title h2{font-family:'Rajdhani',sans-serif;font-size:clamp(1.75rem,4vw,2.7rem);font-weight:700;margin-bottom:.4rem}
+    .sec-title h2 span{color:var(--g)}
+    .sec-title p{color:var(--mut);max-width:490px;margin:0 auto;line-height:1.72}
+    .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:1.1rem;max-width:1080px;margin:0 auto}
+    .card{background:var(--sur);border:1px solid var(--bdr);border-radius:13px;padding:1.7rem;position:relative;overflow:hidden;transition:border-color .3s,transform .28s}
+    .card:hover{border-color:rgba(0,255,30,.35);transform:translateY(-4px)}
+    .card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g),transparent);opacity:0;transition:opacity .3s}
+    .card:hover::after{opacity:1}
+    .c-ico{width:46px;height:46px;border-radius:10px;background:var(--gdim);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-size:1.35rem;margin-bottom:.9rem}
+    .card h3{font-family:'Rajdhani',sans-serif;font-size:1.15rem;font-weight:600;margin-bottom:.4rem}
+    .card p{color:var(--mut);font-size:.88rem;line-height:1.62}
+
+    /* PASOS */
+    .steps{display:flex;flex-direction:column;max-width:660px;margin:0 auto}
+    .step{display:flex;gap:1.4rem;align-items:flex-start;padding:1.4rem 0}
+    .step+.step{border-top:1px solid var(--bdr)}
+    .sn{flex-shrink:0;width:42px;height:42px;border-radius:50%;border:2px solid var(--g);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:1.05rem;font-weight:700;color:var(--g)}
+    .sb h3{font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:600;margin-bottom:.25rem}
+    .sb p{color:var(--mut);font-size:.88rem;line-height:1.62}
+
+    /* CTA BANNER */
+    .banner{position:relative;z-index:1;max-width:880px;margin:0 auto 5rem;background:var(--bg3);border:1px solid rgba(0,255,30,.18);border-radius:17px;padding:3rem 2rem;text-align:center;overflow:hidden}
+    .banner::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 130%,rgba(0,255,30,.09),transparent 65%);pointer-events:none}
+    .banner h2{font-family:'Rajdhani',sans-serif;font-size:clamp(1.7rem,4vw,2.4rem);font-weight:700;margin-bottom:.65rem}
+    .banner p{color:var(--mut);margin-bottom:1.8rem}
+
+    /* FOOTER */
+    footer{position:relative;z-index:1;border-top:1px solid var(--bdr);padding:1.8rem 1.5rem;text-align:center;color:var(--mut);font-size:.83rem}
+    footer strong{color:var(--g)}
+
+    /* MODAL */
+    .ov{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(7px);z-index:300;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .22s}
+    .ov.open{opacity:1;pointer-events:all}
+    .modal{background:var(--bg2);border:1px solid var(--bdr);border-radius:17px;padding:2rem;width:100%;max-width:430px;position:relative;transform:translateY(18px);transition:transform .22s}
+    .ov.open .modal{transform:translateY(0)}
+    .mc{position:absolute;top:.9rem;right:.9rem;background:none;border:none;color:var(--mut);font-size:1.35rem;cursor:pointer;padding:.2rem;line-height:1;transition:color .2s}
+    .mc:hover{color:var(--txt)}
+    .modal h2{font-family:'Rajdhani',sans-serif;font-size:1.55rem;font-weight:700;margin-bottom:.2rem}
+    .modal .sub{color:var(--mut);font-size:.87rem;margin-bottom:1.6rem}
+    .fg{margin-bottom:1rem}
+    .fg label{display:block;font-size:.78rem;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem}
+    .fg input{width:100%;background:var(--sur);border:1px solid var(--bdr);border-radius:8px;padding:.72rem 1rem;color:var(--txt);font-family:'Exo 2',sans-serif;font-size:.93rem;outline:none;transition:border-color .2s}
+    .fg input:focus{border-color:var(--g)}
+    .fg input::placeholder{color:var(--mut)}
+    .fl{font-size:.83rem;color:var(--mut);text-align:center;margin-top:.85rem}
+    .fl a{color:var(--g);text-decoration:none;font-weight:700}
+    .fl a:hover{text-decoration:underline}
+    .msg{padding:.65rem 1rem;border-radius:8px;font-size:.85rem;margin-bottom:.9rem;display:none}
+    .msg.ok{background:rgba(0,255,30,.09);border:1px solid rgba(0,255,30,.28);color:var(--g)}
+    .msg.err{background:rgba(255,71,87,.09);border:1px solid rgba(255,71,87,.28);color:var(--red)}
+    .spin{display:none;width:16px;height:16px;border:2px solid rgba(0,0,0,.3);border-top-color:#000;border-radius:50%;animation:spin .6s linear infinite}
+    @keyframes spin{to{transform:rotate(360deg)}}
+
+    @media(max-width:600px){
+      .hero-stats{gap:1.6rem}
+      nav{padding:0 1rem}
+    }
+  </style>
+</head>
+<body>
+
+<nav>
+  <a class="logo" href="/">
+    <div class="pulse"></div>Boost<span>Speed</span>
+  </a>
+  <div class="nav-btns">
+    <button class="btn btn-ghost" onclick="abrirModal('login')">Iniciar sesión</button>
+    <button class="btn btn-p" onclick="abrirModal('registro')">Crear cuenta</button>
+  </div>
+</nav>
+
+<!-- HERO -->
+<section class="hero">
+  <div class="hero-chip">⚡ Free Fire · Sistema Oficial</div>
+  <h1>Aumenta tus <em>Likes de Free Fire</em><br>de forma rápida y segura</h1>
+  <p>BoostSpeed es la plataforma #1 para impulsar tu perfil en Free Fire. Seguro, instantáneo y siempre disponible.</p>
+  <div class="hero-cta">
+    <button class="btn btn-p btn-lg" onclick="abrirModal('registro')">Empezar gratis →</button>
+    <button class="btn btn-ghost btn-lg" onclick="abrirModal('login')">Ya tengo cuenta</button>
+  </div>
+  <div class="hero-stats">
+    <div><div class="hs-num">+50K</div><div class="hs-lbl">Usuarios activos</div></div>
+    <div><div class="hs-num">1M+</div><div class="hs-lbl">Likes enviados</div></div>
+    <div><div class="hs-num">99.9%</div><div class="hs-lbl">Tiempo activo</div></div>
+  </div>
+</section>
+
+<!-- CARACTERÍSTICAS -->
+<section class="sec">
+  <div class="sec-title">
+    <h2>¿Por qué elegir <span>BoostSpeed</span>?</h2>
+    <p>Todo lo que necesitas para aumentar tu presencia en Free Fire en un solo lugar.</p>
+  </div>
+  <div class="grid">
+    <div class="card"><div class="c-ico">⚡</div><h3>Envío Instantáneo</h3><p>Los likes se reflejan en tu perfil en minutos. Sin esperas innecesarias.</p></div>
+    <div class="card"><div class="c-ico">🛡️</div><h3>100% Seguro</h3><p>Sistema anti-ban activo. Tu cuenta siempre protegida.</p></div>
+    <div class="card"><div class="c-ico">🎟️</div><h3>Códigos de Plan</h3><p>Canjea tu código y activa tu plan al instante. Sin complicaciones.</p></div>
+    <div class="card"><div class="c-ico">📱</div><h3>Optimizado Mobile</h3><p>Gestiona todo desde tu celular. Diseño adaptado para cualquier pantalla.</p></div>
+    <div class="card"><div class="c-ico">📊</div><h3>Panel Completo</h3><p>Monitorea envíos, historial y plan activo desde un solo panel.</p></div>
+    <div class="card"><div class="c-ico">🔑</div><h3>ID Único</h3><p>Cada cuenta tiene un ID único para gestión rápida por el administrador.</p></div>
+  </div>
+</section>
+
+<!-- CÓMO FUNCIONA -->
+<section class="sec" style="padding-top:1rem">
+  <div class="sec-title">
+    <h2>¿Cómo <span>funciona</span>?</h2>
+    <p>En tres pasos simples ya estarás recibiendo likes.</p>
+  </div>
+  <div class="steps">
+    <div class="step"><div class="sn">01</div><div class="sb"><h3>Crea tu cuenta</h3><p>Regístrate con usuario, contraseña y correo o teléfono. Obtienes tu ID único al instante.</p></div></div>
+    <div class="step"><div class="sn">02</div><div class="sb"><h3>Canjea tu código</h3><p>Ingresa el código que recibiste del administrador. Tu plan se activa automáticamente.</p></div></div>
+    <div class="step"><div class="sn">03</div><div class="sb"><h3>Envía los likes</h3><p>Ingresa el UID de Free Fire y pulsa enviar. Los likes llegan en minutos.</p></div></div>
+  </div>
+</section>
+
+<!-- CTA -->
+<div style="padding:0 1.5rem">
+  <div class="banner">
+    <h2>¿Listo para <span style="color:var(--g)">subir de nivel</span>?</h2>
+    <p>Únete a miles de jugadores que ya usan BoostSpeed para impulsar su perfil.</p>
+    <button class="btn btn-p btn-lg" onclick="abrirModal('registro')">Crear cuenta gratis →</button>
+  </div>
+</div>
+
+<footer><strong>BoostSpeed</strong> &copy; 2026 · Plataforma de likes para Free Fire</footer>
+
+<!-- ═══ MODAL LOGIN ═══ -->
+<div class="ov" id="ov-login">
+  <div class="modal">
+    <button class="mc" onclick="cerrarModal('login')">✕</button>
+    <h2>Iniciar sesión</h2>
+    <p class="sub">Bienvenido de vuelta a BoostSpeed</p>
+    <div class="msg" id="msg-login"></div>
+    <div class="fg"><label>Usuario</label><input type="text" id="l-user" placeholder="Tu nombre de usuario" autocomplete="username"/></div>
+    <div class="fg"><label>Contraseña</label><input type="password" id="l-pass" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')login()"/></div>
+    <button class="btn btn-p btn-full" id="btn-login" onclick="login()" style="margin-top:.3rem">
+      <div class="spin" id="spin-login"></div><span id="txt-login">Entrar →</span>
+    </button>
+    <div class="fl"><a href="#" onclick="cerrarModal('login');abrirModal('recuperar')">¿Olvidaste tu contraseña?</a></div>
+    <div class="fl">¿No tienes cuenta? <a href="#" onclick="cerrarModal('login');abrirModal('registro')">Crear cuenta</a></div>
+  </div>
+</div>
+
+<!-- ═══ MODAL REGISTRO ═══ -->
+<div class="ov" id="ov-registro">
+  <div class="modal">
+    <button class="mc" onclick="cerrarModal('registro')">✕</button>
+    <h2>Crear cuenta</h2>
+    <p class="sub">Empieza gratis en segundos</p>
+    <div class="msg" id="msg-registro"></div>
+    <div class="fg"><label>Usuario</label><input type="text" id="r-user" placeholder="Elige un nombre de usuario" autocomplete="username"/></div>
+    <div class="fg"><label>Correo o teléfono</label><input type="text" id="r-contact" placeholder="correo@ejemplo.com o +57..."/></div>
+    <div class="fg"><label>Contraseña</label><input type="password" id="r-pass" placeholder="Mínimo 6 caracteres" autocomplete="new-password" onkeydown="if(event.key==='Enter')registro()"/></div>
+    <button class="btn btn-p btn-full" id="btn-registro" onclick="registro()" style="margin-top:.3rem">
+      <div class="spin" id="spin-registro"></div><span id="txt-registro">Crear cuenta →</span>
+    </button>
+    <div class="fl">¿Ya tienes cuenta? <a href="#" onclick="cerrarModal('registro');abrirModal('login')">Iniciar sesión</a></div>
+  </div>
+</div>
+
+<!-- ═══ MODAL RECUPERAR ═══ -->
+<div class="ov" id="ov-recuperar">
+  <div class="modal">
+    <button class="mc" onclick="cerrarModal('recuperar')">✕</button>
+    <h2>Recuperar contraseña</h2>
+    <p class="sub">Ingresa el correo o teléfono con el que te registraste</p>
+    <div class="msg" id="msg-recuperar"></div>
+    <div class="fg"><label>Correo o teléfono</label><input type="text" id="rec-contact" placeholder="correo@ejemplo.com" onkeydown="if(event.key==='Enter')recuperar()"/></div>
+    <button class="btn btn-p btn-full" onclick="recuperar()">Enviar instrucciones →</button>
+    <div class="fl"><a href="#" onclick="cerrarModal('recuperar');abrirModal('login')">← Volver a iniciar sesión</a></div>
+  </div>
+</div>
+
+<script src="/js/api.js"></script>
+<script>
+  // Redirigir si ya hay sesión
+  if (localStorage.getItem('bs_token')) location.href = '/dashboard.html';
+
+  function abrirModal(n) { document.getElementById('ov-'+n).classList.add('open'); }
+  function cerrarModal(n) {
+    document.getElementById('ov-'+n).classList.remove('open');
+    document.querySelectorAll('#ov-'+n+' input').forEach(i=>i.value='');
+    const m=document.getElementById('msg-'+n); if(m) m.style.display='none';
+  }
+  document.querySelectorAll('.ov').forEach(o=>o.addEventListener('click',e=>{if(e.target===o)o.classList.remove('open')}));
+
+  function cargando(id, estado) {
+    document.getElementById('spin-'+id).style.display = estado ? 'block' : 'none';
+    document.getElementById('txt-'+id).style.display  = estado ? 'none'  : 'inline';
+    document.getElementById('btn-'+id).disabled = estado;
+  }
+
+  async function login() {
+    const user = document.getElementById('l-user').value.trim();
+    const pass = document.getElementById('l-pass').value;
+    cargando('login', true);
+    const res = await API.post('/api/login', { username: user, password: pass });
+    cargando('login', false);
+    if (!res.ok) return mostrarMsg('msg-login', res.error, 'err');
+    localStorage.setItem('bs_token', res.token);
+    localStorage.setItem('bs_user', JSON.stringify(res.user));
+    location.href = '/dashboard.html';
+  }
+
+  async function registro() {
+    const user    = document.getElementById('r-user').value.trim();
+    const contact = document.getElementById('r-contact').value.trim();
+    const pass    = document.getElementById('r-pass').value;
+    cargando('registro', true);
+    const res = await API.post('/api/registro', { username: user, contact, password: pass });
+    cargando('registro', false);
+    if (!res.ok) return mostrarMsg('msg-registro', res.error, 'err');
+    localStorage.setItem('bs_token', res.token);
+    localStorage.setItem('bs_user', JSON.stringify(res.user));
+    location.href = '/dashboard.html';
+  }
+
+  async function recuperar() {
+    const contact = document.getElementById('rec-contact').value.trim();
+    const res = await API.post('/api/recuperar', { contact });
+    if (!res.ok) return mostrarMsg('msg-recuperar', res.error, 'err');
+    mostrarMsg('msg-recuperar', res.message, 'ok');
+  }
+
+  function mostrarMsg(id, txt, tipo) {
+    const el = document.getElementById(id);
+    el.textContent = txt; el.className = 'msg '+tipo; el.style.display = 'block';
+    setTimeout(()=>el.style.display='none', 5000);
+  }
+</script>
+</body>
+</html>

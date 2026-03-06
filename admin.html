@@ -1,0 +1,446 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Admin – BoostSpeed</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com"/>
+  <link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Exo+2:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+  <style>
+    :root{
+      --g:#00FF1E;--gm:#00e61a;--gdim:rgba(0,255,30,.10);--glow:0 0 22px rgba(0,255,30,.38);
+      --bg:#070707;--bg2:#0e0e0e;--bg3:#141414;--sur:#181818;
+      --bdr:rgba(0,255,30,.14);--txt:#eef2ee;--mut:#7a8f7a;--red:#ff4757;--warn:#ffc107;
+    }
+    *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+    body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-direction:column}
+    body::before{content:'';position:fixed;top:-20%;left:50%;transform:translateX(-50%);width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,30,.04) 0%,transparent 65%);pointer-events:none;z-index:0}
+
+    /* LOGIN SCREEN */
+    #login-screen{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center;padding:1rem}
+    .login-box{background:var(--sur);border:1px solid var(--bdr);border-radius:16px;padding:2.4rem;width:100%;max-width:370px;position:relative;overflow:hidden}
+    .login-box::before{content:'';position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,transparent,var(--g),transparent)}
+    .login-box h1{font-family:'Rajdhani',sans-serif;font-size:1.75rem;font-weight:700;margin-bottom:.2rem}
+    .login-box p{color:var(--mut);font-size:.86rem;margin-bottom:1.6rem}
+
+    /* TOPBAR */
+    .topbar{position:sticky;top:0;z-index:200;background:rgba(7,7,7,.94);backdrop-filter:blur(18px);border-bottom:1px solid var(--bdr);height:58px;display:flex;align-items:center;padding:0 1.5rem;gap:.75rem;justify-content:space-between;display:none}
+    .logo{font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--g);letter-spacing:2px;display:flex;align-items:center;gap:.4rem}
+    .abadge{background:rgba(255,71,87,.12);border:1px solid rgba(255,71,87,.28);color:var(--red);font-size:.68rem;font-weight:700;padding:.18rem .55rem;border-radius:100px;text-transform:uppercase;letter-spacing:.8px;margin-left:.4rem}
+    .tab-nav{display:flex;gap:.4rem}
+    .tb{background:transparent;border:1px solid transparent;color:var(--mut);font-family:'Exo 2',sans-serif;font-size:.84rem;font-weight:700;padding:.4rem .85rem;border-radius:7px;cursor:pointer;transition:all .2s}
+    .tb.active,.tb:hover{color:var(--g);border-color:var(--bdr);background:var(--gdim)}
+    .btn-out{background:transparent;border:1px solid rgba(255,71,87,.28);color:var(--red);font-family:'Exo 2',sans-serif;font-size:.78rem;font-weight:700;padding:.34rem .75rem;border-radius:6px;cursor:pointer;transition:all .2s}
+    .btn-out:hover{background:rgba(255,71,87,.1)}
+
+    main{position:relative;z-index:1;flex:1;padding:1.5rem;max-width:1080px;margin:0 auto;width:100%;display:none}
+    .pane{display:none}.pane.active{display:block}
+
+    /* CARDS */
+    .card{background:var(--sur);border:1px solid var(--bdr);border-radius:13px;padding:1.4rem;margin-bottom:1.2rem;position:relative;overflow:hidden}
+    .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g),transparent)}
+    .ct{font-family:'Rajdhani',sans-serif;font-size:1.12rem;font-weight:700;margin-bottom:1rem;display:flex;align-items:center;gap:.5rem}
+
+    .sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(130px,1fr));gap:.9rem;margin-bottom:1.2rem}
+    .sb{background:var(--sur);border:1px solid var(--bdr);border-radius:11px;padding:1rem;text-align:center;position:relative;overflow:hidden}
+    .sb::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g),transparent)}
+    .sv{font-family:'Rajdhani',sans-serif;font-size:1.75rem;font-weight:700;color:var(--g)}
+    .sl{color:var(--mut);font-size:.72rem;text-transform:uppercase;letter-spacing:.5px;margin-top:.12rem}
+
+    .btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.55rem 1.1rem;border-radius:8px;font-family:'Exo 2',sans-serif;font-weight:700;font-size:.86rem;cursor:pointer;border:none;transition:all .2s}
+    .btn-p{background:var(--g);color:#000}.btn-p:hover{background:var(--gm);box-shadow:var(--glow);transform:translateY(-1px)}
+    .btn-r{background:var(--red);color:#fff}.btn-r:hover{opacity:.85}
+    .btn-o{background:transparent;border:1px solid var(--bdr);color:var(--txt)}.btn-o:hover{border-color:var(--g);color:var(--g)}
+    .btn-sm{padding:.32rem .7rem;font-size:.76rem;border-radius:6px}
+    .btn-full{width:100%}
+
+    .fr{display:grid;grid-template-columns:repeat(auto-fit,minmax(155px,1fr));gap:.7rem;margin-bottom:.7rem}
+    .fg{margin-bottom:.75rem}
+    .fg label{display:block;font-size:.75rem;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.36rem}
+    .fg input,.fg select{width:100%;background:var(--bg2);border:1px solid var(--bdr);border-radius:8px;padding:.64rem .9rem;color:var(--txt);font-family:'Exo 2',sans-serif;font-size:.88rem;outline:none;transition:border-color .2s}
+    .fg input:focus,.fg select:focus{border-color:var(--g)}
+    .fg input::placeholder{color:var(--mut)}
+    select option{background:var(--bg2)}
+
+    .msg{padding:.6rem .9rem;border-radius:8px;font-size:.83rem;margin-bottom:.85rem;display:none}
+    .msg.ok{background:rgba(0,255,30,.09);border:1px solid rgba(0,255,30,.25);color:var(--g)}
+    .msg.err{background:rgba(255,71,87,.09);border:1px solid rgba(255,71,87,.25);color:var(--red)}
+
+    /* CODE BOX */
+    .code-box{background:var(--bg3);border:1px solid rgba(0,255,30,.28);border-radius:11px;padding:1.2rem;text-align:center;margin-top:.9rem;position:relative;display:none}
+    .code-big{font-family:monospace;font-size:2rem;font-weight:700;color:var(--g);letter-spacing:4px}
+    .code-box p{color:var(--mut);font-size:.8rem;margin-top:.35rem}
+    .copy-cod{position:absolute;top:.7rem;right:.7rem;background:var(--gdim);border:1px solid var(--bdr);border-radius:6px;padding:.28rem .55rem;color:var(--g);font-size:.76rem;cursor:pointer;font-weight:700}
+
+    /* TABLE */
+    .tw{overflow-x:auto;border-radius:10px;border:1px solid var(--bdr)}
+    table{width:100%;border-collapse:collapse;font-size:.82rem}
+    thead tr{background:var(--bg3)}
+    th{padding:.6rem .9rem;text-align:left;color:var(--mut);font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;font-weight:700;white-space:nowrap}
+    td{padding:.68rem .9rem;border-top:1px solid var(--bdr);vertical-align:middle}
+    .badge{display:inline-flex;align-items:center;padding:.16rem .52rem;border-radius:100px;font-size:.69rem;font-weight:700;text-transform:uppercase;white-space:nowrap}
+    .bOk{background:rgba(0,255,30,.1);color:var(--g);border:1px solid rgba(0,255,30,.2)}
+    .bOff{background:rgba(255,71,87,.08);color:var(--red);border:1px solid rgba(255,71,87,.2)}
+    .bNone{background:rgba(255,255,255,.05);color:var(--mut);border:1px solid rgba(255,255,255,.08)}
+
+    /* USER DETAIL */
+    .udet{background:var(--bg3);border:1px solid var(--bdr);border-radius:10px;padding:1.1rem}
+    .ir{display:flex;justify-content:space-between;align-items:center;padding:.58rem 0;border-bottom:1px solid var(--bdr)}
+    .ir:last-child{border-bottom:none}
+    .ir .k{color:var(--mut);font-size:.84rem}
+    .ir .v{font-weight:700;font-size:.88rem}
+
+    /* MOB NAV */
+    .mobn{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(7,7,7,.97);backdrop-filter:blur(18px);border-top:1px solid var(--bdr);padding:.42rem;z-index:200;justify-content:space-around}
+    .mb{display:flex;flex-direction:column;align-items:center;gap:.15rem;padding:.34rem .6rem;border-radius:8px;background:transparent;border:none;color:var(--mut);font-family:'Exo 2',sans-serif;font-size:.64rem;font-weight:700;cursor:pointer;transition:all .2s}
+    .mb.active,.mb:hover{color:var(--g)}
+    .mb .ico{font-size:1.15rem}
+
+    @media(max-width:600px){
+      .tab-nav{display:none!important} .mobn{display:flex}
+      main{padding:1rem 1rem 5rem}
+    }
+  </style>
+</head>
+<body>
+
+<!-- PANTALLA DE LOGIN ADMIN -->
+<div id="login-screen">
+  <div class="login-box">
+    <h1>🔐 Panel Admin</h1>
+    <p>Acceso exclusivo para administradores de BoostSpeed</p>
+    <div class="msg" id="msg-adm-login"></div>
+    <div class="fg"><label>Usuario admin</label><input type="text" id="adm-u" placeholder="admin" autocomplete="username"/></div>
+    <div class="fg"><label>Contraseña</label><input type="password" id="adm-p" placeholder="••••••••" autocomplete="current-password" onkeydown="if(event.key==='Enter')adminLogin()"/></div>
+    <button class="btn btn-p btn-full" onclick="adminLogin()">Entrar al panel →</button>
+  </div>
+</div>
+
+<!-- TOPBAR ADMIN -->
+<div class="topbar" id="admin-topbar">
+  <div class="logo">⚙️ BoostSpeed<span class="abadge">Admin</span></div>
+  <div class="tab-nav" id="adm-tabs">
+    <button class="tb active" onclick="admTab('dashboard')" id="at-dashboard">📊 Dashboard</button>
+    <button class="tb" onclick="admTab('codigos')" id="at-codigos">🎟️ Códigos</button>
+    <button class="tb" onclick="admTab('usuarios')" id="at-usuarios">👥 Usuarios</button>
+  </div>
+  <button class="btn-out" onclick="adminSalir()">Salir</button>
+</div>
+
+<main id="admin-main">
+
+  <!-- ═══ DASHBOARD ═══ -->
+  <div class="pane active" id="pane-dashboard">
+    <div class="sg">
+      <div class="sb"><div class="sv" id="a-tu">0</div><div class="sl">Usuarios</div></div>
+      <div class="sb"><div class="sv" id="a-tc">0</div><div class="sl">Códigos creados</div></div>
+      <div class="sb"><div class="sv" id="a-uc">0</div><div class="sl">Códigos usados</div></div>
+      <div class="sb"><div class="sv" id="a-ap">0</div><div class="sl">Planes activos</div></div>
+    </div>
+    <div class="card">
+      <div class="ct">👥 Usuarios recientes</div>
+      <div class="tw"><table>
+        <thead><tr><th>ID único</th><th>Usuario</th><th>Plan</th><th>Registrado</th></tr></thead>
+        <tbody id="dash-recent"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- ═══ CÓDIGOS ═══ -->
+  <div class="pane" id="pane-codigos">
+    <div class="card">
+      <div class="ct">✨ Crear nuevo código</div>
+      <div class="msg" id="msg-crear-cod"></div>
+      <div class="fr">
+        <div class="fg"><label>Días del plan</label><input type="number" id="c-dias" placeholder="30" min="1" value="30"/></div>
+        <div class="fg"><label>Total de likes</label><input type="number" id="c-likes" placeholder="1000" min="1" value="1000"/></div>
+        <div class="fg"><label>Envíos por día</label><input type="number" id="c-env" placeholder="3" min="1" value="3"/></div>
+        <div class="fg"><label>Código personalizado (opcional)</label><input type="text" id="c-custom" placeholder="Dejar vacío = aleatorio" style="text-transform:uppercase" maxlength="10"/></div>
+      </div>
+      <button class="btn btn-p" onclick="crearCodigo()">⚡ Generar código</button>
+      <div class="code-box" id="new-code-box">
+        <p>Código generado exitosamente</p>
+        <div class="code-big" id="new-code-val">—</div>
+        <p style="margin-top:.3rem"><b id="nc-dias">—</b> días · <b id="nc-likes">—</b> likes · <b id="nc-env">—</b> envíos/día</p>
+        <button class="copy-cod" onclick="copiarCodigo()">📋 Copiar</button>
+      </div>
+    </div>
+    <div class="card">
+      <div class="ct">📋 Todos los códigos</div>
+      <div class="tw"><table>
+        <thead><tr><th>Código</th><th>Días</th><th>Likes</th><th>Env/día</th><th>Estado</th><th>Usado por</th><th>Creado</th><th>Acción</th></tr></thead>
+        <tbody id="tb-codigos"></tbody>
+      </table></div>
+    </div>
+  </div>
+
+  <!-- ═══ USUARIOS ═══ -->
+  <div class="pane" id="pane-usuarios">
+    <div class="card">
+      <div class="ct">🔍 Buscar usuario</div>
+      <div style="display:flex;gap:.65rem;flex-wrap:wrap;align-items:flex-end">
+        <div class="fg" style="flex:1;min-width:175px;margin:0">
+          <label>ID único (BS-XXXXXX) o nombre de usuario</label>
+          <input type="text" id="q-buscar" placeholder="BS-ABC123 o nombre de usuario" onkeydown="if(event.key==='Enter')buscarUsuario()"/>
+        </div>
+        <button class="btn btn-p" onclick="buscarUsuario()">Buscar →</button>
+      </div>
+    </div>
+
+    <div class="card" id="user-detail-card" style="display:none">
+      <div class="ct">👤 Usuario encontrado</div>
+      <div class="udet" id="user-det"></div>
+      <div style="margin-top:1.1rem;padding-top:1.1rem;border-top:1px solid var(--bdr)">
+        <div class="ct" style="font-size:.95rem;margin-bottom:.7rem">✏️ Modificar usuario</div>
+        <div class="msg" id="msg-edit"></div>
+        <div class="fr">
+          <div class="fg"><label>Likes totales</label><input type="number" id="e-likes" placeholder="Cantidad"/></div>
+          <div class="fg"><label>Días del plan</label><input type="number" id="e-dias" placeholder="Días"/></div>
+          <div class="fg"><label>Envíos por día</label><input type="number" id="e-env" placeholder="Cantidad"/></div>
+          <div class="fg">
+            <label>Estado del plan</label>
+            <select id="e-status">
+              <option value="true">Activo</option>
+              <option value="false">Inactivo</option>
+            </select>
+          </div>
+        </div>
+        <div style="display:flex;gap:.6rem;flex-wrap:wrap">
+          <button class="btn btn-p" onclick="guardarEdicion()">💾 Guardar cambios</button>
+          <button class="btn btn-r btn-sm" onclick="eliminarUsuario()">🗑️ Eliminar usuario</button>
+        </div>
+      </div>
+    </div>
+
+    <div class="card">
+      <div class="ct" style="justify-content:space-between">
+        <span>👥 Todos los usuarios</span>
+        <button class="btn btn-o btn-sm" onclick="cargarUsuarios()">↻ Actualizar</button>
+      </div>
+      <div class="tw"><table>
+        <thead><tr><th>ID único</th><th>Usuario</th><th>Contacto</th><th>Plan</th><th>Likes</th><th>Registrado</th><th>Acción</th></tr></thead>
+        <tbody id="tb-usuarios"></tbody>
+      </table></div>
+    </div>
+  </div>
+</main>
+
+<!-- MOB NAV ADMIN -->
+<nav class="mobn" id="adm-mobn" style="display:none">
+  <button class="mb active" id="mb-dash" onclick="admTab('dashboard');mobAct(this)"><div class="ico">📊</div>Panel</button>
+  <button class="mb" id="mb-cod"  onclick="admTab('codigos');mobAct(this)"><div class="ico">🎟️</div>Códigos</button>
+  <button class="mb" id="mb-usr"  onclick="admTab('usuarios');mobAct(this)"><div class="ico">👥</div>Usuarios</button>
+  <button class="mb" onclick="adminSalir()"><div class="ico">🚪</div>Salir</button>
+</nav>
+
+<script src="/js/api.js"></script>
+<script>
+let admToken = null;
+let editUserId = null;
+
+window.addEventListener('DOMContentLoaded', () => {
+  const t = localStorage.getItem('bs_admin_token');
+  if (t) { admToken = t; mostrarPanelAdmin(); }
+});
+
+async function adminLogin() {
+  const u = document.getElementById('adm-u').value.trim();
+  const p = document.getElementById('adm-p').value;
+  const res = await API.post('/api/admin/login', { username: u, password: p });
+  if (!res.ok) return mostrarMsg('msg-adm-login', res.error, 'err');
+  admToken = res.token;
+  localStorage.setItem('bs_admin_token', res.token);
+  mostrarPanelAdmin();
+}
+
+function mostrarPanelAdmin() {
+  document.getElementById('login-screen').style.display   = 'none';
+  document.getElementById('admin-topbar').style.display   = 'flex';
+  document.getElementById('admin-main').style.display     = 'block';
+  document.getElementById('adm-mobn').style.display       = 'flex';
+  cargarDashboard();
+}
+
+function adminSalir() {
+  localStorage.removeItem('bs_admin_token');
+  admToken = null;
+  location.reload();
+}
+
+function admTab(t) {
+  document.querySelectorAll('#admin-main .pane').forEach(p=>p.classList.remove('active'));
+  document.querySelectorAll('#adm-tabs .tb').forEach(b=>b.classList.remove('active'));
+  document.getElementById('pane-'+t).classList.add('active');
+  const tb = document.getElementById('at-'+t); if(tb) tb.classList.add('active');
+  if(t==='dashboard') cargarDashboard();
+  if(t==='codigos')   cargarCodigos();
+  if(t==='usuarios')  cargarUsuarios();
+}
+function mobAct(el) {
+  document.querySelectorAll('#adm-mobn .mb').forEach(b=>b.classList.remove('active'));
+  el.classList.add('active');
+}
+
+/* ── DASHBOARD ── */
+async function cargarDashboard() {
+  const res = await API.getAdmin('/api/admin/stats', admToken);
+  if (!res.ok) return;
+  document.getElementById('a-tu').textContent = res.totalUsuarios;
+  document.getElementById('a-tc').textContent = res.totalCodigos;
+  document.getElementById('a-uc').textContent = res.codigosUsados;
+  document.getElementById('a-ap').textContent = res.planesActivos;
+  const tbody = document.getElementById('dash-recent');
+  tbody.innerHTML = res.usuariosRecientes.length
+    ? res.usuariosRecientes.map(u=>`
+        <tr>
+          <td><code style="color:var(--g);font-size:.77rem">${u.uid}</code></td>
+          <td>${u.username}</td>
+          <td><span class="badge ${u.plan_activo?'bOk':'bNone'}">${u.plan_activo?u.plan_nombre:'Sin plan'}</span></td>
+          <td style="color:var(--mut);font-size:.8rem">${new Date(u.creado_en).toLocaleDateString('es')}</td>
+        </tr>`).join('')
+    : '<tr><td colspan="4" style="text-align:center;color:var(--mut);padding:2rem">Sin usuarios aún</td></tr>';
+}
+
+/* ── CÓDIGOS ── */
+async function crearCodigo() {
+  const dias   = parseInt(document.getElementById('c-dias').value);
+  const likes  = parseInt(document.getElementById('c-likes').value);
+  const envDia = parseInt(document.getElementById('c-env').value);
+  const custom = document.getElementById('c-custom').value.trim();
+  const res = await API.postAdmin('/api/admin/codigos', { dias, likes, envios_dia: envDia, custom }, admToken);
+  if (!res.ok) return mostrarMsg('msg-crear-cod', res.error, 'err');
+  mostrarMsg('msg-crear-cod', '✅ Código creado correctamente', 'ok');
+  const c = res.codigo;
+  const box = document.getElementById('new-code-box');
+  box.style.display = 'block';
+  document.getElementById('new-code-val').textContent = c.codigo;
+  document.getElementById('nc-dias').textContent  = c.dias + ' días';
+  document.getElementById('nc-likes').textContent = c.likes.toLocaleString() + ' likes';
+  document.getElementById('nc-env').textContent   = c.envios_dia;
+  document.getElementById('c-custom').value = '';
+  cargarCodigos();
+}
+
+function copiarCodigo() {
+  const v = document.getElementById('new-code-val').textContent;
+  navigator.clipboard.writeText(v).then(()=>alert('Código copiado: '+v));
+}
+
+async function cargarCodigos() {
+  const res = await API.getAdmin('/api/admin/codigos', admToken);
+  if (!res.ok) return;
+  const tbody = document.getElementById('tb-codigos');
+  tbody.innerHTML = res.codigos.length
+    ? res.codigos.map(c=>`
+        <tr>
+          <td><code style="color:var(--g);font-weight:700;letter-spacing:2px">${c.codigo}</code></td>
+          <td>${c.dias}</td>
+          <td>${c.likes.toLocaleString()}</td>
+          <td>${c.envios_dia}</td>
+          <td><span class="badge ${c.usado?'bOff':'bOk'}">${c.usado?'Usado':'Disponible'}</span></td>
+          <td style="color:var(--mut);font-size:.78rem">${c.usado_por||'—'}</td>
+          <td style="color:var(--mut);font-size:.78rem">${new Date(c.creado_en).toLocaleDateString('es')}</td>
+          <td><button class="btn btn-r btn-sm" onclick="eliminarCodigo('${c.codigo}')">🗑️</button></td>
+        </tr>`).join('')
+    : '<tr><td colspan="8" style="text-align:center;color:var(--mut);padding:2rem">Sin códigos aún</td></tr>';
+}
+
+async function eliminarCodigo(cod) {
+  if (!confirm(`¿Eliminar el código ${cod}?`)) return;
+  await API.deleteAdmin('/api/admin/codigos/'+cod, admToken);
+  cargarCodigos();
+}
+
+/* ── USUARIOS ── */
+async function buscarUsuario() {
+  const q = document.getElementById('q-buscar').value.trim();
+  if (!q) return;
+  const res = await API.getAdmin('/api/admin/usuarios/buscar?q='+encodeURIComponent(q), admToken);
+  if (!res.ok || !res.usuarios.length) {
+    mostrarMsg('msg-edit', 'Usuario no encontrado', 'err');
+    document.getElementById('user-detail-card').style.display = 'none';
+    return;
+  }
+  mostrarDetalleUsuario(res.usuarios[0]);
+}
+
+function mostrarDetalleUsuario(u) {
+  editUserId = u.id;
+  document.getElementById('user-detail-card').style.display = 'block';
+  const diasRest = u.plan_vence ? Math.max(0, Math.ceil((new Date(u.plan_vence)-Date.now())/86400000)) : 0;
+  document.getElementById('user-det').innerHTML = `
+    <div class="ir"><span class="k">ID único</span><span class="v"><code style="color:var(--g)">${u.uid}</code></span></div>
+    <div class="ir"><span class="k">Usuario</span><span class="v">${u.username}</span></div>
+    <div class="ir"><span class="k">Contacto</span><span class="v">${u.contact}</span></div>
+    <div class="ir"><span class="k">Estado del plan</span><span class="v"><span class="badge ${u.plan_activo?'bOk':'bNone'}">${u.plan_activo?'Activo':'Sin plan'}</span></span></div>
+    <div class="ir"><span class="k">Nombre del plan</span><span class="v">${u.plan_nombre}</span></div>
+    <div class="ir"><span class="k">Likes disponibles</span><span class="v">${u.likes_disponibles.toLocaleString()}</span></div>
+    <div class="ir"><span class="k">Envíos por día</span><span class="v">${u.envios_por_dia}</span></div>
+    <div class="ir"><span class="k">Envíos realizados hoy</span><span class="v">${u.envios_hoy}</span></div>
+    <div class="ir"><span class="k">Días restantes</span><span class="v">${diasRest}</span></div>
+    <div class="ir"><span class="k">Vencimiento</span><span class="v">${u.plan_vence?new Date(u.plan_vence).toLocaleDateString('es'):'—'}</span></div>
+    <div class="ir"><span class="k">Registrado</span><span class="v">${new Date(u.creado_en).toLocaleDateString('es')}</span></div>
+  `;
+  document.getElementById('e-likes').value  = u.likes_disponibles;
+  document.getElementById('e-env').value    = u.envios_por_dia;
+  document.getElementById('e-dias').value   = diasRest;
+  document.getElementById('e-status').value = u.plan_activo ? 'true' : 'false';
+  document.getElementById('user-detail-card').scrollIntoView({ behavior:'smooth' });
+}
+
+async function guardarEdicion() {
+  if (!editUserId) return;
+  const body = {
+    likes_disponibles: parseInt(document.getElementById('e-likes').value)||0,
+    dias_adicionales:  parseInt(document.getElementById('e-dias').value)||0,
+    envios_por_dia:    parseInt(document.getElementById('e-env').value)||0,
+    plan_activo:       document.getElementById('e-status').value === 'true',
+  };
+  const res = await API.putAdmin('/api/admin/usuarios/'+editUserId, body, admToken);
+  if (!res.ok) return mostrarMsg('msg-edit', res.error, 'err');
+  mostrarMsg('msg-edit', '✅ Usuario actualizado correctamente', 'ok');
+  mostrarDetalleUsuario(res.usuario);
+  cargarDashboard(); cargarUsuarios();
+}
+
+async function eliminarUsuario() {
+  if (!editUserId) return;
+  if (!confirm('¿Eliminar permanentemente este usuario? Esta acción no se puede deshacer.')) return;
+  await API.deleteAdmin('/api/admin/usuarios/'+editUserId, admToken);
+  document.getElementById('user-detail-card').style.display='none';
+  editUserId = null;
+  cargarUsuarios(); cargarDashboard();
+}
+
+async function cargarUsuarios() {
+  const res = await API.getAdmin('/api/admin/usuarios', admToken);
+  if (!res.ok) return;
+  const tbody = document.getElementById('tb-usuarios');
+  tbody.innerHTML = res.usuarios.length
+    ? res.usuarios.map(u=>`
+        <tr>
+          <td><code style="color:var(--g);font-size:.76rem">${u.uid}</code></td>
+          <td>${u.username}</td>
+          <td style="color:var(--mut);font-size:.8rem">${u.contact}</td>
+          <td><span class="badge ${u.plan_activo?'bOk':'bNone'}">${u.plan_activo?'Activo':'Sin plan'}</span></td>
+          <td>${u.likes_disponibles.toLocaleString()}</td>
+          <td style="color:var(--mut);font-size:.8rem">${new Date(u.creado_en).toLocaleDateString('es')}</td>
+          <td><button class="btn btn-o btn-sm" onclick='seleccionarUsuario(${JSON.stringify(u)})'>✏️</button></td>
+        </tr>`).join('')
+    : '<tr><td colspan="7" style="text-align:center;color:var(--mut);padding:2rem">Sin usuarios registrados</td></tr>';
+}
+
+function seleccionarUsuario(u) {
+  admTab('usuarios');
+  mostrarDetalleUsuario(u);
+}
+
+function mostrarMsg(id, txt, tipo) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent=txt; el.className='msg '+tipo; el.style.display='block';
+  setTimeout(()=>el.style.display='none', 5000);
+}
+</script>
+</body>
+</html>
