@@ -1202,189 +1202,102 @@ async function enviarMensaje() {
 }// ── AI SOPORTE CHAT ──────────────────────────────────────────────
 let aiOpen = false;
 
-// ── BOT LOCAL — sin API key, respuestas por palabras clave ──
-const BOT_RESPUESTAS = [
-  // Saludos
-  { p:[/^(hola|buenas|hey|ey|hi|saludos|buen.?d[ií]a|buenas tardes|buenas noches)/i],
-    r:['¡Hola! 👋 Bienvenido al soporte de BoostSpeed. ¿En qué te puedo ayudar?',
-       '¡Hey! 😊 Estoy aquí para ayudarte con cualquier duda sobre BoostSpeed.',
-       '¡Hola! ¿Tienes alguna pregunta sobre la plataforma?'] },
-
-  // Cómo funciona
-  { p:[/c[oó]mo funciona|qu[eé] es boost|para qu[eé] sirve|qu[eé] hace/i],
-    r:['BoostSpeed es una plataforma para enviar likes a perfiles de Free Fire de forma rápida y segura. 🚀
-Necesitas un plan de acceso, luego vas a la pestaña **Likes**, ingresas el UID del jugador y listo.'] },
-
-  // Enviar likes
-  { p:[/enviar? likes?|c[oó]mo env[ií]o|mandar likes?|likes? como/i],
-    r:['Para enviar likes:
-1️⃣ Ve a la pestaña **Likes**
-2️⃣ Ingresa el UID de Free Fire del jugador
-3️⃣ Presiona **Enviar** ✅
-
-Recuerda que solo puedes enviar a un mismo UID una vez cada 24 horas.'] },
-
-  // UID
-  { p:[/qu[eé] es.{0,10}uid|uid.{0,15}free fire|d[oó]nde.{0,15}uid|c[oó]mo.{0,10}uid/i],
-    r:['El UID es el número de identificación de tu cuenta en Free Fire. Lo encuentras en tu perfil del juego, debajo de tu nombre de usuario. 🎮'] },
-
-  // Plan / código
-  { p:[/plan|c[oó]digo|acceso|canjear|activar/i],
-    r:['Para activar tu plan necesitas un **código de acceso** que te da el administrador. 🔑
-Una vez lo tengas, ve a la pestaña **Acceso**, ingrésalo y presiona Activar.
-
-Si no tienes código, contáctanos por Telegram o WhatsApp.'] },
-
-  // Tipos de plan
-  { p:[/tipos? de plan|qu[eé] planes?|cuantos planes?|diferencia.{0,10}plan/i],
-    r:['Hay 3 tipos de plan:
-📅 **Por días** — X envíos por día durante N días
-❤️ **Por likes** — Un total de likes para usar cuando quieras
-🚀 **Ilimitado** — Sin límites de envíos
-
-Contáctanos para saber cuál se adapta mejor a ti.'] },
-
-  // Cada cuánto / límite
-  { p:[/cada cu[aá]nto|l[ií]mite|cuantas? veces?|cu[aá]ndo puedo|v[eó]nce|renueva/i],
-    r:['Puedes enviar likes a un mismo UID **una vez cada 24 horas**. ⏰
-Al día siguiente se renueva automáticamente y puedes volver a enviar.'] },
-
-  // Seguridad / ban
-  { p:[/seguro|ban|suspens|riesgo|peligro|cuenta/i],
-    r:['¡Totalmente seguro! 🛡️ Nuestro sistema tiene anti-ban activo. No hay riesgo de suspensión ni baneo de tu cuenta de Free Fire. Llevamos tiempo operando sin ningún problema.'] },
-
-  // Contacto / admin
-  { p:[/contacto|admin|telegram|whatsapp|hablar con|soporte humano|persona/i],
-    r:['Puedes contactar al administrador por:
-📲 **Telegram:** @DuarteStoreX
-💬 **WhatsApp:** +57 316 437 7140
-
-Te responderán lo antes posible. 😊'] },
-
-  // Historial
-  { p:[/historial|mis env[ií]os|registros?|anteriores?/i],
-    r:['Puedes ver todos tus envíos anteriores en la pestaña **Historial**. Ahí aparece la fecha, el UID al que enviaste y el resultado. 📋'] },
-
-  // Contraseña
-  { p:[/contrase[ñn]a|olvid[eé]|recuperar|cambiar clave/i],
-    r:['Si olvidaste tu contraseña, contacta al administrador por Telegram (@DuarteStoreX) para que te genere un código de recuperación. 🔐
-También puedes cambiarla desde la pestaña **Perfil** si aún tienes acceso.'] },
-
-  // Precio / costo
-  { p:[/precio|costo|cu[aá]nto cuesta|cobran?|gratis|pago/i],
-    r:['Los precios los maneja directamente el administrador. 💬
-Contáctalo por **Telegram (@DuarteStoreX)** o **WhatsApp (+57 316 437 7140)** para conocer los planes disponibles y sus costos.'] },
-
-  // Gracias
-  { p:[/gracias|thank|genial|perfecto|excelente|chevere|buenísimo/i],
-    r:['¡De nada! 😊 Si tienes otra duda, aquí estoy.',
-       '¡Con gusto! Si necesitas algo más no dudes en preguntar. 🙌'] },
-
-  // No funciona / error
-  { p:[/no funciona|error|fallo|problema|bug|no env[ií]a|no puedo/i],
-    r:['Lo siento, puede haber varias causas:
-⚠️ Verifica que el UID sea correcto (solo números)
-⚠️ Puede que ya enviaste likes a ese UID hoy (espera 24h)
-⚠️ Revisa que tu plan esté activo en la pestaña **Inicio**
-
-Si el problema persiste, contacta al admin por Telegram.'] },
-
-  // Chat de usuarios
-  { p:[/chat|hablar con usuarios?|otros usuarios?/i],
-    r:['El **Chat** está en la pestaña del mismo nombre. Ahí puedes hablar con otros usuarios de la plataforma en tiempo real. 💬
-Recuerda que los mensajes duran 60 segundos.'] },
-
-  // Qué haces tú bot
-  { p:[/qu[eé] (eres|puedes|sabes)|eres.{0,10}bot|eres.{0,10}ia|inteligencia/i],
-    r:['Soy el asistente virtual de BoostSpeed 🤖. Puedo ayudarte con dudas sobre cómo usar la plataforma, enviar likes, activar tu plan y más. ¿En qué te puedo ayudar?'] },
+const BOT_R = [
+  {p:/^(hola|buenas|hey|ey|hi|saludos)/i,
+   r:'¡Hola! 👋 Bienvenido al soporte de BoostSpeed. ¿En qué te puedo ayudar?'},
+  {p:/como funciona|que es boost|para que sirve|que hace/i,
+   r:'BoostSpeed te permite enviar likes a perfiles de Free Fire de forma rápida y segura. Necesitas un plan activo, luego ve a la pestaña Likes, ingresa el UID y presiona Enviar. 🚀'},
+  {p:/enviar likes|como envio|mandar likes|como mando/i,
+   r:'Para enviar likes: 1) Ve a la pestaña Likes 2) Ingresa el UID de Free Fire 3) Presiona Enviar ✅. Solo puedes enviar a un mismo UID una vez cada 24 horas.'},
+  {p:/que es.{0,10}uid|uid.{0,15}free|donde.{0,10}uid|como.{0,8}uid/i,
+   r:'El UID es el número de identificación de tu cuenta en Free Fire. Lo encuentras en tu perfil del juego, debajo de tu nombre. 🎮'},
+  {p:/plan|codigo|acceso|canjear|activar/i,
+   r:'Para activar tu plan necesitas un código de acceso que te da el administrador. Ve a la pestaña Acceso, ingrésalo y presiona Activar. Si no tienes código, contáctanos por Telegram o WhatsApp. 🔑'},
+  {p:/tipos de plan|que planes|cuantos planes|diferencia.*plan/i,
+   r:'Hay 3 tipos de plan: Por días (X envíos/día durante N días), Por likes (total de likes para usar) e Ilimitado (sin límites). Pregúntale al admin cuál te conviene. 🚀'},
+  {p:/cada cuanto|limite|cuantas veces|cuando puedo|vence|renueva/i,
+   r:'Puedes enviar likes a un mismo UID una vez cada 24 horas. Al día siguiente se renueva automáticamente. ⏰'},
+  {p:/seguro|ban|suspens|riesgo|peligro/i,
+   r:'¡Totalmente seguro! 🛡️ Tenemos anti-ban activo. Sin riesgo de suspensión ni baneo de tu cuenta de Free Fire.'},
+  {p:/contacto|admin|telegram|whatsapp|hablar con|soporte/i,
+   r:'Puedes contactar al administrador por: Telegram: @DuarteStoreX o WhatsApp: +57 316 437 7140. Te responderán pronto. 📲'},
+  {p:/historial|mis envios|registros|anteriores/i,
+   r:'Tus envíos anteriores están en la pestaña Historial. Aparece la fecha, el UID y el resultado. 📋'},
+  {p:/contrase|olvide|recuperar|cambiar clave/i,
+   r:'Si olvidaste tu contraseña, contacta al admin por Telegram (@DuarteStoreX) para un código de recuperación. También puedes cambiarla desde Perfil si tienes acceso. 🔐'},
+  {p:/precio|costo|cuanto cuesta|cobran|gratis|pago/i,
+   r:'Los precios los maneja el administrador. Contáctalo por Telegram (@DuarteStoreX) o WhatsApp (+57 316 437 7140) para conocer los planes disponibles. 💬'},
+  {p:/gracias|thank|genial|perfecto|excelente|chevere/i,
+   r:'¡De nada! 😊 Si tienes otra duda aquí estoy.'},
+  {p:/no funciona|error|fallo|problema|no envia|no puedo/i,
+   r:'Posibles causas: el UID debe ser solo números, puede que ya enviaste hoy a ese UID (espera 24h), o verifica que tu plan esté activo en Inicio. Si persiste, contacta al admin por Telegram. ⚠️'},
+  {p:/chat|otros usuarios/i,
+   r:'El Chat está en la pestaña del mismo nombre. Puedes hablar con otros usuarios en tiempo real. Los mensajes duran 60 segundos. 💬'},
+  {p:/que eres|que puedes|eres bot|eres ia/i,
+   r:'Soy el asistente virtual de BoostSpeed 🤖. Te ayudo con dudas sobre la plataforma: enviar likes, activar planes, contactar al admin y más.'},
 ];
-
-const BOT_DEFAULT = [
-  'Hmm, no estoy seguro de entender tu pregunta. 🤔 Puedo ayudarte con temas como:
-• Cómo enviar likes
-• Activar tu plan
-• Qué es el UID
-• Contactar al admin',
-  'No tengo información sobre eso. 😅 Intenta preguntarme sobre cómo funciona la plataforma, tu plan o cómo enviar likes.',
-  'Esa pregunta está fuera de mi alcance. 🙏 Soy un asistente especializado en BoostSpeed. ¿Tienes alguna duda sobre la plataforma?'
+const BOT_DEF = [
+  'Hmm, no entendí bien tu pregunta. 🤔 Puedo ayudarte con: cómo enviar likes, activar tu plan, qué es el UID o contactar al admin.',
+  'No tengo información sobre eso. Intenta preguntarme sobre la plataforma, tu plan o cómo enviar likes. 😅',
+  'Esa pregunta está fuera de mi alcance. Soy especializado en BoostSpeed. ¿Tienes dudas sobre la plataforma? 🙏'
 ];
-
-function botResponder(texto) {
-  const t = texto.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
-  for (const entry of BOT_RESPUESTAS) {
-    if (entry.p.some(rx => rx.test(t))) {
-      const opts = entry.r;
-      return opts[Math.floor(Math.random()*opts.length)];
-    }
-  }
-  return BOT_DEFAULT[Math.floor(Math.random()*BOT_DEFAULT.length)];
+function botResp(txt){
+  const t=txt.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');
+  for(const e of BOT_R){if(e.p.test(t))return e.r;}
+  return BOT_DEF[Math.floor(Math.random()*BOT_DEF.length)];
 }
 
-function toggleAiChat() {
-  aiOpen = !aiOpen;
-  const box = document.getElementById('ai-chat-box');
-  const notif = document.getElementById('ai-notif');
-  if (aiOpen) {
+function toggleAiChat(){
+  aiOpen=!aiOpen;
+  const box=document.getElementById('ai-chat-box');
+  const notif=document.getElementById('ai-notif');
+  if(aiOpen){
     box.classList.add('open');
-    notif.style.display = 'none';
-    const msgs = document.getElementById('ai-msgs');
-    if (!msgs.hasChildNodes()) {
-      setTimeout(() => aiAddMsg('bot', '¡Hola! 👋 Soy el asistente de BoostSpeed. ¿En qué te puedo ayudar hoy?'), 300);
+    notif.style.display='none';
+    const msgs=document.getElementById('ai-msgs');
+    if(!msgs.hasChildNodes()){
+      setTimeout(()=>aiAddMsg('bot','¡Hola! 👋 Soy el asistente de BoostSpeed. ¿En qué te puedo ayudar hoy?'),300);
     }
-    setTimeout(() => document.getElementById('ai-input').focus(), 350);
-  } else {
+    setTimeout(()=>document.getElementById('ai-input').focus(),350);
+  }else{
     box.classList.remove('open');
   }
 }
-
-function aiAddMsg(role, text) {
-  const cont = document.getElementById('ai-msgs');
-  const chips = document.getElementById('ai-chips');
-  if (role === 'user' && chips) chips.style.display = 'none';
-  const div = document.createElement('div');
-  div.className = `ai-msg ${role === 'user' ? 'user' : 'bot'}`;
-  // soporte básico de **negrita**
-  const html = text.replace(/\n/g,'<br>').replace(/\*\*(.+?)\*\*/g,'<strong>$1</strong>');
-  div.innerHTML = `<div class="ai-bubble">${html}</div>`;
+function aiAddMsg(role,text){
+  const cont=document.getElementById('ai-msgs');
+  const chips=document.getElementById('ai-chips');
+  if(role==='user'&&chips)chips.style.display='none';
+  const div=document.createElement('div');
+  div.className='ai-msg '+(role==='user'?'user':'bot');
+  div.innerHTML='<div class="ai-bubble">'+text.replace(/\n/g,'<br>')+'</div>';
   cont.appendChild(div);
-  cont.scrollTop = cont.scrollHeight;
+  cont.scrollTop=cont.scrollHeight;
 }
-
-function aiShowTyping() {
-  const cont = document.getElementById('ai-msgs');
-  const t = document.createElement('div');
-  t.className = 'ai-msg bot'; t.id = 'ai-typing-ind';
-  t.innerHTML = `<div class="ai-typing"><span></span><span></span><span></span></div>`;
-  cont.appendChild(t);
-  cont.scrollTop = cont.scrollHeight;
+function aiShowTyping(){
+  const cont=document.getElementById('ai-msgs');
+  const t=document.createElement('div');
+  t.className='ai-msg bot';t.id='ai-typing-ind';
+  t.innerHTML='<div class="ai-typing"><span></span><span></span><span></span></div>';
+  cont.appendChild(t);cont.scrollTop=cont.scrollHeight;
 }
-
-function aiHideTyping() {
-  const t = document.getElementById('ai-typing-ind');
-  if (t) t.remove();
-}
-
-function aiAsk(text) {
-  document.getElementById('ai-input').value = '';
-  aiAddMsg('user', text);
+function aiHideTyping(){const t=document.getElementById('ai-typing-ind');if(t)t.remove();}
+function aiAsk(text){
+  document.getElementById('ai-input').value='';
+  aiAddMsg('user',text);
   aiShowTyping();
-  document.getElementById('ai-send-btn').disabled = true;
-  // Simular pequeño delay de "escritura"
-  const delay = 600 + Math.random() * 700;
-  setTimeout(() => {
+  document.getElementById('ai-send-btn').disabled=true;
+  setTimeout(()=>{
     aiHideTyping();
-    aiAddMsg('bot', botResponder(text));
-    document.getElementById('ai-send-btn').disabled = false;
-  }, delay);
+    aiAddMsg('bot',botResp(text));
+    document.getElementById('ai-send-btn').disabled=false;
+  },500+Math.random()*600);
 }
-
-function aiEnviar() {
-  const inp = document.getElementById('ai-input');
-  const text = inp.value.trim();
-  if (!text) return;
+function aiEnviar(){
+  const inp=document.getElementById('ai-input');
+  const text=inp.value.trim();
+  if(!text)return;
   aiAsk(text);
-}
-</script>
+}</script>
 <!-- ── AI SOPORTE CHAT ── -->
 <button id="ai-chat-btn" onclick="toggleAiChat()" title="Soporte BoostSpeed">
   <div class="ai-notif" id="ai-notif">1</div>
