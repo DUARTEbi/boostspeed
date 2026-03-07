@@ -1079,6 +1079,75 @@ app.get('/api/notificaciones-likes', async (req, res) => {
 });
 
 // Fallback SPA
+// ── AI SOPORTE CHAT ───────────────────────────────────────────────
+app.post('/api/ai-chat', authMiddleware, async (req, res) => {
+  try {
+    const { messages } = req.body;
+    if (!messages || !Array.isArray(messages)) return res.status(400).json({ error: 'Mensajes requeridos' });
+
+    const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
+    if (!ANTHROPIC_KEY) return res.status(500).json({ error: 'API no configurada' });
+
+    const SYSTEM = `Eres el asistente de soporte de BoostSpeed, una plataforma para enviar likes en Free Fire.
+
+SOLO responde preguntas sobre la plataforma BoostSpeed. Si te preguntan algo ajeno (política, ciencia, chistes, otros juegos, etc.) responde amablemente que solo puedes ayudar con temas de BoostSpeed.
+
+INFORMACIÓN DE LA PLATAFORMA:
+- BoostSpeed permite enviar likes a perfiles de Free Fire de forma segura y rápida.
+- Para usar la plataforma necesitas un PLAN DE ACCESO activado con un código.
+- Los códigos se obtienen contactando al administrador por Telegram (@DuarteStoreX) o WhatsApp (+57 316 437 7140).
+- Hay 3 tipos de plan: por DÍAS (X envíos por día durante N días), por LIKES (un total de likes a repartir), e ILIMITADO.
+- Para enviar likes: ve a la pestaña "Likes", ingresa el UID de Free Fire del jugador y presiona Enviar.
+- Solo puedes enviar likes a un mismo UID una vez cada 24 horas.
+- El UID de Free Fire es el número de identificación del jugador, se encuentra en su perfil en el juego.
+- El historial de envíos está en la pestaña "Historial".
+- Para canjear un código: ve a la pestaña "Acceso" e ingresa el código en el campo correspondiente.
+- Si olvidaste tu contraseña, contacta al administrador para un código de recuperación.
+- El servicio es seguro, sin riesgo de ban. Disponible 24/7.
+- No compartas tu contraseña ni tu código con nadie.
+- El chat de la pestaña "Chat" es para hablar con otros usuarios de la plataforma.
+
+Responde de forma breve, amigable y clara. Máximo 3 oraciones. No menciones APIs, tokens, base de datos, límites internos ni datos de otros usuarios.`;
+
+    const body = JSON.stringify({
+      model: 'claude-haiku-4-5-20251001',
+      max_tokens: 300,
+      system: SYSTEM,
+      messages: messages.slice(-8),
+    });
+
+    const options = {
+      hostname: 'api.anthropic.com',
+      path: '/v1/messages',
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'x-api-key': ANTHROPIC_KEY,
+        'anthropic-version': '2023-06-01',
+        'Content-Length': Buffer.byteLength(body),
+      },
+    };
+
+    const apiRes = await new Promise((resolve, reject) => {
+      const req2 = https.request(options, r => {
+        let data = '';
+        r.on('data', chunk => data += chunk);
+        r.on('end', () => resolve({ status: r.statusCode, body: data }));
+      });
+      req2.on('error', reject);
+      req2.write(body);
+      req2.end();
+    });
+
+    const parsed = JSON.parse(apiRes.body);
+    const reply = parsed.content?.[0]?.text || 'No pude procesar tu pregunta, intenta de nuevo.';
+    res.json({ ok: true, reply });
+  } catch (err) {
+    console.error('AI chat error:', err);
+    res.status(500).json({ error: 'Error interno del asistente' });
+  }
+});
+
 app.get('*', (req, res) =>
   res.sendFile(path.join(__dirname, '../public', 'index.html'))
 );
