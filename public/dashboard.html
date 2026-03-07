@@ -14,7 +14,7 @@
   --red:#ff4757;--warn:#ffc107;--blue:#4dabff;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-html,body{height:100%}
+html,body{height:100%;height:100dvh}
 body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;padding-bottom:72px}
 
 /* ── METEOROS — caen diagonal abajo-izquierda, punta al frente ── */
@@ -45,9 +45,12 @@ body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-he
 .uchip{display:flex;align-items:center;gap:.45rem;background:var(--sur);border:1px solid var(--bdr);border-radius:100px;padding:.22rem .65rem .22rem .28rem;font-size:.8rem;font-weight:600;flex-shrink:0;white-space:nowrap}
 .uav{width:27px;height:27px;border-radius:50%;background:var(--gdim);border:1px solid rgba(0,255,30,.28);display:flex;align-items:center;justify-content:center;font-size:.78rem;color:var(--g);font-weight:700;font-family:'Rajdhani',sans-serif;flex-shrink:0}
 
-main{position:relative;z-index:1;flex:1;padding:1rem 1rem 0;max-width:780px;margin:0 auto;width:100%}
+main{position:relative;z-index:1;flex:1;padding:1rem 1rem 0;max-width:780px;margin:0 auto;width:100%;min-height:0}
 .pane{display:none;position:relative}
 .pane.active{display:block;animation:tabIn .4s cubic-bezier(.23,1,.32,1) both}
+#pane-chat{margin:-1rem -1rem 0;}
+@media(min-width:768px){#pane-chat{margin:-1.8rem -2.5rem 0;}}
+#chat-wrap .ctit{padding:.85rem .85rem 0}
 @keyframes tabIn{0%{opacity:0;transform:translateY(16px) scale(.988)}100%{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes tabOut{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-10px)}}
 
@@ -292,7 +295,43 @@ select option{background:var(--bg2)}
 .uptime-row{display:flex;align-items:center;justify-content:center;gap:1.2rem;padding:.65rem;background:var(--bg3);border:1px solid var(--bdr);border-radius:10px;margin-bottom:.9rem;flex-wrap:wrap}
 .ut-item{display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:var(--mut)}
 .ut-item strong{color:var(--g);font-family:'Rajdhani',sans-serif;font-size:.9rem}
-/* CHAT */
+/* ══ CHAT GLOBAL — layout keyboard-aware ══ */
+#chat-wrap{
+  display:flex;flex-direction:column;
+  /* Height = viewport minus topbar(56px) minus bottomnav(68px) minus main padding(16px top) */
+  height:calc(100dvh - 56px - 68px - 16px);
+  background:var(--sur);border:1px solid var(--bdr);border-radius:14px;
+  overflow:hidden;position:relative;
+}
+/* When keyboard opens on mobile, dvh shrinks automatically — no JS needed */
+@media(min-width:768px){
+  #chat-wrap{height:calc(100dvh - 62px - 80px);}
+}
+#chat-msgs{
+  flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:.42rem;
+  padding:.85rem .85rem .5rem;
+  scrollbar-width:thin;scrollbar-color:var(--bdr) transparent;
+}
+#chat-input-bar{
+  flex-shrink:0;display:flex;gap:.45rem;align-items:center;
+  padding:.65rem .75rem calc(.65rem + env(safe-area-inset-bottom));
+  border-top:1px solid var(--bdr);background:var(--bg2);
+}
+#chat-input-bar input{
+  flex:1;background:var(--bg3);border:1px solid var(--bdr);border-radius:9px;
+  padding:.6rem .9rem;color:var(--txt);font-family:'Exo 2',sans-serif;
+  font-size:16px;/* 16px prevents iOS zoom */outline:none;transition:border-color .2s;
+}
+#chat-input-bar input:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(0,255,30,.09)}
+#chat-input-bar input::placeholder{color:var(--mut)}
+#chat-send-btn{
+  background:var(--g);border:none;border-radius:9px;
+  padding:.62rem .9rem;cursor:pointer;transition:all .2s;flex-shrink:0;
+  display:flex;align-items:center;justify-content:center;
+}
+#chat-send-btn:hover{background:var(--gm);box-shadow:var(--glow)}
+#chat-send-btn:active{transform:scale(.92)}
+
 .chat-msg{display:flex;gap:.55rem;align-items:flex-start;animation:msgIn .3s cubic-bezier(.23,1,.32,1)}
 @keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
 .chat-av{width:30px;height:30px;border-radius:8px;background:var(--gdim);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;color:var(--g);flex-shrink:0}
@@ -307,6 +346,115 @@ select option{background:var(--bg2)}
 .chat-time{font-size:.65rem;color:var(--mut);margin-top:.18rem;text-align:right}
 .chat-msg.right{flex-direction:row-reverse}
 .chat-msg.right .chat-bubble{border-radius:10px 0 10px 10px}
+
+/* ══ ANIMACIONES PREMIUM en toda la UI ══ */
+
+/* Números que cuentan suavemente al entrar */
+@keyframes numPop{
+  0%{opacity:0;transform:scale(.6) translateY(8px)}
+  70%{transform:scale(1.08) translateY(-2px)}
+  100%{opacity:1;transform:scale(1) translateY(0)}
+}
+.sv{animation:numPop .55s cubic-bezier(.23,1,.32,1) both}
+.esvv{animation:numPop .55s .1s cubic-bezier(.23,1,.32,1) both}
+.rnum{animation:numPop .55s cubic-bezier(.23,1,.32,1) both}
+
+/* Escudo Anti-ban — pulso lento como radar */
+@keyframes shieldPulse{
+  0%,100%{filter:drop-shadow(0 0 2px rgba(0,255,30,.3))}
+  50%{filter:drop-shadow(0 0 8px rgba(0,255,30,.85)) drop-shadow(0 0 16px rgba(0,255,30,.25))}
+}
+/* Rayo Instantáneo — flash eléctrico */
+@keyframes zapFlash{
+  0%,80%,100%{filter:drop-shadow(0 0 2px rgba(0,255,30,.2));transform:scale(1)}
+  85%{filter:drop-shadow(0 0 10px rgba(0,255,30,1)) drop-shadow(0 0 20px rgba(255,255,255,.5));transform:scale(1.25) rotate(-5deg)}
+  90%{transform:scale(.9)}
+  95%{transform:scale(1.1)}
+}
+/* Pulso uptime 24/7 */
+@keyframes heartbeat{
+  0%,100%{transform:scale(1)}
+  14%{transform:scale(1.18)}
+  28%{transform:scale(1)}
+  42%{transform:scale(1.12)}
+  56%{transform:scale(1)}
+}
+/* Señal uptime ondas */
+@keyframes signalWave{
+  0%,100%{opacity:.3;transform:scaleX(1)}
+  50%{opacity:1;transform:scaleX(1.08)}
+}
+/* Top usuario inline badge — flash premium */
+@keyframes badgeFlash{
+  0%,70%,100%{box-shadow:0 0 4px rgba(0,255,30,.2);border-color:rgba(0,255,30,.25)}
+  75%{box-shadow:0 0 12px rgba(0,255,30,.9),0 0 24px rgba(0,255,30,.3);border-color:rgba(0,255,30,.9)}
+  80%{box-shadow:0 0 5px rgba(0,255,30,.3)}
+}
+/* Float suave para info-cards */
+@keyframes floatY{
+  0%,100%{transform:translateY(0)}
+  50%{transform:translateY(-4px)}
+}
+/* Giro suave icono canjear */
+@keyframes spinSlow{
+  from{transform:rotate(0deg)}
+  to{transform:rotate(360deg)}
+}
+/* Slide-in lateral para hist items */
+@keyframes slideRight{
+  from{opacity:0;transform:translateX(-14px)}
+  to{opacity:1;transform:translateX(0)}
+}
+/* Ping para el dot del plan activo */
+@keyframes planPing{
+  0%{box-shadow:0 0 0 0 rgba(0,255,30,.7)}
+  70%{box-shadow:0 0 0 8px rgba(0,255,30,0)}
+  100%{box-shadow:0 0 0 0 rgba(0,255,30,0)}
+}
+
+/* Aplicar animaciones a elementos específicos */
+.ut-item:nth-child(1) .pulse{animation:bl 1.6s infinite,heartbeat 2s 1s ease-in-out infinite}
+.ut-item:nth-child(2) svg{animation:zapFlash 3.5s ease-in-out infinite}
+.ut-item:nth-child(3) svg{animation:shieldPulse 2.8s ease-in-out infinite}
+.ut-item:nth-child(4) svg{animation:signalWave 2.2s ease-in-out infinite}
+
+/* Top usuarios: badge glow flash */
+.top-lks{animation:badgeFlash 4s ease-in-out infinite}
+.top-item:nth-child(2) .top-lks{animation-delay:.8s}
+.top-item:nth-child(3) .top-lks{animation-delay:1.6s}
+.top-item:nth-child(4) .top-lks{animation-delay:2.4s}
+.top-item:nth-child(5) .top-lks{animation-delay:3.2s}
+
+/* top rank dorado pulso */
+.top-rank.gold{animation:planPing 2s infinite}
+
+/* info-cards float */
+.info-card:nth-child(1){animation:floatY 4s 0s ease-in-out infinite}
+.info-card:nth-child(2){animation:floatY 4s .8s ease-in-out infinite}
+.info-card:nth-child(3){animation:floatY 4s 1.6s ease-in-out infinite}
+.info-card:nth-child(4){animation:floatY 4s 2.4s ease-in-out infinite}
+
+/* esico (icono en stats de likes) giro lento */
+.esico svg{transition:transform .3s}
+.esb:hover .esico svg{transform:rotate(20deg) scale(1.15)}
+.esico{animation:floatY 3.5s ease-in-out infinite}
+.esg .esb:nth-child(2) .esico{animation-delay:.6s}
+
+/* pbadge activo ping */
+.pon{animation:planPing 2.5s ease-in-out infinite}
+
+/* hist icono latido suave */
+.hico{animation:floatY 3.8s ease-in-out infinite}
+.hist-item:nth-child(2) .hico{animation-delay:.4s}
+.hist-item:nth-child(3) .hico{animation-delay:.8s}
+
+/* Avatar perfil gira en hover */
+.pav{transition:transform .5s cubic-bezier(.23,1,.32,1)}
+.pav:hover{transform:scale(1.08) rotate(8deg)}
+
+/* Acceso: íconos TG/WA float */
+.cico{animation:floatY 3.2s ease-in-out infinite}
+.copt:nth-child(2) .cico{animation-delay:.7s}
 /* ── AI SUPPORT CHAT ── */
 #ai-chat-btn{position:fixed;bottom:82px;right:16px;z-index:200;width:48px;height:48px;border-radius:50%;background:var(--g);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,255,30,.4);transition:all .25s;animation:aiPulse 2.5s ease-in-out infinite}
 @keyframes aiPulse{0%,100%{box-shadow:0 4px 20px rgba(0,255,30,.35)}50%{box-shadow:0 4px 30px rgba(0,255,30,.7),0 0 0 8px rgba(0,255,30,.08)}}
@@ -662,21 +810,19 @@ select option{background:var(--bg2)}
 
 <!-- ═══ CHAT ═══ -->
 <div class="pane" id="pane-chat">
-  <div class="card" style="display:flex;flex-direction:column;height:calc(100vh - 180px);min-height:380px">
-    <div class="ctit" style="margin-bottom:.6rem">
+  <div id="chat-wrap">
+    <div class="ctit" style="margin-bottom:.6rem;flex-shrink:0">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><path d="M17 8h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2v4l-4-4H9a2 2 0 0 1-2-2v-1"/><path d="M15 3H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2v4l4-4h4a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
-      Chat
+      Chat Global
       <span style="font-size:.68rem;color:var(--mut);margin-left:auto;font-weight:400">Conoce nuevos amigos aquí</span>
     </div>
-    <!-- Mensajes -->
-    <div id="chat-msgs" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:.45rem;padding:.3rem 0;margin-bottom:.75rem;scrollbar-width:thin;scrollbar-color:var(--bdr) transparent"></div>
-    <!-- Input -->
-    <div style="display:flex;gap:.5rem;align-items:flex-end">
+    <div id="chat-msgs"></div>
+    <div id="chat-input-bar">
       <input type="text" id="chat-input" placeholder="Escribe un mensaje..." maxlength="200"
-        style="flex:1;background:var(--bg2);border:1px solid var(--bdr);border-radius:9px;padding:.6rem .9rem;color:var(--txt);font-family:'Exo 2',sans-serif;font-size:.86rem;outline:none;transition:border-color .2s"
+        autocomplete="off" autocorrect="off" spellcheck="false"
         onkeydown="if(event.key==='Enter')enviarMensaje()"
-        onfocus="this.style.borderColor='var(--g)'" onblur="this.style.borderColor='var(--bdr)'"/>
-      <button onclick="enviarMensaje()" style="background:var(--g);border:none;border-radius:9px;padding:.62rem .9rem;cursor:pointer;transition:all .2s;flex-shrink:0" onmouseover="this.style.background='var(--gm)'" onmouseout="this.style.background='var(--g)'">
+        onfocus="chatFocused(true)" onblur="chatFocused(false)"/>
+      <button id="chat-send-btn" onclick="enviarMensaje()">
         <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
       </button>
     </div>
@@ -1154,6 +1300,16 @@ function mostrarMsg(id, txt, tipo) {
 let chatInterval = null;
 let ultimoMsgId = 0;
 let chatCooldown = false;
+
+function chatFocused(focused) {
+  if (!focused) return;
+  setTimeout(() => {
+    const msgs = document.getElementById('chat-msgs');
+    if (msgs) msgs.scrollTop = msgs.scrollHeight;
+    const inp = document.getElementById('chat-input');
+    if (inp) inp.scrollIntoView({behavior:'smooth', block:'nearest'});
+  }, 380);
+}
 
 async function cargarChat(scroll = true) {
   const res = await API.get('/api/chat');
