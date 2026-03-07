@@ -17,27 +17,32 @@
 html,body{height:100%}
 body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;padding-bottom:72px}
 
-/* ── FONDO METEOROS ── */
+/* ── METEOROS — caen diagonal abajo-izquierda, punta al frente ── */
 #meteors{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-.meteor{position:absolute;width:1px;height:90px;background:linear-gradient(180deg,transparent 0%,rgba(0,255,30,.4) 35%,rgba(0,255,30,.85) 65%,rgba(255,255,255,.9) 100%);border-radius:2px;opacity:0;animation:meteorFall linear infinite}
-@keyframes meteorFall{
-  0%{opacity:0;transform:translateY(-120px) translateX(0) rotate(30deg)}
-  8%{opacity:.85}
-  85%{opacity:.35}
-  100%{opacity:0;transform:translateY(110vh) translateX(calc(110vh * .55)) rotate(30deg)}
-}
+.meteor{position:absolute;pointer-events:none}
+/* ── COLOR CYCLE: controlado por JS con requestAnimationFrame ── */
+
 .bggl{position:fixed;top:-20%;left:50%;transform:translateX(-50%);width:900px;height:900px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,30,.032) 0%,transparent 65%);pointer-events:none;z-index:0;animation:bgp 8s ease-in-out infinite}
 @keyframes bgp{0%,100%{opacity:.5}50%{opacity:1}}
 
-.tb{position:sticky;top:0;z-index:100;background:rgba(7,7,7,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);height:56px;display:flex;align-items:center;padding:0 1rem;justify-content:space-between;animation:sD .5s cubic-bezier(.23,1,.32,1)}
-@keyframes sD{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
-.logo{font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--g);letter-spacing:2px;display:flex;align-items:center;gap:.4rem;text-decoration:none}
+/* ── TOPBAR — fija, nunca se mueve ── */
+.tb{position:sticky;top:0;z-index:100;background:rgba(7,7,7,.96);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);height:56px;min-height:56px;display:flex;align-items:center;padding:0 1rem;justify-content:space-between;flex-shrink:0}
+.logo{font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--g);letter-spacing:2px;display:flex;align-items:center;gap:.4rem;text-decoration:none;white-space:nowrap;flex-shrink:0}
 .logo span{color:var(--txt);font-weight:500}
+/* Rayito ⚡ animado después de Speed */
+.logo-bolt{display:inline-block;color:var(--g);font-style:normal;margin-left:.1rem;animation:boltFlash 2.4s ease-in-out infinite;transform-origin:center bottom;font-size:1.1rem;line-height:1}
+@keyframes boltFlash{
+  0%,100%{opacity:.3;transform:scaleY(.85) scaleX(.9)}
+  15%{opacity:1;transform:scaleY(1.15) scaleX(1.05)}
+  30%{opacity:.5;transform:scaleY(.9)}
+  45%{opacity:1;transform:scaleY(1.1)}
+  60%{opacity:.4;transform:scaleY(.95)}
+}
 .pulse{position:relative;width:7px;height:7px;border-radius:50%;background:var(--g);box-shadow:var(--glow);animation:bl 1.6s infinite;flex-shrink:0}
 .pulse::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(0,255,30,.3);animation:rp 1.6s ease-out infinite}
 @keyframes bl{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.2;transform:scale(.6)}}
 @keyframes rp{0%{transform:scale(.4);opacity:.8}100%{transform:scale(2.6);opacity:0}}
-.uchip{display:flex;align-items:center;gap:.45rem;background:var(--sur);border:1px solid var(--bdr);border-radius:100px;padding:.22rem .65rem .22rem .28rem;font-size:.8rem;font-weight:600}
+.uchip{display:flex;align-items:center;gap:.45rem;background:var(--sur);border:1px solid var(--bdr);border-radius:100px;padding:.22rem .65rem .22rem .28rem;font-size:.8rem;font-weight:600;flex-shrink:0;white-space:nowrap}
 .uav{width:27px;height:27px;border-radius:50%;background:var(--gdim);border:1px solid rgba(0,255,30,.28);display:flex;align-items:center;justify-content:center;font-size:.78rem;color:var(--g);font-weight:700;font-family:'Rajdhani',sans-serif;flex-shrink:0}
 
 main{position:relative;z-index:1;flex:1;padding:1rem 1rem 0;max-width:780px;margin:0 auto;width:100%}
@@ -308,7 +313,7 @@ select option{background:var(--bg2)}
 <div class="bggl"></div>
 
 <div class="tb">
-  <a class="logo" href="/"><div class="pulse"></div>Boost<span>Speed</span></a>
+  <a class="logo" href="/"><div class="pulse"></div>Boost<span>Speed</span><i class="logo-bolt">⚡</i></a>
   <nav class="pc-nav" id="pc-nav">
     <button class="pc-nav-btn active" id="pc-inicio" onclick="tab('inicio')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mut)" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Inicio</button>
     <button class="pc-nav-btn" id="pc-likes" onclick="tab('likes')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--mut)" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 0-7.78z"/></svg>Likes</button>
@@ -657,21 +662,27 @@ let userData = null;
 let recUserId = null;
 
 (()=>{
-  const c = document.getElementById('meteors');
-  const COUNT = 18;
-  for (let i = 0; i < COUNT; i++) {
-    const m = document.createElement('div');
-    m.className = 'meteor';
-    const startX = Math.random() * 120 - 10; // -10% to 110%
-    const dur    = Math.random() * 5 + 3.5;  // 3.5s - 8.5s
-    const delay  = Math.random() * 12;       // 0 - 12s stagger
-    const len    = Math.random() * 60 + 50;  // 50-110px
-    const op     = Math.random() * .45 + .3;
-    m.style.cssText = `left:${startX}%;top:-120px;height:${len}px;opacity:0;animation-duration:${dur}s;animation-delay:${delay}s;`;
-    m.style.setProperty('--op', op);
+  const c=document.getElementById('meteors');
+  const ANGLE=25,RAD=ANGLE*Math.PI/180;
+  const VH=window.innerHeight||900,VW=window.innerWidth||400;
+  const totalDist=VH+200,moveY=totalDist,moveX=-Math.tan(RAD)*totalDist;
+  for(let i=0;i<28;i++){
+    const m=document.createElement('div');m.className='meteor';
+    const len=55+Math.random()*90,dur=2.2+Math.random()*5.5;
+    const delay=-(Math.random()*dur);
+    const startX=Math.random()*(VW+200);
+    m.style.cssText=`left:${startX}px;top:${-len-20}px;width:2px;height:${len}px;transform:rotate(-${ANGLE}deg);background:linear-gradient(to bottom,transparent 0%,rgba(180,255,190,.2) 30%,rgba(0,255,30,.7) 65%,rgba(0,255,30,.95) 82%,#ffffff 100%);border-radius:0 0 2px 2px;position:absolute;opacity:0`;
+    m.animate([
+      {opacity:0,transform:`rotate(-${ANGLE}deg) translate(0px,0px)`},
+      {opacity:.9,offset:.07},
+      {opacity:.55,offset:.80},
+      {opacity:0,transform:`rotate(-${ANGLE}deg) translate(${moveX}px,${moveY}px)`},
+    ],{duration:dur*1000,delay:delay*1000,iterations:Infinity,easing:'linear'});
     c.appendChild(m);
   }
 })();
+
+
 
 window.addEventListener('DOMContentLoaded', async () => {
   if (!localStorage.getItem('bs_token')) { location.href='/'; return; }
@@ -679,8 +690,17 @@ window.addEventListener('DOMContentLoaded', async () => {
   cargarTop();
   cargarPublicStats();
   setTimeout(()=>document.querySelectorAll('.sb').forEach((el,i)=>setTimeout(()=>el.classList.add('vis'),i*80+150)), 100);
-  // Auto-refresh top cada 10 segundos
-  setInterval(() => { if (document.getElementById('pane-inicio').classList.contains('active')) cargarTop(); }, 10000);
+  // Auto-refresh top cada 30 segundos con fade
+  setInterval(() => {
+    if (document.getElementById('pane-inicio').classList.contains('active')) {
+      const list = document.getElementById('top-list');
+      list.style.transition = 'opacity .4s';
+      list.style.opacity = '0';
+      setTimeout(() => cargarTop().then(() => {
+        list.style.opacity = '1';
+      }), 400);
+    }
+  }, 30000);
 });
 
 async function cargarPerfil() {
@@ -834,8 +854,7 @@ function pintarHistorial(hist) {
   setTimeout(() => document.querySelectorAll('.hist-item').forEach(el => el.classList.add('vis')), 50);
 }
 
-async function cargarTop() {
-  const list = document.getElementById('top-list');
+async function cargarTop() {  const list = document.getElementById('top-list');
   list.innerHTML = `<div class="ldg"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div>`;
   try {
     const res = await API.get('/api/top-usuarios');
