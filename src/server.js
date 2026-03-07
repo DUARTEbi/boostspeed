@@ -88,6 +88,14 @@ async function initDB() {
         creado_en       TIMESTAMP DEFAULT NOW()
       );
 
+      CREATE TABLE IF NOT EXISTS chat_mensajes (
+        id          SERIAL PRIMARY KEY,
+        usuario_id  INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
+        username    VARCHAR(50) NOT NULL,
+        mensaje     TEXT NOT NULL,
+        creado_en   TIMESTAMP DEFAULT NOW()
+      );
+
       -- Agregar columnas si no existen (para bases de datos existentes)
       ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS plan_tipo VARCHAR(20) DEFAULT 'dias';
       ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS likes_limite_plan INTEGER DEFAULT 0;
@@ -717,7 +725,7 @@ app.get('/api/admin/stats', adminMiddleware, async (req, res) => {
       pool.query('SELECT COUNT(*) FROM codigos'),
       pool.query('SELECT COUNT(*) FROM codigos WHERE usado=true'),
       pool.query('SELECT COUNT(*) FROM usuarios WHERE plan_activo=true'),
-      pool.query(`SELECT id,uid,username,contact,plan_activo,plan_nombre,likes_disponibles,creado_en
+      pool.query(`SELECT id,uid,username,contact,plan_activo,plan_nombre,plan_tipo,likes_disponibles,ilimitado,creado_en
                   FROM usuarios ORDER BY creado_en DESC LIMIT 10`),
       pool.query(`SELECT COUNT(*) AS total FROM historial WHERE fecha::date = $1`, [today]),
     ]);
@@ -887,6 +895,28 @@ app.put('/api/admin/usuarios/:id', adminMiddleware, async (req, res) => {
   }
 });
 
+// Endpoint dedicado para asignar plan ilimitado
+app.put('/api/admin/usuarios/:id/ilimitado', adminMiddleware, async (req, res) => {
+  try {
+    const id = req.params.id;
+    await pool.query(
+      `UPDATE usuarios SET plan_activo=true, plan_nombre='Plan Ilimitado',
+       plan_tipo='ilimitado', likes_disponibles=999999, likes_limite_plan=999999,
+       likes_enviados_plan=0, envios_por_dia=999, plan_vence=NULL, ilimitado=true
+       WHERE id=$1`, [id]
+    );
+    const updated = await pool.query(
+      `SELECT id,uid,username,contact,plan_activo,plan_nombre,plan_tipo,likes_disponibles,
+       likes_limite_plan,likes_enviados_plan,envios_por_dia,envios_hoy,plan_vence,ilimitado,creado_en
+       FROM usuarios WHERE id=$1`, [id]
+    );
+    res.json({ ok: true, usuario: updated.rows[0] });
+  } catch (err) {
+    console.error(err);
+    res.status(500).json({ error: 'Error interno' });
+  }
+});
+
 app.delete('/api/admin/usuarios/:id', adminMiddleware, async (req, res) => {
   try {
     await pool.query('DELETE FROM usuarios WHERE id=$1', [req.params.id]);
@@ -914,6 +944,77 @@ app.post('/api/admin/codigos-recuperacion', adminMiddleware, async (req, res) =>
     );
     res.json({ ok: true, codigo });
   } catch (err) {
+    res.status(500).json({ error: 'Error interno' });
+  }
+});
+
+// ════════════════════════════════════════════════════════════════
+//  CHAT
+// ════════════════════════════════════════════════════════════════
+
+const PALABROTAS = ['puta','mierda','culo','hijueputa','gonorrea','hp','verga','pene','vagina','coño','pendejo','idiota','estupido','estúpido','marica','malparido','hdp','fuck','shit','ass','bitch','damn','crap','bastard','polla','joder','gilipollas','cabrón','cabron','cojonudo','follar','putero'];
+
+function filtrarMensaje(texto) {
+  let t = texto.trim();
+  // Eliminar URLs/links
+  if (/https?:\/\/|www\.|\.com|\.net|\.org|\.io|t\.me|wa\.me/i.test(t)) return null;
+  // Filtrar groserías — retorna null si contiene (mensaje se descarta silenciosamente)
+  const lower = t.toLowerCase().replace(/[^a-záéíóúüñ0-9\s]/gi, '');
+  for (const p of PALABROTAS) {
+    if (lower.includes(p)) return null;
+  }
+  // Limitar longitud
+  if (t.length > 200) t = t.slice(0, 200);
+  if (t.length < 1) return null;
+  return t;
+}
+
+// GET mensajes (últimos 20)
+app.get('/api/chat', authMiddleware, async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT id, username, mensaje, creado_en FROM chat_mensajes ORDER BY creado_en DESC LIMIT 20`
+    );
+    res.json({ ok: true, mensajes: r.rows.reverse() });
+  } catch (err) {
+    res.status(500).json({ error: 'Error interno' });
+  }
+});
+
+// POST mensaje
+let cooldowns = {}; // userId -> timestamp último mensaje
+app.post('/api/chat', authMiddleware, async (req, res) => {
+  try {
+    const { mensaje } = req.body;
+    const uid = req.user.id;
+    // Cooldown 3 segundos
+    const ahora = Date.now();
+    if (cooldowns[uid] && ahora - cooldowns[uid] < 3000)
+      return res.status(429).json({ error: 'Espera un momento antes de enviar otro mensaje' });
+    cooldowns[uid] = ahora;
+
+    const filtrado = filtrarMensaje(mensaje || '');
+    if (!filtrado) {
+      // Mensaje bloqueado — responder ok silenciosamente (el usuario no sabe que se descartó)
+      return res.json({ ok: true, descartado: true });
+    }
+
+    const user = await pool.query('SELECT username FROM usuarios WHERE id=$1', [uid]);
+    if (!user.rows.length) return res.status(400).json({ error: 'Usuario no encontrado' });
+
+    await pool.query(
+      `INSERT INTO chat_mensajes (usuario_id, username, mensaje) VALUES ($1, $2, $3)`,
+      [uid, user.rows[0].username, filtrado]
+    );
+
+    // Mantener solo los últimos 20 mensajes
+    await pool.query(
+      `DELETE FROM chat_mensajes WHERE id NOT IN (SELECT id FROM chat_mensajes ORDER BY creado_en DESC LIMIT 20)`
+    );
+
+    res.json({ ok: true });
+  } catch (err) {
+    console.error(err);
     res.status(500).json({ error: 'Error interno' });
   }
 });
