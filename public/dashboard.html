@@ -483,13 +483,13 @@ select option{background:var(--bg2)}
 .cico{animation:floatY 3.2s ease-in-out infinite}
 .copt:nth-child(2) .cico{animation-delay:.7s}
 /* ── AI SUPPORT CHAT ── */
-#ai-chat-btn{position:fixed;bottom:82px;right:16px;z-index:200;width:48px;height:48px;border-radius:50%;background:var(--g);border:none;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,255,30,.4);transition:all .25s;animation:aiPulse 2.5s ease-in-out infinite}
+#ai-chat-btn{position:fixed;bottom:82px;right:16px;z-index:200;width:48px;height:48px;border-radius:50%;background:var(--g);border:none;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,255,30,.4);transition:bottom .2s,all .25s;transition:bottom .2s,transform .25s,background .25s;animation:aiPulse 2.5s ease-in-out infinite}
 @keyframes aiPulse{0%,100%{box-shadow:0 4px 20px rgba(0,255,30,.35)}50%{box-shadow:0 4px 30px rgba(0,255,30,.7),0 0 0 8px rgba(0,255,30,.08)}}
 #ai-chat-btn:hover{transform:scale(1.1);background:var(--gm)}
 #ai-chat-btn svg{stroke:#000;flex-shrink:0}
 #ai-chat-btn .ai-notif{position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#ff4757;border-radius:50%;border:2px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:700;color:#fff}
 
-#ai-chat-box{position:fixed;bottom:140px;right:16px;z-index:201;width:300px;max-height:480px;background:var(--sur);border:1px solid var(--bdr);border-radius:16px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,.6);animation:aiBoxIn .32s cubic-bezier(.23,1,.32,1)}
+#ai-chat-box{position:fixed;bottom:140px;right:16px;z-index:201;width:300px;max-height:60vh;background:var(--sur);border:1px solid var(--bdr);border-radius:16px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,.6);animation:aiBoxIn .32s cubic-bezier(.23,1,.32,1);transition:bottom .2s,max-height .2s;transition:bottom .2s,max-height .2s}
 @keyframes aiBoxIn{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
 #ai-chat-box.open{display:flex}
 
@@ -526,7 +526,7 @@ select option{background:var(--bg2)}
 
 @media(min-width:768px){
   #ai-chat-btn{bottom:22px}
-  #ai-chat-box{bottom:82px;width:320px}
+  #ai-chat-box{bottom:82px;width:320px;max-height:70vh}
 }
 </style>
 <div id="meteors"></div>
@@ -1463,13 +1463,43 @@ function toggleAiChat(){
     notif.style.display='none';
     const msgs=document.getElementById('ai-msgs');
     if(!msgs.hasChildNodes()){
-      setTimeout(()=>aiAddMsg('bot','¡Hola! 👋 Soy el asistente de BoostSpeed. ¿En qué te puedo ayudar hoy?'),300);
+      setTimeout(()=>aiAddMsg('bot','Hola, bienvenido al soporte de BoostSpeed. En que te puedo ayudar?'),300);
     }
-    setTimeout(()=>document.getElementById('ai-input').focus(),350);
+    // NO auto-focus — user taps input manually to avoid unwanted keyboard popup
   }else{
     box.classList.remove('open');
+    // Close keyboard if open
+    document.getElementById('ai-input').blur();
   }
 }
+
+// ── visualViewport: subir chat cuando el teclado abre ──
+(function(){
+  if(!window.visualViewport) return;
+  function onVVResize(){
+    const vv = window.visualViewport;
+    const box = document.getElementById('ai-chat-box');
+    const btn = document.getElementById('ai-chat-btn');
+    if(!box || !btn) return;
+    // Gap between visual viewport bottom and layout viewport bottom = keyboard height
+    const kbHeight = window.innerHeight - vv.height - vv.offsetTop;
+    const safeBottom = Math.max(kbHeight, 0);
+    if(safeBottom > 50){
+      // Keyboard is open — position box just above keyboard
+      box.style.bottom = (safeBottom + 8) + 'px';
+      box.style.maxHeight = (vv.height - 100) + 'px';
+      btn.style.bottom = (safeBottom + 8) + 'px';
+    } else {
+      // Keyboard closed — restore defaults
+      const isPC = window.innerWidth >= 768;
+      box.style.bottom = isPC ? '82px' : '140px';
+      box.style.maxHeight = '';
+      btn.style.bottom = isPC ? '22px' : '82px';
+    }
+  }
+  window.visualViewport.addEventListener('resize', onVVResize);
+  window.visualViewport.addEventListener('scroll', onVVResize);
+})();
 function aiAddMsg(role,text){
   const cont=document.getElementById('ai-msgs');
   const chips=document.getElementById('ai-chips');
