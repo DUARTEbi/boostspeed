@@ -129,8 +129,12 @@
     /* MODAL */
     .ov{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(8px);z-index:300;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .25s}
     .ov.open{opacity:1;pointer-events:all}
-    .modal{background:var(--bg2);border:1px solid var(--bdr);border-radius:17px;padding:2rem;width:100%;max-width:430px;position:relative;transform:translateY(22px) scale(.97);transition:transform .25s,opacity .25s;opacity:0;max-height:90vh;overflow-y:auto}
-    .modal::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;border-radius:17px 17px 0 0;background:linear-gradient(90deg,transparent,var(--g),transparent)}
+    .modal{background:var(--bg2);border:1px solid var(--bdr);border-radius:17px;padding:2rem;width:100%;max-width:430px;position:relative;transform:translateY(22px) scale(.97);transition:transform .25s,opacity .25s;opacity:0;max-height:90vh;overflow-y:auto;overflow-x:hidden}
+    /* Animated border scan line on modal */
+    .modal::before{content:'';position:absolute;top:0;left:-100%;width:60%;height:2px;border-radius:17px 17px 0 0;background:linear-gradient(90deg,transparent,var(--g),transparent);animation:modalScan 2.8s ease-in-out infinite}
+    @keyframes modalScan{0%{left:-60%}100%{left:160%}}
+    .modal::after{content:'';position:absolute;bottom:0;right:-100%;width:50%;height:1px;border-radius:0 0 17px 17px;background:linear-gradient(90deg,transparent,rgba(0,255,30,.4),transparent);animation:modalScanB 3.5s ease-in-out infinite}
+    @keyframes modalScanB{0%{right:-50%}100%{right:150%}}
     .ov.open .modal{transform:translateY(0) scale(1);opacity:1}
     .mc{position:absolute;top:.9rem;right:.9rem;background:none;border:none;color:var(--mut);font-size:1.35rem;cursor:pointer;padding:.2rem;line-height:1;transition:color .2s,transform .2s;z-index:1}
     .mc:hover{color:var(--txt);transform:rotate(90deg)}
@@ -164,12 +168,29 @@
     .sdot{width:7px;height:7px;border-radius:50%;background:var(--bdr);transition:background .3s,box-shadow .3s}
     .sdot.active{background:var(--g);box-shadow:0 0 7px rgba(0,255,30,.5)}
 
-    @media(max-width:600px){nav{padding:0 1rem}.ticker-div{display:none}.hero-ticker{gap:.8rem}}
+    /* NOTIFICACIONES FLOTANTES (izquierda, suben y desvanecen) */
+    #notif-container{position:fixed;left:18px;bottom:80px;z-index:500;display:flex;flex-direction:column-reverse;gap:.5rem;pointer-events:none;max-width:240px}
+    .notif{background:rgba(10,18,10,.92);border:1px solid rgba(0,255,30,.3);border-radius:10px;padding:.6rem .85rem;display:flex;align-items:center;gap:.55rem;backdrop-filter:blur(12px);box-shadow:0 4px 20px rgba(0,0,0,.5),0 0 12px rgba(0,255,30,.1);animation:notifRise 4.5s cubic-bezier(.22,1,.36,1) forwards;position:relative;overflow:hidden}
+    .notif::before{content:'';position:absolute;top:0;left:-60%;width:50%;height:1px;background:linear-gradient(90deg,transparent,var(--g),transparent);animation:notifLine 1.2s ease-out forwards}
+    @keyframes notifLine{0%{left:-60%}100%{left:120%}}
+    @keyframes notifRise{
+      0%{transform:translateY(20px);opacity:0}
+      10%{transform:translateY(0);opacity:1}
+      60%{opacity:1;transform:translateY(-8px)}
+      100%{opacity:0;transform:translateY(-60px)}
+    }
+    .notif-ico{width:28px;height:28px;border-radius:7px;background:rgba(0,255,30,.12);border:1px solid rgba(0,255,30,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+    .notif-txt{flex:1;min-width:0}
+    .notif-name{font-family:'Rajdhani',sans-serif;font-size:.82rem;font-weight:700;color:var(--txt);white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+    .notif-likes{font-size:.73rem;color:var(--g);font-weight:700}
+
+    @media(max-width:600px){nav{padding:0 1rem}.ticker-div{display:none}.hero-ticker{gap:.8rem}#notif-container{max-width:200px;left:10px}}
   </style>
 </head>
 <body>
 <div id="particles"></div>
 <div class="bg-glow"></div>
+<div id="notif-container"></div>
 
 <nav>
   <a class="logo" href="/"><div class="pulse"></div>Boost<span>Speed</span></a>
@@ -515,6 +536,78 @@
     el.textContent=txt;el.className='msg '+tipo;el.style.display='block';
     setTimeout(()=>el.style.display='none',5500);
   }
+
+  // ── Notificaciones flotantes de likes ──────────────────────────
+  let notifVistas = new Set();
+  function mostrarNotif(username, likesAgregados) {
+    const cont = document.getElementById('notif-container');
+    const el = document.createElement('div');
+    el.className = 'notif';
+    el.innerHTML = `
+      <div class="notif-ico">
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2.5">
+          <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 0-7.78z"/>
+        </svg>
+      </div>
+      <div class="notif-txt">
+        <div class="notif-name">${username}</div>
+        <div class="notif-likes">+${likesAgregados.toLocaleString('es')} likes enviados</div>
+      </div>`;
+    cont.appendChild(el);
+    // Remover después de que termina la animación (4.5s)
+    setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 4700);
+    // Máximo 4 notificaciones visibles a la vez
+    while (cont.children.length > 4) cont.removeChild(cont.firstChild);
+  }
+
+  async function checkNotificaciones() {
+    try {
+      const res = await fetch('/api/notificaciones-likes');
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data.ok || !data.notificaciones) return;
+      data.notificaciones.forEach(n => {
+        if (!notifVistas.has(n.id || (n.username + n.creado_en))) {
+          notifVistas.add(n.id || (n.username + n.creado_en));
+        }
+      });
+    } catch(e) {}
+  }
+
+  // Iniciar polling de notificaciones: cada 8s mostrar una notif nueva
+  let notifQueue = [];
+  let lastNotifCheck = 0;
+  async function pollNotificaciones() {
+    try {
+      const res = await fetch('/api/notificaciones-likes');
+      if (!res.ok) return;
+      const data = await res.json();
+      if (!data.ok || !data.notificaciones) return;
+      data.notificaciones.forEach(n => {
+        const key = n.username + n.creado_en;
+        if (!notifVistas.has(key) && n.likes_agregados > 0) {
+          notifVistas.add(key);
+          notifQueue.push(n);
+        }
+      });
+    } catch(e) {}
+  }
+
+  function processNotifQueue() {
+    if (notifQueue.length > 0) {
+      const n = notifQueue.shift();
+      mostrarNotif(n.username, n.likes_agregados);
+    }
+  }
+
+  // Cargar notificaciones existentes sin mostrarlas (marcar como vistas)
+  (async()=>{
+    await pollNotificaciones();
+    notifQueue = []; // no mostrar las ya existentes al cargar
+    // Luego cada 8s hacer polling y cada 5s mostrar una del queue
+    setInterval(pollNotificaciones, 8000);
+    setInterval(processNotifQueue, 5000);
+  })();
 </script>
 </body>
 </html>
