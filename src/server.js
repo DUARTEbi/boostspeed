@@ -190,10 +190,20 @@ function interpretarRespuestaFF(apiData) {
   }
 
   if (status === 1 || added > 0 || successful > 0) {
-    if (after > 0 && after <= before && added === 0 && successful === 0) {
+    // Verificar si los likes realmente aumentaron
+    if (after > 0 && before > 0 && after <= before) {
+      return { tipo: 'ya_recibio', data: apiData };
+    }
+    // Caso: la API reporta added/successful pero likes_after == likes_before (no cambió)
+    if (after > 0 && before > 0 && after === before) {
       return { tipo: 'ya_recibio', data: apiData };
     }
     return { tipo: 'ok', data: apiData };
+  }
+
+  // Si status=1 pero likes no cambiaron
+  if (status === 1 && after > 0 && before > 0 && after === before) {
+    return { tipo: 'ya_recibio', data: apiData };
   }
 
   return { tipo: 'error', data: apiData };
@@ -555,8 +565,34 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
       });
     }
     if (interpretado.tipo === 'ya_recibio') {
+      // Devolver info del jugador pero indicar que ya recibio likes
+      const d = apiData;
+      const player = d.player || d.nickname || ff_uid.trim();
+      const level  = d.level  || '—';
+      const region = d.region || serverFinal;
+      const before = parseInt(d.likes_before || 0, 10);
+      // Calcular tiempo restante hasta medianoche (hora local del servidor)
+      const ahora = new Date();
+      const manana = new Date(ahora);
+      manana.setDate(manana.getDate() + 1);
+      manana.setHours(0, 0, 0, 0);
+      const diffMs = manana - ahora;
+      const horas  = Math.floor(diffMs / 3600000);
+      const minutos = Math.floor((diffMs % 3600000) / 60000);
+      const tiempoRestante = horas > 0 ? `${horas}h ${minutos}m` : `${minutos}m`;
       return res.status(400).json({
-        error: `⚠️ ${apiData.player || 'Este jugador'} ya recibió likes hoy. Intenta más tarde.`
+        error: `Este UID ya recibió likes hoy. Podrás enviare nuevamente en ${tiempoRestante}.`,
+        data: {
+          jugador: player,
+          uid:     d.uid || ff_uid.trim(),
+          nivel:   level,
+          region:  region,
+          likes_antes: before,
+          likes_despues: before,
+          likes_agregados: 0,
+          tiempo_restante: tiempoRestante,
+          ya_recibio: true,
+        }
       });
     }
     if (interpretado.tipo === 'error') {
@@ -576,27 +612,30 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
     const after  = parseInt(d.likes_after  || 0, 10);
     const tiempo = d.processing_time_seconds ? `${d.processing_time_seconds}s` : '—';
 
-    if (u.ilimitado) {
+    // Solo actualizar contadores y guardar historial si realmente se enviaron likes
+    if (likesAdded > 0 || after > before) {
+      if (u.ilimitado) {
+        await pool.query(
+          `UPDATE usuarios SET envios_hoy=envios_hoy+1, fecha_ultimo_envio=$1 WHERE id=$2`,
+          [today, req.user.id]
+        );
+      } else {
+        const likesDecrement = u.plan_tipo === 'likes' ? likesAdded : 1;
+        await pool.query(
+          `UPDATE usuarios SET envios_hoy=envios_hoy+1,
+           likes_disponibles=GREATEST(likes_disponibles-$1, 0),
+           likes_enviados_plan=likes_enviados_plan+$2,
+           fecha_ultimo_envio=$3 WHERE id=$4`,
+          [likesDecrement, likesAdded, today, req.user.id]
+        );
+      }
+
       await pool.query(
-        `UPDATE usuarios SET envios_hoy=envios_hoy+1, fecha_ultimo_envio=$1 WHERE id=$2`,
-        [today, req.user.id]
-      );
-    } else {
-      const likesDecrement = u.plan_tipo === 'likes' ? likesAdded : 1;
-      await pool.query(
-        `UPDATE usuarios SET envios_hoy=envios_hoy+1,
-         likes_disponibles=GREATEST(likes_disponibles-$1, 0),
-         likes_enviados_plan=likes_enviados_plan+$2,
-         fecha_ultimo_envio=$3 WHERE id=$4`,
-        [likesDecrement, likesAdded, today, req.user.id]
+        `INSERT INTO historial (usuario_id,ff_uid,player_name,likes_antes,likes_despues,likes_agregados,nivel,region)
+         VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
+        [req.user.id, ff_uid.trim(), player, before, after, likesAdded, level, region]
       );
     }
-
-    await pool.query(
-      `INSERT INTO historial (usuario_id,ff_uid,player_name,likes_antes,likes_despues,likes_agregados,nivel,region)
-       VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
-      [req.user.id, ff_uid.trim(), player, before, after, likesAdded, level, region]
-    );
 
     res.json({
       ok: true,
