@@ -952,20 +952,60 @@ app.post('/api/admin/codigos-recuperacion', adminMiddleware, async (req, res) =>
 //  CHAT
 // ════════════════════════════════════════════════════════════════
 
-const PALABROTAS = ['puta','mierda','culo','hijueputa','gonorrea','hp','verga','pene','vagina','coño','pendejo','idiota','estupido','estúpido','marica','malparido','hdp','fuck','shit','ass','bitch','damn','crap','bastard','polla','joder','gilipollas','cabrón','cabron','cojonudo','follar','putero'];
+const PALABROTAS = [
+  // Español
+  'puta','puto','putos','putas','hijueputa','hijueputo','hp','gonorrea','gonorreas',
+  'mierda','mierdas','culo','culos','verga','vergas','pendejo','pendejos','pendeja','pendejas',
+  'marica','maricas','malparido','malparida','malparidos','hdp','idiota','idiotas',
+  'estupido','estupidos','estupida','estupidas','estúpido','estúpida','retrasado','retrasada',
+  'polla','pollas','coño','coños','joder','gilipollas','cabrón','cabron','cabrones',
+  'follar','putero','putear','mamaguevo','mamaguevo','coger','cogelo','ojete',
+  'chinga','chingada','chingadas','chingadera','culero','culeros','pinche','pinches',
+  'cabeza de pene','weon','huevon','huevona','huevones','culiao','culiado','culiao',
+  'hijodeputa','hijo de puta','hijo de perra','perra','perras','zorra','zorras',
+  'pene','penes','vagina','vaginas','culo','trasero','ano',
+  // Inglés
+  'fuck','fucking','fucked','fucker','fuckers','shit','shits','shitty',
+  'ass','asses','asshole','assholes','bitch','bitches','bastard','bastards',
+  'crap','craps','damn','damned','cunt','cunts','dick','dicks','cock','cocks',
+  'pussy','pussies','whore','whores','slut','sluts','nigger','niggers','nigga',
+  'faggot','fag','fags','retard','retards','motherfucker','mofo',
+  'bullshit','jackass','douchebag','dipshit',
+  // Portugués
+  'porra','caralho','foda','fodase','foda-se','viado','viadao','buceta','boceta',
+  'merda','otario','otário','pau','cu','arrombado','cuzao','cuzão',
+  // Variaciones leet/ofuscadas comunes
+  'pu7a','put4','sh1t','f4ck','a55','@ss','b1tch','c0ño','v3rga','p3nd3jo',
+];
+
+// Normalizar texto para detectar ofuscación (l33tspeak, acentos, repetición)
+function normalizarTexto(t) {
+  return t.toLowerCase()
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quitar acentos
+    .replace(/0/g,'o').replace(/1/g,'i').replace(/3/g,'e')
+    .replace(/4/g,'a').replace(/5/g,'s').replace(/7/g,'t')
+    .replace(/8/g,'b').replace(/@/g,'a').replace(/\$/g,'s')
+    .replace(/(.)\1{2,}/g,'$1') // aaaaa -> a (repetición)
+    .replace(/[^a-z0-9\s]/g,' '); // resto a espacio
+}
 
 function filtrarMensaje(texto) {
   let t = texto.trim();
-  // Eliminar URLs/links
-  if (/https?:\/\/|www\.|\.com|\.net|\.org|\.io|t\.me|wa\.me/i.test(t)) return null;
-  // Filtrar groserías — retorna null si contiene (mensaje se descarta silenciosamente)
-  const lower = t.toLowerCase().replace(/[^a-záéíóúüñ0-9\s]/gi, '');
-  for (const p of PALABROTAS) {
-    if (lower.includes(p)) return null;
-  }
-  // Limitar longitud
+  if (!t || t.length < 1) return null;
   if (t.length > 200) t = t.slice(0, 200);
-  if (t.length < 1) return null;
+
+  // Bloquear URLs/links
+  if (/https?:\/\/|www\.|\.com|\.net|\.org|\.io|\.co|t\.me|wa\.me|discord\.|bit\.ly/i.test(t)) return null;
+
+  const normalizado = normalizarTexto(t);
+
+  for (const p of PALABROTAS) {
+    const pnorm = normalizarTexto(p);
+    // Buscar como palabra completa O como subcadena (más estricto)
+    const regex = new RegExp(`(^|\\s|[^a-z])${pnorm.replace(/\s+/g,'\\s*')}($|\\s|[^a-z])`, 'i');
+    if (regex.test(normalizado) || normalizado.includes(pnorm)) return null;
+  }
+
   return t;
 }
 
