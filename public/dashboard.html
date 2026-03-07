@@ -273,6 +273,20 @@ select option{background:var(--bg2)}
     <div class="sb"><div class="sv" id="st-misLikes">—</div><div class="sl">Mis likes</div></div>
   </div>
 
+  <!-- Canjear código rápido (encima del top) -->
+  <div class="card" style="margin-bottom:.85rem">
+    <div class="ctit">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      Canjear código de acceso
+    </div>
+    <p style="color:var(--mut);font-size:.79rem;line-height:1.5;margin-bottom:.75rem">Ingresa el código que te compartió el administrador para activar tu plan.</p>
+    <div class="msg" id="msg-can-inicio"></div>
+    <div class="crow2">
+      <div class="fg" style="margin:0;flex:1"><input type="text" id="cod-inp-inicio" placeholder="Ej: XY4Z9A8B" style="text-transform:uppercase"/></div>
+      <button class="btn bp" onclick="canjearInicio()" style="height:fit-content;align-self:flex-end;margin-bottom:.8rem">Activar</button>
+    </div>
+  </div>
+
   <!-- Status plataforma -->
   <div class="uptime-row">
     <div class="ut-item"><div class="pulse" style="width:6px;height:6px"></div><strong>Online 24/7</strong></div>
@@ -373,7 +387,7 @@ select option{background:var(--bg2)}
   <div class="esg">
     <div class="esb">
       <div class="esico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
-      <div><div class="esvv" id="es-likes">—</div><div class="esll">Likes disponibles</div></div>
+      <div><div class="esvv" id="es-likes">—</div><div class="esll" id="es-likes-lbl">Likes disponibles</div></div>
     </div>
     <div class="esb">
       <div class="esico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
@@ -460,54 +474,21 @@ select option{background:var(--bg2)}
     </div>
   </div>
 
-  <!-- Recuperar contraseña -->
-  <div class="card">
-    <div class="ctit">
-      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
-      Recuperar contraseña
-    </div>
-    <p style="color:var(--mut);font-size:.81rem;margin-bottom:.9rem;line-height:1.55">Ingresa el correo o teléfono que registraste. Si está en el sistema podrás cambiar la contraseña con un código del administrador.</p>
-    <div class="msg" id="msg-rec"></div>
-    <div class="sdots"><div class="sdot active" id="sd1"></div><div class="sdot" id="sd2"></div><div class="sdot" id="sd3"></div></div>
-    <div id="rs1">
-      <div class="fg"><label>Correo o teléfono registrado</label><input type="text" id="rc-contact" placeholder="correo@ejemplo.com o +57..."/></div>
-      <button class="btn bp bf" onclick="recP1()">Verificar →</button>
-    </div>
-    <div id="rs2" style="display:none">
-      <div class="fg">
-        <label>Código de recuperación</label>
-        <p style="color:var(--mut);font-size:.76rem;margin-bottom:.4rem;line-height:1.5">Contáctame vía Telegram o WhatsApp con prueba de tu cuenta y te daré el código.</p>
-        <input type="text" id="rc-code" placeholder="Código del admin" style="text-transform:uppercase"/>
-      </div>
-      <button class="btn bp bf" onclick="recP2()">Verificar código →</button>
-      <button class="btn bo bf" onclick="recVolver()" style="margin-top:.45rem">← Volver</button>
-    </div>
-    <div id="rs3" style="display:none">
-      <div class="fg"><label>Nueva contraseña</label><input type="password" id="rc-new" placeholder="Mínimo 6 caracteres"/></div>
-      <div class="fg"><label>Confirmar contraseña</label><input type="password" id="rc-confirm" placeholder="Repite la contraseña"/></div>
-      <button class="btn bp bf" onclick="recP3()">Guardar contraseña →</button>
-    </div>
-  </div>
-
-  <!-- Soporte / Adquirir plan -->
+  <!-- Adquirir plan / Soporte -->
   <div class="card">
     <div class="ctit">
       <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>
-      Adquirir plan / Soporte
+      Adquirir plan
     </div>
-    <p style="color:var(--mut);font-size:.81rem;margin-bottom:.9rem;line-height:1.55">Contáctame para adquirir un plan de acceso o resolver cualquier problema técnico.</p>
+    <p style="color:var(--mut);font-size:.81rem;margin-bottom:.9rem;line-height:1.55">Contáctame para adquirir un plan. Dime cuántos días o cuántos likes quieres y te envío el código.</p>
 
-    <!-- Qué decirle al admin -->
     <div style="background:var(--bg3);border:1px solid var(--bdr);border-radius:10px;padding:.85rem;margin-bottom:.85rem">
       <p style="font-size:.76rem;font-weight:700;color:var(--g);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem">📋 Qué decirle al administrador:</p>
       <p style="font-size:.78rem;color:var(--mut);line-height:1.65">
-        Para adquirir un plan, comparte tu <strong style="color:var(--txt)">nombre de usuario</strong> y tu <strong style="color:var(--txt)">ID único</strong> (visible en tu perfil). El admin te enviará un código para activar tu plan.<br><br>
-        Para recuperar la contraseña, comparte tu <strong style="color:var(--txt)">correo o teléfono registrado</strong> y el admin te dará un código de recuperación.
+        Para adquirir un plan, dile tu <strong style="color:var(--txt)">nombre de usuario</strong> en la plataforma y elige entre:<br><br>
+        • <strong style="color:var(--txt)">Plan por días:</strong> Indica cuántos días quieres (ej: 7, 15, 30 días).<br>
+        • <strong style="color:var(--txt)">Plan por likes:</strong> Indica la cantidad de likes que quieres (ej: 500, 1000, 2000 likes).
       </p>
-      <div style="background:var(--bg2);border:1px solid rgba(0,255,30,.15);border-radius:7px;padding:.6rem .8rem;margin-top:.65rem;display:flex;align-items:center;gap:.5rem">
-        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>
-        <span style="font-size:.76rem;color:var(--mut)">Tu ID: <code id="acc-uid" style="color:var(--g);font-family:monospace;letter-spacing:1px">—</code></span>
-      </div>
     </div>
 
     <a class="copt" href="https://t.me/DuarteStoreX" target="_blank">
@@ -544,7 +525,7 @@ select option{background:var(--bg2)}
       </div>
     </div>
     <div class="ir"><span class="ik"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 7V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v2"/></svg> Plan</span><span class="iv" id="p-plan">—</span></div>
-    <div class="ir"><span class="ik"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 0-7.78z"/></svg> Likes disp.</span><span class="iv" id="p-likes">0</span></div>
+    <div class="ir"><span class="ik"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 0-7.78z"/></svg> Info plan</span><span class="iv" id="p-plan-info">—</span></div>
     <div class="ir"><span class="ik"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg> Envíos/día</span><span class="iv" id="p-dia">0</span></div>
     <div class="ir"><span class="ik"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg> Vence</span><span class="iv" id="p-vence">—</span></div>
     <div class="ir"><span class="ik"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg> Miembro desde</span><span class="iv" id="p-desde">—</span></div>
@@ -599,6 +580,8 @@ window.addEventListener('DOMContentLoaded', async () => {
   cargarTop();
   cargarPublicStats();
   setTimeout(()=>document.querySelectorAll('.sb').forEach((el,i)=>setTimeout(()=>el.classList.add('vis'),i*80+150)), 100);
+  // Auto-refresh top cada 10 segundos
+  setInterval(() => { if (document.getElementById('pane-inicio').classList.contains('active')) cargarTop(); }, 10000);
 });
 
 async function cargarPerfil() {
@@ -626,21 +609,31 @@ function pintarUI(u, hist) {
   // Mis likes enviados total
   animCount('st-misLikes', u.total_likes_enviados || 0);
 
-  // Pestaña likes - plan banner
-  const badge = document.getElementById('lp-badge');
+  // ── Pestaña LIKES - plan banner ──
+  const badge  = document.getElementById('lp-badge');
   const pnombre = document.getElementById('lp-nombre');
-  const psub = document.getElementById('lp-sub');
+  const psub    = document.getElementById('lp-sub');
   if (u.plan_activo) {
-    badge.textContent = u.ilimitado ? '🚀 Ilimitado' : 'Activo';
     badge.className = 'pbadge pon';
-    pnombre.textContent = u.plan_nombre;
     if (u.ilimitado) {
-      psub.textContent = 'Plan sin límites · Envíos ilimitados';
+      badge.textContent = '🚀 Ilimitado';
+      pnombre.textContent = 'Plan Ilimitado';
+      psub.textContent = 'Sin límites · Envíos ilimitados';
     } else if (u.plan_tipo === 'likes') {
-      psub.textContent = `${(u.likes_disponibles||0).toLocaleString('es')} likes disp. · ${u.envios_por_dia} envíos/día`;
+      badge.textContent = 'Activo';
+      pnombre.textContent = u.plan_nombre;
+      const lenv = u.likes_enviados_plan || 0;
+      const ltot = u.likes_limite_plan   || 0;
+      const lres = u.likes_disponibles   || 0;
+      psub.textContent = ltot > 0
+        ? `${lenv.toLocaleString('es')} / ${ltot.toLocaleString('es')} likes · ${u.envios_por_dia} envíos/día`
+        : `${lres.toLocaleString('es')} likes restantes · ${u.envios_por_dia} envíos/día`;
     } else {
-      const d = u.plan_vence ? Math.max(0, Math.ceil((new Date(u.plan_vence) - Date.now()) / 86400000)) : 0;
-      psub.textContent = `${(u.likes_disponibles||0).toLocaleString('es')} likes · ${d} días restantes`;
+      // Plan por días
+      badge.textContent = 'Activo';
+      pnombre.textContent = u.plan_nombre;
+      const diasR = u.plan_vence ? Math.max(0, Math.ceil((new Date(u.plan_vence) - Date.now()) / 86400000)) : 0;
+      psub.textContent = `${diasR} día${diasR !== 1 ? 's' : ''} restante${diasR !== 1 ? 's' : ''} · ${u.envios_por_dia} envíos/día`;
     }
   } else {
     badge.textContent = 'Sin plan';
@@ -649,31 +642,63 @@ function pintarUI(u, hist) {
     psub.textContent = 'Ve a Acceso para canjear tu código';
   }
 
-  // Límite del día
+  // ── Límite del día ──
   const enviados = u.envios_hoy || 0;
-  const limite = u.ilimitado ? 999 : (u.envios_por_dia || 0);
+  const limite   = u.ilimitado ? 999 : (u.envios_por_dia || 0);
   const pct = limite > 0 ? Math.min((enviados / limite) * 100, 100) : 0;
   document.getElementById('limit-val').textContent = u.ilimitado ? `${enviados}/∞` : `${enviados}/${limite}`;
   document.getElementById('limit-fill').style.width = u.ilimitado ? '15%' : pct + '%';
 
-  // Stats likes tab
-  document.getElementById('es-likes').textContent = u.ilimitado ? '∞' : (u.likes_disponibles||0).toLocaleString('es');
+  // ── Stats likes tab ──
+  // Para plan días: mostrar dias restantes en vez de likes
+  if (u.plan_activo && !u.ilimitado && u.plan_tipo === 'dias') {
+    const diasR = u.plan_vence ? Math.max(0, Math.ceil((new Date(u.plan_vence) - Date.now()) / 86400000)) : 0;
+    document.getElementById('es-likes').textContent = diasR + 'd';
+    document.getElementById('es-likes-lbl').textContent = 'Días restantes';
+  } else if (u.plan_activo && !u.ilimitado && u.plan_tipo === 'likes') {
+    const lenv = u.likes_enviados_plan || 0;
+    const ltot = u.likes_limite_plan   || 0;
+    document.getElementById('es-likes').textContent = ltot > 0
+      ? `${lenv.toLocaleString('es')}/${ltot.toLocaleString('es')}`
+      : (u.likes_disponibles||0).toLocaleString('es');
+    document.getElementById('es-likes-lbl').textContent = ltot > 0 ? 'Likes usados' : 'Likes restantes';
+  } else {
+    document.getElementById('es-likes').textContent = u.ilimitado ? '∞' : (u.likes_disponibles||0).toLocaleString('es');
+    document.getElementById('es-likes-lbl').textContent = 'Likes disponibles';
+  }
   document.getElementById('es-enviados').textContent = (u.total_likes_enviados||0).toLocaleString('es');
 
-  // Perfil tab
-  document.getElementById('p-av').textContent = ini;
-  document.getElementById('p-name').textContent    = u.username;
+  // ── Perfil tab ──
+  document.getElementById('p-av').textContent    = ini;
+  document.getElementById('p-name').textContent  = u.username;
   document.getElementById('p-contact').textContent = u.contact;
-  document.getElementById('p-uid').textContent     = u.uid;
-  document.getElementById('p-plan').textContent    = u.plan_activo ? (u.ilimitado ? '🚀 Ilimitado' : u.plan_nombre) : 'Sin plan';
-  document.getElementById('p-likes').textContent   = u.ilimitado ? '∞' : (u.likes_disponibles||0).toLocaleString('es');
-  document.getElementById('p-dia').textContent     = u.ilimitado ? '∞ / día' : (u.envios_por_dia + ' / día');
-  document.getElementById('p-vence').textContent   = u.ilimitado ? '∞ (sin vencimiento)' : (u.plan_vence ? new Date(u.plan_vence).toLocaleDateString('es') : (u.plan_tipo==='likes' ? '(por likes)' : '—'));
-  document.getElementById('p-desde').textContent   = new Date(u.creado_en).toLocaleDateString('es');
+  document.getElementById('p-uid').textContent   = u.uid;
+  document.getElementById('p-plan').textContent  = u.plan_activo ? (u.ilimitado ? '🚀 Ilimitado' : u.plan_nombre) : 'Sin plan';
+  document.getElementById('p-dia').textContent   = u.ilimitado ? '∞ / día' : (u.envios_por_dia + ' / día');
 
-  // Acceso - mostrar UID
-  const accUid = document.getElementById('acc-uid');
-  if (accUid) accUid.textContent = u.uid;
+  // Info plan en perfil: según tipo
+  const pInfoEl = document.getElementById('p-plan-info');
+  if (pInfoEl) {
+    if (!u.plan_activo) {
+      pInfoEl.textContent = '—';
+    } else if (u.ilimitado) {
+      pInfoEl.textContent = 'Sin límites';
+    } else if (u.plan_tipo === 'likes') {
+      const lenv = u.likes_enviados_plan || 0;
+      const ltot = u.likes_limite_plan   || 0;
+      pInfoEl.textContent = ltot > 0
+        ? `${lenv.toLocaleString('es')} / ${ltot.toLocaleString('es')} likes`
+        : `${(u.likes_disponibles||0).toLocaleString('es')} likes restantes`;
+    } else {
+      const diasR = u.plan_vence ? Math.max(0, Math.ceil((new Date(u.plan_vence) - Date.now()) / 86400000)) : 0;
+      pInfoEl.textContent = `${diasR} día${diasR !== 1 ? 's' : ''} restante${diasR !== 1 ? 's' : ''}`;
+    }
+  }
+
+  document.getElementById('p-vence').textContent = u.ilimitado ? '∞ (sin vencimiento)'
+    : (u.plan_vence ? new Date(u.plan_vence).toLocaleDateString('es')
+    : (u.plan_tipo === 'likes' ? 'Al completar likes' : '—'));
+  document.getElementById('p-desde').textContent = new Date(u.creado_en).toLocaleDateString('es');
 
   pintarHistorial(hist);
 }
@@ -754,6 +779,16 @@ async function canjear() {
   if (!res.ok) return mostrarMsg('msg-can', res.error, 'err');
   mostrarMsg('msg-can', res.message, 'ok');
   document.getElementById('cod-inp').value = '';
+  setTimeout(cargarPerfil, 700);
+}
+
+async function canjearInicio() {
+  const cod = document.getElementById('cod-inp-inicio').value.trim().toUpperCase();
+  if (!cod) return mostrarMsg('msg-can-inicio', 'Ingresa un código', 'err');
+  const res = await API.post('/api/canjear', { codigo: cod });
+  if (!res.ok) return mostrarMsg('msg-can-inicio', res.error, 'err');
+  mostrarMsg('msg-can-inicio', res.message, 'ok');
+  document.getElementById('cod-inp-inicio').value = '';
   setTimeout(cargarPerfil, 700);
 }
 
