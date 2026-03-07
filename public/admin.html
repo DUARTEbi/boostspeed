@@ -195,7 +195,7 @@ tr:hover td{background:rgba(0,255,30,.02)}
       <div class="api-ico">⚡</div>
       <div class="api-info">
         <div class="api-title">Envíos de la API hoy</div>
-        <div class="api-sub">Total de envíos realizados hoy desde esta plataforma. La API puede tener un límite diario. Monitorea para evitar errores.</div>
+        <div class="api-sub" id="api-sub-txt">Total de envíos realizados hoy. Monitorea para no agotar el límite de la API.</div>
       </div>
       <div class="api-val" id="api-hoy">—</div>
     </div>
@@ -310,14 +310,42 @@ tr:hover td{background:rgba(0,255,30,.02)}
       <div class="ct">Detalle del usuario</div>
       <div class="udet" id="usr-det"></div>
       <div style="margin-top:1.1rem;padding-top:1rem;border-top:1px solid var(--bdr)">
-        <div class="ct" style="font-size:.92rem;margin-bottom:.65rem">Modificar</div>
+        <div class="ct" style="font-size:.92rem;margin-bottom:.65rem">Modificar plan</div>
         <div class="msg" id="msg-edit"></div>
-        <div class="fr">
-          <div class="fg"><label>Likes disponibles</label><input type="number" id="e-lk" placeholder="Cantidad"/></div>
-          <div class="fg"><label>Días del plan</label><input type="number" id="e-dias" placeholder="Días"/></div>
-          <div class="fg"><label>Envíos por día</label><input type="number" id="e-env" placeholder="Cantidad"/></div>
-          <div class="fg"><label>Estado</label><select id="e-stat"><option value="true">Activo</option><option value="false">Inactivo</option></select></div>
+
+        <!-- Selector de acción -->
+        <div class="tipo-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:.8rem" id="edit-tipo-grid">
+          <div class="topt sel" id="etopt-dias" onclick="selEditTipo('dias')"><h4>📅 Por días</h4><p>Asignar días de plan</p></div>
+          <div class="topt" id="etopt-likes" onclick="selEditTipo('likes')"><h4>❤️ Por likes</h4><p>Asignar cantidad de likes</p></div>
+          <div class="topt ilim-opt" id="etopt-ilimitado" onclick="selEditTipo('ilimitado')"><h4>🚀 Ilimitado</h4><p>Sin límites</p></div>
         </div>
+
+        <!-- Campos por días -->
+        <div id="edit-campos-dias">
+          <div class="fr">
+            <div class="fg"><label>Días del plan</label><input type="number" id="e-dias" placeholder="Ej: 30" min="0"/></div>
+            <div class="fg"><label>Envíos por día</label><input type="number" id="e-env-dias" placeholder="Ej: 3" min="1"/></div>
+            <div class="fg"><label>Estado</label><select id="e-stat-dias"><option value="true">Activo</option><option value="false">Inactivo</option></select></div>
+          </div>
+        </div>
+
+        <!-- Campos por likes -->
+        <div id="edit-campos-likes" style="display:none">
+          <div class="fr">
+            <div class="fg"><label>Cantidad de likes</label><input type="number" id="e-lk" placeholder="Ej: 1500" min="0"/></div>
+            <div class="fg"><label>Envíos por día</label><input type="number" id="e-env-likes" placeholder="Ej: 3" min="1"/></div>
+            <div class="fg"><label>Estado</label><select id="e-stat-likes"><option value="true">Activo</option><option value="false">Inactivo</option></select></div>
+          </div>
+        </div>
+
+        <!-- Campos ilimitado -->
+        <div id="edit-campos-ilimitado" style="display:none">
+          <div style="background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.2);border-radius:10px;padding:.9rem;margin-bottom:.75rem">
+            <p style="color:#a78bfa;font-size:.82rem;font-weight:700;margin-bottom:.2rem">Plan Ilimitado</p>
+            <p style="color:var(--mut);font-size:.78rem;line-height:1.5">Sin límite de likes, días ni envíos.</p>
+          </div>
+        </div>
+
         <div style="display:flex;gap:.55rem;flex-wrap:wrap">
           <button class="btn bp" onclick="guardarEdit()">
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
@@ -416,7 +444,7 @@ tr:hover td{background:rgba(0,255,30,.02)}
 
 <script src="/js/api.js"></script>
 <script>
-let admTok = null, editUID = null, recUID = null, tipoPlan = 'dias';
+let admTok = null, editUID = null, recUID = null, tipoPlan = 'dias', editTipo = 'dias';
 let admUser = 'admin';
 
 (()=>{const c=document.getElementById('ptcl');for(let i=0;i<13;i++){const p=document.createElement('div');p.className='pt';const s=Math.random()*2.5+.8;p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;animation-duration:${Math.random()*20+12}s;animation-delay:${Math.random()*16}s`;c.appendChild(p);}})();
@@ -478,8 +506,15 @@ async function loadDash() {
   const r = await API.getAdmin('/api/admin/stats', admTok); if (!r.ok) return;
   animN('a-tu', r.totalUsuarios); animN('a-tc', r.totalCodigos);
   animN('a-uc', r.codigosUsados); animN('a-ap', r.planesActivos);
-  // Envíos de la API hoy
-  document.getElementById('api-hoy').textContent = (r.enviosHoy || 0).toLocaleString('es');
+  // Envíos API hoy
+  const envHoy = r.enviosHoy || 0;
+  const limDia  = r.limiteApiDia || 0;
+  document.getElementById('api-hoy').textContent = limDia > 0
+    ? `${envHoy.toLocaleString('es')} / ${limDia.toLocaleString('es')}`
+    : envHoy.toLocaleString('es');
+  document.getElementById('api-sub-txt').textContent = limDia > 0
+    ? `Limite diario configurado: ${limDia.toLocaleString('es')} envíos. Monitorea para no agotarlo.`
+    : 'Total de envíos hoy. Configura FF_API_LIMIT_DIA en variables de entorno para ver el límite.';
   document.getElementById('dash-rec').innerHTML = r.usuariosRecientes.length
     ? r.usuariosRecientes.map(u => `
       <tr>
@@ -581,37 +616,95 @@ async function buscarUsr() {
   if (!r.ok || !r.usuarios.length) { showMsg('msg-edit', 'Usuario no encontrado', 'err'); document.getElementById('usr-det-card').style.display='none'; return; }
   mostrarDetUsr(r.usuarios[0]);
 }
+function selEditTipo(tipo) {
+  editTipo = tipo;
+  ['dias','likes','ilimitado'].forEach(t => {
+    document.getElementById('etopt-'+t).classList.toggle('sel', t === tipo);
+    document.getElementById('edit-campos-'+t).style.display = t === tipo ? 'block' : 'none';
+  });
+}
 function mostrarDetUsr(u) {
   editUID = u.id;
   document.getElementById('usr-det-card').style.display = 'block';
   const vence = u.ilimitado ? '∞ (Ilimitado)' : (u.plan_vence ? new Date(u.plan_vence).toLocaleDateString('es') : (u.plan_tipo==='likes'?'(por likes)':'—'));
   const diasR = (u.plan_vence && !u.ilimitado) ? Math.max(0, Math.ceil((new Date(u.plan_vence) - Date.now()) / 86400000)) : 0;
+
+  // Info del plan para mostrar en el detalle
+  let planInfo = '';
+  if (u.ilimitado) {
+    planInfo = `<div class="ir"><span class="ik">Plan</span><span class="iv" style="color:#a78bfa">🚀 Ilimitado</span></div>`;
+  } else if (u.plan_tipo === 'likes') {
+    const lenv = u.likes_enviados_plan || 0;
+    const ltot = u.likes_limite_plan || 0;
+    planInfo = `<div class="ir"><span class="ik">Likes enviados</span><span class="iv">${lenv.toLocaleString('es')} / ${ltot.toLocaleString('es')}</span></div>
+    <div class="ir"><span class="ik">Likes restantes</span><span class="iv" style="color:var(--g)">${(u.likes_disponibles||0).toLocaleString('es')}</span></div>`;
+  } else {
+    planInfo = `<div class="ir"><span class="ik">Días restantes</span><span class="iv" style="color:var(--g)">${diasR}</span></div>
+    <div class="ir"><span class="ik">Likes enviados</span><span class="iv">${(u.likes_enviados_plan||0).toLocaleString('es')}</span></div>`;
+  }
+
   document.getElementById('usr-det').innerHTML = `
     <div class="ir"><span class="ik">ID único</span><span class="iv"><code style="color:var(--g)">${u.uid}</code></span></div>
     <div class="ir"><span class="ik">Usuario</span><span class="iv">${u.username}</span></div>
     <div class="ir"><span class="ik">Contacto</span><span class="iv">${u.contact}</span></div>
     <div class="ir"><span class="ik">Plan</span><span class="iv"><span class="badge ${u.plan_activo?'bok':'bnone'}">${u.plan_activo?u.plan_nombre:'Sin plan'}</span></span></div>
     <div class="ir"><span class="ik">Tipo</span><span class="iv"><span class="badge ${u.ilimitado?'bilim':u.plan_tipo==='likes'?'blikes':'bdias'}">${u.ilimitado?'🚀 Ilimitado':u.plan_tipo||'días'}</span></span></div>
-    <div class="ir"><span class="ik">Likes disponibles</span><span class="iv">${u.ilimitado?'∞':(u.likes_disponibles||0).toLocaleString('es')}</span></div>
+    ${planInfo}
     <div class="ir"><span class="ik">Envíos por día</span><span class="iv">${u.ilimitado?'∞':u.envios_por_dia}</span></div>
     <div class="ir"><span class="ik">Envíos hoy</span><span class="iv">${u.envios_hoy}</span></div>
     <div class="ir"><span class="ik">Vence</span><span class="iv">${vence}</span></div>
     <div class="ir"><span class="ik">Registrado</span><span class="iv">${new Date(u.creado_en).toLocaleDateString('es')}</span></div>
   `;
-  document.getElementById('e-lk').value   = u.ilimitado ? 999999 : u.likes_disponibles;
-  document.getElementById('e-env').value  = u.ilimitado ? 999 : u.envios_por_dia;
-  document.getElementById('e-dias').value = diasR;
-  document.getElementById('e-stat').value = u.plan_activo ? 'true' : 'false';
+
+  // Seleccionar tipo de edición basado en plan actual
+  const tipo = u.ilimitado ? 'ilimitado' : (u.plan_tipo || 'dias');
+  selEditTipo(tipo);
+
+  // Precargar campos
+  if (tipo === 'dias') {
+    document.getElementById('e-dias').value = diasR || '';
+    document.getElementById('e-env-dias').value = u.envios_por_dia || 3;
+    document.getElementById('e-stat-dias').value = u.plan_activo ? 'true' : 'false';
+  } else if (tipo === 'likes') {
+    document.getElementById('e-lk').value = u.likes_disponibles || '';
+    document.getElementById('e-env-likes').value = u.envios_por_dia || 3;
+    document.getElementById('e-stat-likes').value = u.plan_activo ? 'true' : 'false';
+  }
   document.getElementById('usr-det-card').scrollIntoView({ behavior: 'smooth' });
 }
 async function guardarEdit() {
   if (!editUID) return;
-  const body = {
-    likes_disponibles: parseInt(document.getElementById('e-lk').value) || 0,
-    dias_adicionales:  parseInt(document.getElementById('e-dias').value) || 0,
-    envios_por_dia:    parseInt(document.getElementById('e-env').value) || 0,
-    plan_activo:       document.getElementById('e-stat').value === 'true',
-  };
+  let body = {};
+  if (editTipo === 'ilimitado') {
+    // Aplicar plan ilimitado directamente via canjear no funciona, actualizamos directo
+    body = { plan_activo: true, envios_por_dia: 999, dias_adicionales: 0, likes_adicionales: 0 };
+    // Actualizamos a ilimitado manualmente
+    const r = await API.putAdmin('/api/admin/usuarios/' + editUID + '/ilimitado', {}, admTok);
+    if (!r.ok) {
+      // Fallback: usar endpoint normal con datos ilimitados
+      const r2 = await API.putAdmin('/api/admin/usuarios/' + editUID, { plan_activo: true, envios_por_dia: 999, dias_adicionales: 36500 }, admTok);
+      if (!r2.ok) return showMsg('msg-edit', r2.error, 'err');
+      showMsg('msg-edit', '✓ Plan ilimitado asignado', 'ok');
+      mostrarDetUsr(r2.usuario); loadDash(); loadUsrs();
+    }
+    return;
+  } else if (editTipo === 'dias') {
+    body = {
+      plan_tipo: 'dias',
+      dias_adicionales: parseInt(document.getElementById('e-dias').value) || 0,
+      envios_por_dia: parseInt(document.getElementById('e-env-dias').value) || 3,
+      plan_activo: document.getElementById('e-stat-dias').value === 'true',
+      likes_adicionales: 0,
+    };
+  } else {
+    body = {
+      plan_tipo: 'likes',
+      likes_adicionales: parseInt(document.getElementById('e-lk').value) || 0,
+      envios_por_dia: parseInt(document.getElementById('e-env-likes').value) || 3,
+      plan_activo: document.getElementById('e-stat-likes').value === 'true',
+      dias_adicionales: 0,
+    };
+  }
   const r = await API.putAdmin('/api/admin/usuarios/' + editUID, body, admTok);
   if (!r.ok) return showMsg('msg-edit', r.error, 'err');
   showMsg('msg-edit', '✓ Actualizado correctamente', 'ok');
