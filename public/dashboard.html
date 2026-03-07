@@ -307,8 +307,53 @@ select option{background:var(--bg2)}
 .chat-time{font-size:.65rem;color:var(--mut);margin-top:.18rem;text-align:right}
 .chat-msg.right{flex-direction:row-reverse}
 .chat-msg.right .chat-bubble{border-radius:10px 0 10px 10px}
+/* ── AI SUPPORT CHAT ── */
+#ai-chat-btn{position:fixed;bottom:82px;right:16px;z-index:200;width:48px;height:48px;border-radius:50%;background:var(--g);border:none;cursor:pointer;display:flex;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,255,30,.4);transition:all .25s;animation:aiPulse 2.5s ease-in-out infinite}
+@keyframes aiPulse{0%,100%{box-shadow:0 4px 20px rgba(0,255,30,.35)}50%{box-shadow:0 4px 30px rgba(0,255,30,.7),0 0 0 8px rgba(0,255,30,.08)}}
+#ai-chat-btn:hover{transform:scale(1.1);background:var(--gm)}
+#ai-chat-btn svg{stroke:#000;flex-shrink:0}
+#ai-chat-btn .ai-notif{position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#ff4757;border-radius:50%;border:2px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:700;color:#fff}
+
+#ai-chat-box{position:fixed;bottom:140px;right:16px;z-index:201;width:300px;max-height:480px;background:var(--sur);border:1px solid var(--bdr);border-radius:16px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,.6);animation:aiBoxIn .32s cubic-bezier(.23,1,.32,1)}
+@keyframes aiBoxIn{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
+#ai-chat-box.open{display:flex}
+
+.ai-header{background:linear-gradient(135deg,rgba(0,255,30,.15),rgba(0,255,30,.05));border-bottom:1px solid var(--bdr);padding:.75rem 1rem;display:flex;align-items:center;gap:.6rem;flex-shrink:0}
+.ai-av{width:32px;height:32px;border-radius:50%;background:var(--gdim);border:1.5px solid var(--g);display:flex;align-items:center;justify-content:center;flex-shrink:0}
+.ai-hinfo{flex:1}
+.ai-hname{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.9rem;color:var(--g)}
+.ai-hstatus{font-size:.65rem;color:var(--mut);display:flex;align-items:center;gap:.3rem}
+.ai-dot{width:5px;height:5px;border-radius:50%;background:#00FF1E;animation:bl 1.5s infinite;flex-shrink:0}
+.ai-close{background:none;border:none;color:var(--mut);cursor:pointer;padding:.2rem;display:flex;transition:color .2s;flex-shrink:0}
+.ai-close:hover{color:var(--txt)}
+
+#ai-msgs{flex:1;overflow-y:auto;padding:.75rem;display:flex;flex-direction:column;gap:.55rem;scrollbar-width:thin;scrollbar-color:var(--bdr) transparent}
+.ai-msg{display:flex;gap:.4rem;align-items:flex-end;animation:msgIn .28s cubic-bezier(.23,1,.32,1)}
+.ai-msg.user{flex-direction:row-reverse}
+.ai-bubble{max-width:82%;padding:.5rem .75rem;border-radius:14px 14px 14px 4px;font-size:.8rem;line-height:1.5;color:var(--txt)}
+.ai-msg.bot .ai-bubble{background:var(--bg3);border:1px solid var(--bdr)}
+.ai-msg.user .ai-bubble{background:rgba(0,255,30,.12);border:1px solid rgba(0,255,30,.22);border-radius:14px 14px 4px 14px}
+.ai-typing{display:flex;gap:4px;padding:.5rem .75rem;background:var(--bg3);border:1px solid var(--bdr);border-radius:14px 14px 14px 4px;width:fit-content}
+.ai-typing span{width:6px;height:6px;border-radius:50%;background:var(--g);animation:ld .7s ease-in-out infinite}
+.ai-typing span:nth-child(2){animation-delay:.15s}
+.ai-typing span:nth-child(3){animation-delay:.3s}
+
+.ai-footer{border-top:1px solid var(--bdr);padding:.6rem;display:flex;gap:.45rem;flex-shrink:0}
+.ai-footer input{flex:1;background:var(--bg2);border:1px solid var(--bdr);border-radius:9px;padding:.5rem .75rem;color:var(--txt);font-family:'Exo 2',sans-serif;font-size:.8rem;outline:none;transition:border-color .2s}
+.ai-footer input:focus{border-color:var(--g)}
+.ai-footer input::placeholder{color:var(--mut)}
+.ai-send{background:var(--g);border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
+.ai-send:hover{background:var(--gm);box-shadow:var(--glow)}
+.ai-send:disabled{opacity:.4;cursor:not-allowed}
+.ai-chips{display:flex;flex-wrap:wrap;gap:.35rem;padding:.5rem .75rem 0}
+.ai-chip{background:var(--bg3);border:1px solid var(--bdr);border-radius:100px;padding:.22rem .65rem;font-size:.7rem;color:var(--mut);cursor:pointer;transition:all .2s;white-space:nowrap}
+.ai-chip:hover{border-color:var(--g);color:var(--g)}
+
+@media(min-width:768px){
+  #ai-chat-btn{bottom:22px}
+  #ai-chat-box{bottom:82px;width:320px}
+}
 </style>
-<body>
 <div id="meteors"></div>
 <div class="bggl"></div>
 
@@ -344,6 +389,13 @@ select option{background:var(--bg2)}
     </div>
     <p style="color:var(--mut);font-size:.79rem;line-height:1.5;margin-bottom:.75rem">Ingresa el código que te compartió el administrador para activar tu plan.</p>
     <div class="msg" id="msg-can-inicio"></div>
+    <div id="post-canje-btn" style="display:none;margin-bottom:.6rem">
+      <button class="btn bp bf" onclick="tab('likes')" style="gap:.55rem">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        ¡Plan activado! → Ir a enviar likes
+        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="9 18 15 12 9 6"/></svg>
+      </button>
+    </div>
     <div class="crow2">
       <div class="fg" style="margin:0;flex:1"><input type="text" id="cod-inp-inicio" placeholder="Ej: XY4Z9A8B" style="text-transform:uppercase"/></div>
       <button class="btn bp" onclick="canjearInicio()" style="height:fit-content;align-self:flex-end;margin-bottom:.8rem">Activar</button>
@@ -944,6 +996,9 @@ async function canjearInicio() {
   if (!res.ok) return mostrarMsg('msg-can-inicio', res.error, 'err');
   mostrarMsg('msg-can-inicio', res.message, 'ok');
   document.getElementById('cod-inp-inicio').value = '';
+  // Mostrar botón de ir a likes
+  const btn = document.getElementById('post-canje-btn');
+  if (btn) { btn.style.display = 'block'; btn.style.animation = 'tabIn .4s cubic-bezier(.23,1,.32,1) both'; }
   setTimeout(cargarPerfil, 700);
 }
 
@@ -1124,7 +1179,142 @@ async function enviarMensaje() {
   setTimeout(() => { chatCooldown = false; }, 3100);
   await API.post('/api/chat', { mensaje: msg });
   await cargarChat(true);
+}// ── AI SOPORTE CHAT ──────────────────────────────────────────────
+let aiOpen = false;
+let aiHistory = [];
+const AI_SYSTEM = `Eres el asistente de soporte de BoostSpeed, una plataforma para enviar likes en Free Fire.
+
+SOLO responde preguntas sobre la plataforma BoostSpeed. Si te preguntan algo ajeno (política, ciencia, chistes, otros juegos, etc.) responde amablemente que solo puedes ayudar con temas de BoostSpeed.
+
+INFORMACIÓN DE LA PLATAFORMA:
+- BoostSpeed permite enviar likes a perfiles de Free Fire de forma segura y rápida.
+- Para usar la plataforma necesitas un PLAN DE ACCESO activado con un código.
+- Los códigos se obtienen contactando al administrador por Telegram (@DuarteStoreX) o WhatsApp (+57 316 437 7140).
+- Hay 3 tipos de plan: por DÍAS (X envíos por día durante N días), por LIKES (un total de likes a repartir), e ILIMITADO.
+- Para enviar likes: ve a la pestaña "Likes", ingresa el UID de Free Fire del jugador y presiona Enviar.
+- Solo puedes enviar likes a un mismo UID una vez cada 24 horas.
+- El UID de Free Fire es el número de identificación del jugador, se encuentra en su perfil en el juego.
+- El historial de envíos está en la pestaña "Historial".
+- Para canjear un código: ve a Inicio o a la pestaña "Acceso" e ingresa el código en el campo correspondiente.
+- Si olvidaste tu contraseña, contacta al administrador para un código de recuperación.
+- El servicio es seguro, sin riesgo de ban. Está disponible 24/7.
+- No compartas tu contraseña ni tu código con nadie.
+- El chat de la pestaña "Chat" es para hablar con otros usuarios de la plataforma.
+
+Responde de forma breve, amigable y clara. Máximo 3 oraciones por respuesta. No menciones información técnica interna como APIs, límites de tokens, base de datos, ni datos de otros usuarios.`;
+
+function toggleAiChat() {
+  aiOpen = !aiOpen;
+  const box = document.getElementById('ai-chat-box');
+  const notif = document.getElementById('ai-notif');
+  if (aiOpen) {
+    box.classList.add('open');
+    notif.style.display = 'none';
+    if (aiHistory.length === 0) {
+      setTimeout(() => aiAddMsg('bot', '¡Hola! 👋 Soy el asistente de BoostSpeed. ¿En qué te puedo ayudar hoy?'), 300);
+    }
+    setTimeout(() => document.getElementById('ai-input').focus(), 350);
+  } else {
+    box.classList.remove('open');
+  }
+}
+
+function aiAddMsg(role, text) {
+  const cont = document.getElementById('ai-msgs');
+  const chips = document.getElementById('ai-chips');
+  if (role === 'user' && chips) chips.style.display = 'none';
+  const div = document.createElement('div');
+  div.className = `ai-msg ${role === 'user' ? 'user' : 'bot'}`;
+  div.innerHTML = `<div class="ai-bubble">${text.replace(/\n/g,'<br>')}</div>`;
+  cont.appendChild(div);
+  cont.scrollTop = cont.scrollHeight;
+  aiHistory.push({ role: role === 'user' ? 'user' : 'assistant', content: text });
+}
+
+function aiShowTyping() {
+  const cont = document.getElementById('ai-msgs');
+  const t = document.createElement('div');
+  t.className = 'ai-msg bot'; t.id = 'ai-typing-ind';
+  t.innerHTML = `<div class="ai-typing"><span></span><span></span><span></span></div>`;
+  cont.appendChild(t);
+  cont.scrollTop = cont.scrollHeight;
+}
+
+function aiHideTyping() {
+  const t = document.getElementById('ai-typing-ind');
+  if (t) t.remove();
+}
+
+async function aiAsk(text) {
+  document.getElementById('ai-input').value = '';
+  aiAddMsg('user', text);
+  aiShowTyping();
+  document.getElementById('ai-send-btn').disabled = true;
+  try {
+    const resp = await fetch('https://api.anthropic.com/v1/messages', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({
+        model: 'claude-sonnet-4-20250514',
+        max_tokens: 300,
+        system: AI_SYSTEM,
+        messages: aiHistory.filter(m => m.role === 'user' || m.role === 'assistant')
+          .slice(-8) // últimas 8 para no exceder contexto
+          .concat([{ role: 'user', content: text }])
+      })
+    });
+    const data = await resp.json();
+    aiHideTyping();
+    const reply = data.content?.[0]?.text || 'Lo siento, no pude procesar tu pregunta. ¿Puedes reformularla?';
+    aiAddMsg('bot', reply);
+  } catch(e) {
+    aiHideTyping();
+    aiAddMsg('bot', 'Hubo un error de conexión. Intenta de nuevo en un momento.');
+  }
+  document.getElementById('ai-send-btn').disabled = false;
+}
+
+async function aiEnviar() {
+  const inp = document.getElementById('ai-input');
+  const text = inp.value.trim();
+  if (!text) return;
+  inp.value = '';
+  await aiAsk(text);
 }
 </script>
+<!-- ── AI SOPORTE CHAT ── -->
+<button id="ai-chat-btn" onclick="toggleAiChat()" title="Soporte BoostSpeed">
+  <div class="ai-notif" id="ai-notif">1</div>
+  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="9" cy="10" r="1" fill="#000"/><circle cx="12" cy="10" r="1" fill="#000"/><circle cx="15" cy="10" r="1" fill="#000"/></svg>
+</button>
+
+<div id="ai-chat-box">
+  <div class="ai-header">
+    <div class="ai-av">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg>
+    </div>
+    <div class="ai-hinfo">
+      <div class="ai-hname">Asistente BoostSpeed</div>
+      <div class="ai-hstatus"><div class="ai-dot"></div>En línea · IA</div>
+    </div>
+    <button class="ai-close" onclick="toggleAiChat()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+  </div>
+  <div id="ai-msgs"></div>
+  <div class="ai-chips" id="ai-chips">
+    <span class="ai-chip" onclick="aiAsk('¿Cómo envío likes?')">¿Cómo envío likes?</span>
+    <span class="ai-chip" onclick="aiAsk('¿Qué es un plan?')">¿Qué es un plan?</span>
+    <span class="ai-chip" onclick="aiAsk('¿Cómo canjeo mi código?')">¿Cómo canjeo mi código?</span>
+    <span class="ai-chip" onclick="aiAsk('¿Cada cuánto puedo enviar?')">¿Cada cuánto puedo enviar?</span>
+  </div>
+  <div class="ai-footer">
+    <input type="text" id="ai-input" placeholder="Escribe tu pregunta..." maxlength="200" onkeydown="if(event.key==='Enter')aiEnviar()"/>
+    <button class="ai-send" id="ai-send-btn" onclick="aiEnviar()">
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+    </button>
+  </div>
+</div>
+
 </body>
 </html>
