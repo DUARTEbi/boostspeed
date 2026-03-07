@@ -29,8 +29,9 @@
 
     nav{position:sticky;top:0;z-index:200;background:rgba(7,7,7,.88);backdrop-filter:blur(22px);border-bottom:1px solid var(--bdr);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:62px;animation:slideDown .6s cubic-bezier(.23,1,.32,1) both}
     @keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
-    .logo{font-family:'Rajdhani',sans-serif;font-size:1.55rem;font-weight:700;color:var(--g);letter-spacing:2px;text-decoration:none;display:flex;align-items:center;gap:.45rem;transition:all .25s}
-    .logo:hover{text-shadow:0 0 18px rgba(0,255,30,.6);letter-spacing:3px}
+    .logo{font-family:'Rajdhani',sans-serif;font-size:1.55rem;font-weight:700;color:var(--g);letter-spacing:2px;text-decoration:none;display:flex;align-items:center;gap:.45rem;transition:all .25s;animation:logoGlow 3s ease-in-out infinite}
+    @keyframes logoGlow{0%,100%{text-shadow:0 0 8px rgba(0,255,30,.3)}50%{text-shadow:0 0 20px rgba(0,255,30,.75),0 0 45px rgba(0,255,30,.25)}}
+    .logo:hover{letter-spacing:3px}
     .logo span{color:var(--txt);font-weight:500}
 
     /* Punto animado reutilizable */
@@ -48,6 +49,8 @@
     .btn-p:hover{background:var(--gm);box-shadow:0 0 28px rgba(0,255,30,.55);transform:translateY(-2px)}
     .btn-p:active,.btn-ghost:active{transform:scale(.97)}
     .btn-lg{padding:.82rem 2rem;font-size:1rem;border-radius:9px}
+    .btn-p.btn-lg{animation:ctaPulse 3s ease-in-out infinite}
+    @keyframes ctaPulse{0%,100%{box-shadow:0 0 0 0 rgba(0,255,30,0)}50%{box-shadow:0 0 0 8px rgba(0,255,30,.08),0 6px 28px rgba(0,255,30,.35)}}
     .btn-full{width:100%}
 
     .hero{position:relative;z-index:1;min-height:calc(100vh - 62px);display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:3rem 1.5rem}
@@ -64,6 +67,17 @@
 
     /* STATUS CHIPS — SVG icons, sin emojis */
     .hero-status{display:flex;gap:.55rem;flex-wrap:wrap;justify-content:center;margin-bottom:2rem;animation:fadeUp .7s .35s cubic-bezier(.23,1,.32,1) both}
+    .hs-chip{display:inline-flex;align-items:center;gap:.38rem;animation:badgePop .5s cubic-bezier(.23,1,.32,1) both}
+    .hs-chip:nth-child(1){animation-delay:.5s}.hs-chip:nth-child(2){animation-delay:.65s}.hs-chip:nth-child(3){animation-delay:.8s}.hs-chip:nth-child(4){animation-delay:.95s}
+    @keyframes badgePop{from{opacity:0;transform:scale(.8) translateY(8px)}to{opacity:1;transform:scale(1) translateY(0)}}
+    /* Icon animations per chip */
+    .hs-chip:nth-child(1) svg{animation:boltFlash 2.4s ease-in-out infinite}
+    .hs-chip:nth-child(2) svg{animation:shieldPulse 2.8s ease-in-out infinite}
+    .hs-chip:nth-child(3) svg{animation:clockSpin 4s linear infinite}
+    .hs-chip:nth-child(4) svg{animation:heartBeat2 1.8s ease-in-out infinite}
+    @keyframes shieldPulse{0%,100%{opacity:.7;filter:drop-shadow(0 0 2px rgba(0,255,30,.2))}50%{opacity:1;filter:drop-shadow(0 0 6px rgba(0,255,30,.7))}}
+    @keyframes clockSpin{0%{transform:rotate(0deg)}100%{transform:rotate(360deg)}}
+    @keyframes heartBeat2{0%,100%{transform:scale(1)}14%{transform:scale(1.25)}28%{transform:scale(1)}}
     .hs-chip{display:inline-flex;align-items:center;gap:.38rem;background:rgba(0,255,30,.06);border:1px solid rgba(0,255,30,.12);border-radius:100px;padding:.25rem .7rem;font-size:.72rem;font-weight:700;color:var(--mut);letter-spacing:.4px}
     .hs-chip svg{flex-shrink:0}
     .hs-chip strong{color:var(--g)}
@@ -97,14 +111,24 @@
     .sec-title p{color:var(--mut);max-width:490px;margin:0 auto;line-height:1.72}
 
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:1.1rem;max-width:1080px;margin:0 auto}
+    @keyframes scanLine{0%{left:-60%}100%{left:160%}}
     .card{background:var(--sur);border:1px solid var(--bdr);border-radius:13px;padding:1.7rem;position:relative;overflow:hidden;transition:border-color .3s,transform .3s,box-shadow .3s;opacity:0;transform:translateY(20px)}
     .card.visible{animation:cardIn .5s cubic-bezier(.23,1,.32,1) forwards}
     @keyframes cardIn{to{opacity:1;transform:translateY(0)}}
-    .card:hover{border-color:rgba(0,255,30,.4);transform:translateY(-6px) !important;box-shadow:0 12px 40px rgba(0,255,30,.1)}
-    .card::after{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g),transparent);opacity:0;transition:opacity .3s}
-    .card:hover::after{opacity:1}
-    .c-ico{width:46px;height:46px;border-radius:10px;background:var(--gdim);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;margin-bottom:.9rem;transition:all .3s}
-    .card:hover .c-ico{background:rgba(0,255,30,.2);border-color:rgba(0,255,30,.4);box-shadow:0 0 18px rgba(0,255,30,.25);transform:scale(1.1) rotate(-4deg)}
+    .card:hover{border-color:rgba(0,255,30,.38);transform:translateY(-6px) !important;box-shadow:0 12px 40px rgba(0,255,30,.12)}
+    /* Top scan line always running */
+    .card::before{content:'';position:absolute;top:0;left:-60%;width:55%;height:1.5px;background:linear-gradient(90deg,transparent,var(--g),transparent);animation:scanLine 3.5s linear infinite;pointer-events:none}
+    /* Bottom scan line offset */
+    .card::after{content:'';position:absolute;bottom:0;right:-60%;width:40%;height:1px;background:linear-gradient(270deg,transparent,rgba(0,255,30,.5),transparent);animation:scanLine 4.5s 1.5s linear infinite;pointer-events:none}
+    .c-ico{width:46px;height:46px;border-radius:10px;background:var(--gdim);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;margin-bottom:.9rem;transition:all .35s cubic-bezier(.23,1,.32,1)}
+    /* Icon always has a subtle float animation */
+    .c-ico svg{animation:iconFloat 3s ease-in-out infinite}
+    .card:nth-child(2) .c-ico svg{animation-delay:.5s}
+    .card:nth-child(3) .c-ico svg{animation-delay:1s}
+    .card:nth-child(4) .c-ico svg{animation-delay:1.5s}
+    @keyframes iconFloat{0%,100%{transform:translateY(0) rotate(0deg)}40%{transform:translateY(-3px) rotate(-3deg)}70%{transform:translateY(-1px) rotate(1deg)}}
+    .card:hover .c-ico{background:rgba(0,255,30,.18);border-color:rgba(0,255,30,.45);box-shadow:0 0 20px rgba(0,255,30,.28);transform:scale(1.1)}
+    .card:hover .c-ico svg{animation:none;transform:scale(1.12)}
     .card h3{font-family:'Rajdhani',sans-serif;font-size:1.15rem;font-weight:600;margin-bottom:.4rem;transition:color .3s}
     .card:hover h3{color:var(--g)}
     .card p{color:var(--mut);font-size:.88rem;line-height:1.62}
@@ -113,8 +137,10 @@
     .step{display:flex;gap:1.4rem;align-items:flex-start;padding:1.4rem 0;opacity:0;transform:translateX(-20px);transition:all .5s cubic-bezier(.23,1,.32,1)}
     .step.visible{opacity:1;transform:translateX(0)}
     .step+.step{border-top:1px solid var(--bdr)}
-    .sn{flex-shrink:0;width:42px;height:42px;border-radius:50%;border:2px solid var(--g);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:1.05rem;font-weight:700;color:var(--g);transition:all .3s}
-    .step:hover .sn{background:var(--g);color:#000;box-shadow:var(--glow)}
+    .sn{flex-shrink:0;width:42px;height:42px;border-radius:50%;border:2px solid var(--g);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:1.05rem;font-weight:700;color:var(--g);transition:all .3s;animation:snPulse 3s ease-in-out infinite}
+    .step:nth-child(2) .sn{animation-delay:.6s}.step:nth-child(3) .sn{animation-delay:1.2s}
+    @keyframes snPulse{0%,100%{box-shadow:0 0 0 0 rgba(0,255,30,0)}50%{box-shadow:0 0 0 6px rgba(0,255,30,.08)}}
+    .step:hover .sn{background:var(--g);color:#000;box-shadow:var(--glow);animation:none}
     .sb h3{font-family:'Rajdhani',sans-serif;font-size:1.1rem;font-weight:600;margin-bottom:.25rem;transition:color .3s}
     .step:hover .sb h3{color:var(--g)}
     .sb p{color:var(--mut);font-size:.88rem;line-height:1.62}
