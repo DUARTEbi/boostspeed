@@ -50,8 +50,8 @@ body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-he
 main{position:relative;z-index:1;flex:1;padding:1rem 1rem 0;max-width:780px;margin:0 auto;width:100%;min-height:0}
 .pane{display:none;position:relative}
 .pane.active{display:block;animation:tabIn .4s cubic-bezier(.23,1,.32,1) both}
-#pane-chat{margin:-1rem -1rem 0;}
-@media(min-width:768px){#pane-chat{margin:-1.8rem -2.5rem 0;}}
+/* chat pane overrides generic .pane */
+#pane-chat.active{display:flex;}
 #chat-wrap .ctit{padding:.85rem .85rem 0}
 @keyframes tabIn{0%{opacity:0;transform:translateY(16px) scale(.988)}100%{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes tabOut{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-10px)}}
@@ -316,17 +316,25 @@ select option{background:var(--bg2)}
 .ut-item:nth-child(3) strong{animation-delay:1.5s}
 .ut-item:nth-child(4) strong{animation-delay:2.25s}
 @keyframes uptimePulse{0%,100%{opacity:.75}50%{opacity:1;text-shadow:0 0 8px rgba(0,255,30,.6)}}
-/* ══ CHAT GLOBAL — layout keyboard-aware ══ */
+/* ══ CHAT GLOBAL — ocupa toda la pantalla disponible, nada se desborda ══ */
+#pane-chat{
+  position:fixed !important;
+  top:56px; left:0; right:0;
+  bottom:calc(64px + env(safe-area-inset-bottom));
+  display:none; flex-direction:column;
+  z-index:10; margin:0 !important;
+  animation:tabIn .4s cubic-bezier(.23,1,.32,1) both;
+}
+#pane-chat.active{display:flex;}
 #chat-wrap{
   display:flex;flex-direction:column;
-  /* Height = viewport minus topbar(56px) minus bottomnav(68px) minus main padding(16px top) */
-  height:calc(100dvh - 56px - 68px - 16px);
-  background:var(--sur);border:1px solid var(--bdr);border-radius:14px;
+  flex:1; min-height:0;
+  background:var(--sur);border:none;
   overflow:hidden;position:relative;
 }
-/* When keyboard opens on mobile, dvh shrinks automatically — no JS needed */
 @media(min-width:768px){
-  #chat-wrap{height:calc(100dvh - 62px - 80px);}
+  #pane-chat{top:62px;bottom:0;}
+  #chat-wrap{border:1px solid var(--bdr);border-radius:14px;margin:1rem;}
 }
 #chat-msgs{
   flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:.42rem;
