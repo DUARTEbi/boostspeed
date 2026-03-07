@@ -13,6 +13,12 @@
       --bdr:rgba(0,255,30,.14);--txt:#eef2ee;--mut:#7a8f7a;--red:#ff4757;
     }
     *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* ── Eliminar outline/tap highlight del navegador ── */
+*{-webkit-tap-highlight-color:transparent;tap-highlight-color:transparent}
+button,a,[onclick]{outline:none;-webkit-tap-highlight-color:transparent}
+button:focus,a:focus,[onclick]:focus{outline:none}
+button:focus-visible,a:focus-visible{outline:2px solid var(--g);outline-offset:2px}
+
     html{scroll-behavior:smooth}
     body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden}
 
