@@ -14,6 +14,12 @@
   --red:#ff4757;--warn:#ffc107;--blue:#4dabff;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
+/* ── Eliminar outline/tap highlight del navegador ── */
+*{-webkit-tap-highlight-color:transparent;tap-highlight-color:transparent}
+button,a,[onclick]{outline:none;-webkit-tap-highlight-color:transparent}
+button:focus,a:focus,[onclick]:focus{outline:none}
+button:focus-visible,a:focus-visible{outline:2px solid var(--g);outline-offset:2px}
+
 html,body{height:100%;height:100dvh}
 body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;padding-bottom:72px}
 
