@@ -36,7 +36,8 @@ body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-he
 /* TOPBAR */
 .topb{position:sticky;top:0;z-index:100;background:rgba(7,7,7,.95);backdrop-filter:blur(20px);border-bottom:1px solid var(--bdr);height:56px;display:none;align-items:center;padding:0 1.4rem;justify-content:space-between;animation:sD .5s cubic-bezier(.23,1,.32,1)}
 @keyframes sD{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
-.logo{font-family:'Rajdhani',sans-serif;font-size:1.25rem;font-weight:700;color:var(--g);letter-spacing:2px;display:flex;align-items:center;gap:.4rem}
+.logo{font-family:'Rajdhani',sans-serif;font-size:1.25rem;font-weight:700;color:var(--g);letter-spacing:2px;display:flex;align-items:center;gap:.4rem;animation:logoGlow 3s ease-in-out infinite}
+@keyframes logoGlow{0%,100%{text-shadow:0 0 8px rgba(0,255,30,.3)}50%{text-shadow:0 0 18px rgba(0,255,30,.7),0 0 40px rgba(0,255,30,.2)}}
 .pulse{position:relative;width:7px;height:7px;border-radius:50%;background:var(--g);box-shadow:var(--glow);animation:bl 1.6s infinite;flex-shrink:0}
 .pulse::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(0,255,30,.3);animation:rp 1.6s ease-out infinite}
 @keyframes bl{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.2;transform:scale(.6)}}
