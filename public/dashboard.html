@@ -39,9 +39,14 @@ main{position:relative;z-index:1;flex:1;padding:1rem 1rem 0;max-width:760px;marg
 .pane.active{display:block}
 @keyframes pIn{from{opacity:0;transform:translateY(14px)}to{opacity:1;transform:translateY(0)}}
 
+/* ANIMATED RUNNING BORDER — línea que corre sobre el borde superior/inferior */
+@keyframes borderRun{0%{left:-50%}100%{left:150%}}
+
 .card{background:var(--sur);border:1px solid var(--bdr);border-radius:14px;padding:1.2rem;margin-bottom:.9rem;position:relative;overflow:hidden;transition:border-color .3s,box-shadow .3s}
 .card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g),transparent)}
-.card:hover{border-color:rgba(0,255,30,.22);box-shadow:0 6px 28px rgba(0,0,0,.45)}
+/* Running scan line top */
+.card::after{content:'';position:absolute;top:0;left:-50%;width:50%;height:1.5px;background:linear-gradient(90deg,transparent,rgba(0,255,30,.85),transparent);animation:borderRun 3.5s linear infinite}
+.card:hover{border-color:rgba(0,255,30,.32);box-shadow:0 6px 32px rgba(0,255,30,.1)}
 .ctit{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.9rem;display:flex;align-items:center;gap:.45rem;color:var(--txt)}
 .ctit svg{flex-shrink:0;opacity:.75}
 
@@ -50,20 +55,27 @@ main{position:relative;z-index:1;flex:1;padding:1rem 1rem 0;max-width:760px;marg
 .sb{background:var(--sur);border:1px solid var(--bdr);border-radius:12px;padding:.85rem .6rem;text-align:center;position:relative;overflow:hidden;opacity:0;transform:translateY(10px);transition:transform .3s,border-color .3s}
 .sb.vis{animation:cIn .4s cubic-bezier(.23,1,.32,1) forwards}
 @keyframes cIn{to{opacity:1;transform:translateY(0)}}
-.sb:hover{transform:translateY(-3px);border-color:rgba(0,255,30,.28)}
+.sb:hover{transform:translateY(-3px);border-color:rgba(0,255,30,.3)}
+/* Bottom accent */
 .sb::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g),transparent)}
+/* Shimmer sweep */
+.sb::before{content:'';position:absolute;top:0;left:-70%;width:60%;height:100%;background:linear-gradient(90deg,transparent,rgba(0,255,30,.07),transparent);animation:borderRun 3s ease-in-out infinite;pointer-events:none}
+.sb:nth-child(2)::before{animation-delay:.6s}
+.sb:nth-child(3)::before{animation-delay:1.2s}
 .sv{font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;color:var(--g);line-height:1.1}
 .sl{color:var(--mut);font-size:.62rem;text-transform:uppercase;letter-spacing:.5px;margin-top:.18rem}
 
 /* ENVÍO STATS (pestaña likes) */
 .esg{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:.9rem}
-.esb{background:var(--bg3);border:1px solid var(--bdr);border-radius:12px;padding:.85rem;display:flex;align-items:center;gap:.75rem}
+.esb{background:var(--bg3);border:1px solid var(--bdr);border-radius:12px;padding:.85rem;display:flex;align-items:center;gap:.75rem;position:relative;overflow:hidden}
+.esb::after{content:'';position:absolute;top:0;left:-50%;width:50%;height:1.5px;background:linear-gradient(90deg,transparent,rgba(0,255,30,.7),transparent);animation:borderRun 4s linear infinite}
 .esico{width:36px;height:36px;border-radius:9px;background:var(--gdim);border:1px solid rgba(0,255,30,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0}
 .esvv{font-family:'Rajdhani',sans-serif;font-size:1.3rem;font-weight:700;color:var(--g);line-height:1.1}
 .esll{color:var(--mut);font-size:.62rem;text-transform:uppercase;letter-spacing:.4px;margin-top:.1rem}
 
 /* LIMIT BAR */
-.limitbar-wrap{background:var(--bg3);border:1px solid var(--bdr);border-radius:12px;padding:.9rem 1rem;margin-bottom:.9rem}
+.limitbar-wrap{background:var(--bg3);border:1px solid var(--bdr);border-radius:12px;padding:.9rem 1rem;margin-bottom:.9rem;position:relative;overflow:hidden}
+.limitbar-wrap::after{content:'';position:absolute;top:0;left:-50%;width:50%;height:1.5px;background:linear-gradient(90deg,transparent,rgba(0,255,30,.6),transparent);animation:borderRun 5s 2.5s linear infinite}
 .limitbar-top{display:flex;justify-content:space-between;align-items:center;margin-bottom:.55rem}
 .limitbar-lbl{font-size:.76rem;color:var(--mut);font-weight:600;text-transform:uppercase;letter-spacing:.4px}
 .limitbar-val{font-family:'Rajdhani',sans-serif;font-size:.98rem;font-weight:700;color:var(--g)}
@@ -71,7 +83,8 @@ main{position:relative;z-index:1;flex:1;padding:1rem 1rem 0;max-width:760px;marg
 .limitfill{height:100%;background:linear-gradient(90deg,var(--g),var(--gm));border-radius:100px;transition:width .8s cubic-bezier(.23,1,.32,1)}
 
 /* PLAN BANNER (en likes) */
-.plan-banner{background:var(--bg3);border:1px solid var(--bdr);border-radius:12px;padding:.9rem 1rem;margin-bottom:.9rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem}
+.plan-banner{background:var(--bg3);border:1px solid var(--bdr);border-radius:12px;padding:.9rem 1rem;margin-bottom:.9rem;display:flex;align-items:center;justify-content:space-between;gap:.75rem;position:relative;overflow:hidden}
+.plan-banner::after{content:'';position:absolute;top:0;left:-50%;width:50%;height:1.5px;background:linear-gradient(90deg,transparent,rgba(0,255,30,.6),transparent);animation:borderRun 5s 1s linear infinite}
 .pbadge{display:inline-flex;align-items:center;gap:.35rem;padding:.28rem .75rem;border-radius:100px;font-size:.73rem;font-weight:700;letter-spacing:.4px;text-transform:uppercase}
 .pon{background:var(--gdim);border:1px solid rgba(0,255,30,.28);color:var(--g)}
 .poff{background:rgba(255,71,87,.07);border:1px solid rgba(255,71,87,.22);color:var(--red)}
@@ -81,21 +94,27 @@ main{position:relative;z-index:1;flex:1;padding:1rem 1rem 0;max-width:760px;marg
 
 /* INFO CARDS */
 .info-grid{display:grid;grid-template-columns:1fr 1fr;gap:.65rem;margin-bottom:.9rem}
-.info-card{background:var(--bg3);border:1px solid var(--bdr);border-radius:11px;padding:.9rem;position:relative;overflow:hidden}
-.info-card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,rgba(0,255,30,.4),transparent)}
-.info-ico{font-size:1.3rem;margin-bottom:.45rem}
+.info-card{background:var(--bg3);border:1px solid var(--bdr);border-radius:11px;padding:.9rem;position:relative;overflow:hidden;transition:border-color .3s,transform .3s}
+.info-card::before{content:'';position:absolute;top:0;left:-50%;width:50%;height:1.5px;background:linear-gradient(90deg,transparent,rgba(0,255,30,.7),transparent);animation:borderRun 4s linear infinite}
+.info-card:hover{border-color:rgba(0,255,30,.28);transform:translateY(-2px)}
+.info-ico{margin-bottom:.45rem;display:flex;align-items:center}
 .info-title{font-family:'Rajdhani',sans-serif;font-size:.88rem;font-weight:700;margin-bottom:.25rem}
 .info-desc{color:var(--mut);font-size:.73rem;line-height:1.5}
 
 /* INVITE CARD */
 .invite-card{background:linear-gradient(135deg,rgba(0,255,30,.06) 0%,rgba(0,255,30,.02) 100%);border:1px solid rgba(0,255,30,.18);border-radius:13px;padding:1.1rem;margin-bottom:.9rem;text-align:center;position:relative;overflow:hidden}
 .invite-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 110%,rgba(0,255,30,.08),transparent 60%);pointer-events:none}
+.invite-card::after{content:'';position:absolute;top:0;left:-50%;width:50%;height:1.5px;background:linear-gradient(90deg,transparent,rgba(0,255,30,.7),transparent);animation:borderRun 3.5s linear infinite}
 .invite-title{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.3rem;color:var(--g)}
 .invite-desc{color:var(--mut);font-size:.78rem;line-height:1.5;margin-bottom:.75rem}
 .invite-btns{display:flex;gap:.5rem;justify-content:center;flex-wrap:wrap}
 
 .progbar{height:5px;background:rgba(0,255,30,.1);border-radius:100px;margin-top:.7rem;overflow:hidden}
 .progfill{height:100%;background:linear-gradient(90deg,var(--g),var(--gm));border-radius:100px;transition:width .8s cubic-bezier(.23,1,.32,1)}
+
+.rbox{background:var(--bg3);border:1px solid rgba(0,255,30,.22);border-radius:13px;padding:1.1rem;margin-top:.7rem;display:none;animation:fadeIn .4s cubic-bezier(.23,1,.32,1);position:relative;overflow:hidden}
+.rbox::before{content:'';position:absolute;top:0;left:-50%;width:50%;height:1.5px;background:linear-gradient(90deg,transparent,rgba(0,255,30,.9),transparent);animation:borderRun 2s linear infinite}
+.rbox::after{content:'';position:absolute;bottom:0;right:-50%;width:50%;height:1.5px;background:linear-gradient(270deg,transparent,rgba(0,255,30,.7),transparent);animation:borderRun 2s 1s linear infinite}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.55rem 1.1rem;border-radius:9px;font-family:'Exo 2',sans-serif;font-weight:700;font-size:.85rem;cursor:pointer;border:none;transition:all .2s;position:relative;overflow:hidden;text-decoration:none}
 .bp{background:var(--g);color:#000}.bp:hover{background:var(--gm);box-shadow:var(--glow);transform:translateY(-1px)}
@@ -257,9 +276,18 @@ select option{background:var(--bg2)}
   <!-- Status plataforma -->
   <div class="uptime-row">
     <div class="ut-item"><div class="pulse" style="width:6px;height:6px"></div><strong>Online 24/7</strong></div>
-    <div class="ut-item">⚡ <strong>Instantáneo</strong></div>
-    <div class="ut-item">🛡️ <strong>Anti-ban activo</strong></div>
-    <div class="ut-item">📊 <strong>99.9% uptime</strong></div>
+    <div class="ut-item">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      <strong>Instantáneo</strong>
+    </div>
+    <div class="ut-item">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg>
+      <strong>Anti-ban activo</strong>
+    </div>
+    <div class="ut-item">
+      <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="22 12 18 12 15 21 9 3 6 12 2 12"/></svg>
+      <strong>99.9% uptime</strong>
+    </div>
   </div>
 
   <!-- TOP Usuarios -->
@@ -284,28 +312,28 @@ select option{background:var(--bg2)}
     </div>
     <div class="info-grid">
       <div class="info-card">
-        <div class="info-ico">⏰</div>
+        <div class="info-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>
         <div class="info-title">1 ID cada 24h</div>
         <div class="info-desc">Puedes enviar likes a un mismo UID de Free Fire una vez cada 24 horas. Al día siguiente se renueva automáticamente.</div>
       </div>
       <div class="info-card">
-        <div class="info-ico">🛡️</div>
+        <div class="info-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div>
         <div class="info-title">Sin riesgos</div>
         <div class="info-desc">Nuestro sistema es 100% seguro. Sin riesgo de ban ni suspensión de cuenta. Usado por cientos de jugadores.</div>
       </div>
       <div class="info-card">
-        <div class="info-ico">⚡</div>
+        <div class="info-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
         <div class="info-title">Entrega rápida</div>
         <div class="info-desc">Los likes se reflejan en tu perfil en minutos. Sin esperas innecesarias, todo en tiempo real.</div>
       </div>
       <div class="info-card">
-        <div class="info-ico">🎟️</div>
+        <div class="info-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>
         <div class="info-title">Plan de acceso</div>
         <div class="info-desc">Adquiere un plan contactando al administrador. Una vez tengas el código, canjearlo desde la sección Acceso.</div>
       </div>
     </div>
     <div class="invite-card">
-      <div class="invite-title">🚀 Invita a tus amigos</div>
+      <div class="invite-title">Invita a tus amigos</div>
       <div class="invite-desc">¿Conoces jugadores de Free Fire? Invítalos a usar BoostSpeed. Cada uno necesita su propio plan de acceso y podrá enviar likes a sus perfiles favoritos.</div>
       <div class="invite-btns">
         <a class="btn btg bsm" href="https://t.me/DuarteStoreX" target="_blank">
@@ -392,7 +420,7 @@ select option{background:var(--bg2)}
 
   <!-- Invitar amigos -->
   <div class="invite-card">
-    <div class="invite-title">🎮 Invita a tus amigos</div>
+    <div class="invite-title">Invita a tus amigos</div>
     <div class="invite-desc">¿Juegas con amigos? Diles que también pueden usar BoostSpeed para impulsar sus perfiles en Free Fire. Contácta al admin para obtener un plan.</div>
     <div class="invite-btns">
       <a class="btn btg bsm" href="https://t.me/DuarteStoreX" target="_blank">
@@ -744,6 +772,26 @@ async function enviarLikes() {
   const res = await API.post('/api/enviar-likes', { ff_uid: uid });
   spin.style.display = 'none'; ico.style.display = 'block'; btn.disabled = false;
 
+  // Si ya recibio likes hoy, mostrar info del jugador + tiempo restante
+  if (!res.ok && res.data && res.data.ya_recibio) {
+    const d = res.data;
+    document.getElementById('r-av').textContent       = (d.jugador || '?').slice(0, 2).toUpperCase();
+    document.getElementById('r-nombre').textContent   = d.jugador || '—';
+    document.getElementById('r-uid').textContent      = d.uid || uid;
+    document.getElementById('r-nivel').textContent    = d.nivel || '—';
+    document.getElementById('r-region').textContent   = d.region || '—';
+    document.getElementById('r-agregados').textContent= '+0';
+    document.getElementById('r-agregados').style.color = 'var(--warn)';
+    document.getElementById('r-antes').textContent    = (d.likes_antes || 0).toLocaleString('es');
+    document.getElementById('r-despues').textContent  = (d.likes_despues || 0).toLocaleString('es');
+    document.getElementById('r-tiempo').textContent   = d.tiempo_restante || '—';
+    // Cambiar label tiempo a "Disponible en"
+    document.querySelectorAll('#rbox .rcl')[2].textContent = 'Disponible en';
+    box.style.display = 'block';
+    mostrarMsg('msg-likes', res.error, 'warn');
+    return;
+  }
+
   if (!res.ok) return mostrarMsg('msg-likes', res.error, 'err');
 
   const d = res.data;
@@ -753,9 +801,12 @@ async function enviarLikes() {
   document.getElementById('r-nivel').textContent    = d.nivel || '—';
   document.getElementById('r-region').textContent   = d.region || '—';
   document.getElementById('r-agregados').textContent= '+' + (d.likes_agregados || 0).toLocaleString('es');
+  document.getElementById('r-agregados').style.color = 'var(--g)';
   document.getElementById('r-antes').textContent    = (d.likes_antes || 0).toLocaleString('es');
   document.getElementById('r-despues').textContent  = (d.likes_despues || 0).toLocaleString('es');
   document.getElementById('r-tiempo').textContent   = d.tiempo || '—';
+  // Restaurar label tiempo
+  document.querySelectorAll('#rbox .rcl')[2].textContent = 'Tiempo';
   box.style.display = 'block';
   mostrarMsg('msg-likes', res.message, 'ok');
   document.getElementById('ff-uid').value = '';
