@@ -232,17 +232,19 @@ function interpretarRespuestaFF(apiData) {
 
 app.get('/api/public-stats', async (req, res) => {
   try {
-    const [usuarios, likesTotal] = await Promise.all([
+    const [usuarios, likesTotal, likesHoy] = await Promise.all([
       pool.query('SELECT COUNT(*) FROM usuarios'),
       pool.query('SELECT COALESCE(SUM(likes_agregados),0) AS total FROM historial'),
+      pool.query(`SELECT COALESCE(SUM(likes_agregados),0) AS total FROM historial WHERE fecha::date = CURRENT_DATE`),
     ]);
     res.json({
       ok: true,
-      usuarios: parseInt(usuarios.rows[0].count, 10),
-      likes:    parseInt(likesTotal.rows[0].total, 10),
+      usuarios:   parseInt(usuarios.rows[0].count, 10),
+      likes:      parseInt(likesTotal.rows[0].total, 10),
+      likes_hoy:  parseInt(likesHoy.rows[0].total, 10),
     });
   } catch (err) {
-    res.json({ ok: false, usuarios: 0, likes: 0 });
+    res.json({ ok: false, usuarios: 0, likes: 0, likes_hoy: 0 });
   }
 });
 
@@ -1013,7 +1015,9 @@ function filtrarMensaje(texto) {
 app.get('/api/chat', authMiddleware, async (req, res) => {
   try {
     const r = await pool.query(
-      `SELECT id, username, mensaje, creado_en FROM chat_mensajes ORDER BY creado_en DESC LIMIT 20`
+      `SELECT id, username, mensaje, creado_en FROM chat_mensajes
+       WHERE creado_en > NOW() - INTERVAL '60 seconds'
+       ORDER BY creado_en DESC LIMIT 20`
     );
     res.json({ ok: true, mensajes: r.rows.reverse() });
   } catch (err) {
@@ -1047,9 +1051,10 @@ app.post('/api/chat', authMiddleware, async (req, res) => {
       [uid, user.rows[0].username, filtrado]
     );
 
-    // Mantener solo los últimos 20 mensajes
+    // Mantener solo últimos 20 mensajes Y borrar los de más de 60 segundos
     await pool.query(
-      `DELETE FROM chat_mensajes WHERE id NOT IN (SELECT id FROM chat_mensajes ORDER BY creado_en DESC LIMIT 20)`
+      `DELETE FROM chat_mensajes WHERE id NOT IN (SELECT id FROM chat_mensajes ORDER BY creado_en DESC LIMIT 20)
+       OR creado_en < NOW() - INTERVAL '60 seconds'`
     );
 
     res.json({ ok: true });
