@@ -118,8 +118,8 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--g);outline-offset:2
 
     .grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(255px,1fr));gap:1.1rem;max-width:1080px;margin:0 auto}
     @keyframes scanLine{0%{left:-60%}100%{left:160%}}
-    .card{background:var(--sur);border:1px solid var(--bdr);border-radius:13px;padding:1.7rem;position:relative;overflow:hidden;transition:border-color .3s,transform .3s,box-shadow .3s;opacity:0;transform:translateY(20px)}
-    .card.visible{animation:cardIn .5s cubic-bezier(.23,1,.32,1) forwards}
+    .card{background:var(--sur);border:1px solid var(--bdr);border-radius:13px;padding:1.7rem;position:relative;overflow:hidden;transition:border-color .3s,transform .3s,box-shadow .3s;opacity:0;transform:translateY(10px)}
+    .card.visible{animation:cardIn .25s cubic-bezier(.23,1,.32,1) forwards}
     @keyframes cardIn{to{opacity:1;transform:translateY(0)}}
     .card:hover{border-color:rgba(0,255,30,.38);transform:translateY(-6px) !important;box-shadow:0 12px 40px rgba(0,255,30,.12)}
     /* Top scan line always running */
@@ -140,8 +140,8 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--g);outline-offset:2
     .card p{color:var(--mut);font-size:.88rem;line-height:1.62}
 
     .steps{display:flex;flex-direction:column;max-width:660px;margin:0 auto}
-    .step{display:flex;gap:1.4rem;align-items:flex-start;padding:1.4rem 0;opacity:0;transform:translateX(-20px);transition:all .5s cubic-bezier(.23,1,.32,1)}
-    .step.visible{opacity:1;transform:translateX(0)}
+    .step{display:flex;gap:1.4rem;align-items:flex-start;padding:1.4rem 0;opacity:0;transform:translateX(-10px);transition:all .22s cubic-bezier(.23,1,.32,1)}
+    .step.visible{opacity:1;transform:translateX(0);transition:all .22s cubic-bezier(.23,1,.32,1)}
     .step+.step{border-top:1px solid var(--bdr)}
     .sn{flex-shrink:0;width:42px;height:42px;border-radius:50%;border:2px solid var(--g);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:1.05rem;font-weight:700;color:var(--g);transition:all .3s;animation:snPulse 3s ease-in-out infinite}
     .step:nth-child(2) .sn{animation-delay:.6s}.step:nth-child(3) .sn{animation-delay:1.2s}
@@ -481,18 +481,15 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--g);outline-offset:2
   })();
 
 
+  // Fast intersection — fire as soon as element touches viewport
   const obs=new IntersectionObserver(entries=>{
     entries.forEach(e=>{
       if(e.isIntersecting){
-        const el=e.target;
-        if(el.classList.contains('card')){
-          const idx=[...el.parentElement.children].indexOf(el);
-          setTimeout(()=>el.classList.add('visible'),idx*80);
-        } else { el.classList.add('visible'); }
-        obs.unobserve(el);
+        e.target.classList.add('visible');
+        obs.unobserve(e.target);
       }
     });
-  },{threshold:.15});
+  },{threshold:0, rootMargin:'0px 0px -20px 0px'});
   document.querySelectorAll('.card,.step').forEach(el=>obs.observe(el));
 
   function animCount(el,target,dur){
