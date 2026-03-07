@@ -79,6 +79,15 @@ async function initDB() {
         expira_en   TIMESTAMP DEFAULT NOW() + INTERVAL '48 hours'
       );
 
+      CREATE TABLE IF NOT EXISTS notificaciones_likes (
+        id              SERIAL PRIMARY KEY,
+        username        VARCHAR(50) NOT NULL,
+        ff_uid          VARCHAR(30),
+        player_name     VARCHAR(100),
+        likes_agregados INTEGER,
+        creado_en       TIMESTAMP DEFAULT NOW()
+      );
+
       -- Agregar columnas si no existen (para bases de datos existentes)
       ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS plan_tipo VARCHAR(20) DEFAULT 'dias';
       ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS likes_limite_plan INTEGER DEFAULT 0;
@@ -456,22 +465,24 @@ app.post('/api/canjear', authMiddleware, async (req, res) => {
     const user = await pool.query('SELECT uid FROM usuarios WHERE id=$1', [req.user.id]);
 
     if (cod.ilimitado) {
-      // Plan ilimitado
+      // Plan ilimitado — envios_por_dia=999, likes_disponibles=999999 (interno, no se muestra)
       await pool.query(
         `UPDATE usuarios SET plan_activo=true, plan_nombre='Plan Ilimitado',
-         plan_tipo='ilimitado', likes_disponibles=999999, envios_por_dia=999,
+         plan_tipo='ilimitado', likes_disponibles=999999, likes_limite_plan=999999,
+         likes_enviados_plan=0, envios_por_dia=999,
          plan_vence=NULL, ilimitado=true WHERE id=$1`,
         [req.user.id]
       );
-      // No marcar como usado (puede ser reutilizado o no)
       res.json({ ok: true, message: '🚀 Plan Ilimitado activado correctamente' });
+
     } else if (cod.tipo === 'likes') {
-      // Plan por likes
+      // Plan por likes — likes_disponibles = total de likes del plan
+      // likes_limite_plan = total original para calcular progreso
       await pool.query(
         `UPDATE usuarios SET plan_activo=true, plan_nombre=$1, plan_tipo='likes',
-         likes_disponibles=likes_disponibles+$2, likes_limite_plan=$2,
-         likes_enviados_plan=0, envios_por_dia=$3, plan_vence=NULL,
-         ilimitado=false WHERE id=$4`,
+         likes_disponibles=$2, likes_limite_plan=$2,
+         likes_enviados_plan=0, envios_por_dia=$3,
+         plan_vence=NULL, ilimitado=false WHERE id=$4`,
         [`Plan ${cod.likes} Likes`, cod.likes, cod.envios_dia, req.user.id]
       );
       await pool.query(
@@ -482,14 +493,17 @@ app.post('/api/canjear', authMiddleware, async (req, res) => {
         ok: true,
         message: `✅ Plan activado: ${cod.likes.toLocaleString()} likes · ${cod.envios_dia} envíos/día`
       });
+
     } else {
-      // Plan por días
+      // Plan por días — NO necesita likes_disponibles para enviar
+      // likes_disponibles se usa internamente para contar cuántos likes SE HAN ENVIADO
       const vence = new Date(Date.now() + cod.dias * 86400000).toISOString();
       await pool.query(
         `UPDATE usuarios SET plan_activo=true, plan_nombre=$1, plan_tipo='dias',
-         likes_disponibles=likes_disponibles+$2, envios_por_dia=$3,
-         plan_vence=$4, ilimitado=false WHERE id=$5`,
-        [`Plan ${cod.dias} días`, cod.likes, cod.envios_dia, vence, req.user.id]
+         likes_disponibles=0, likes_limite_plan=0,
+         likes_enviados_plan=0, envios_por_dia=$2,
+         plan_vence=$3, ilimitado=false WHERE id=$4`,
+        [`Plan ${cod.dias} días`, cod.envios_dia, vence, req.user.id]
       );
       await pool.query(
         'UPDATE codigos SET usado=true, usado_por=$1, usado_en=NOW() WHERE codigo=$2',
@@ -497,7 +511,7 @@ app.post('/api/canjear', authMiddleware, async (req, res) => {
       );
       res.json({
         ok: true,
-        message: `✅ Plan activado: ${cod.likes.toLocaleString()} likes · ${cod.dias} días · ${cod.envios_dia} envíos/día`
+        message: `✅ Plan activado: ${cod.dias} días · ${cod.envios_dia} envíos/día`
       });
     }
   } catch (err) {
@@ -527,16 +541,21 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'Necesitas un plan activo para enviar likes' });
 
     if (!u.ilimitado) {
+      // Verificar vencimiento por días
       if (u.plan_tipo === 'dias' && u.plan_vence && new Date(u.plan_vence) < new Date()) {
         await pool.query('UPDATE usuarios SET plan_activo=false WHERE id=$1', [u.id]);
-        return res.status(400).json({ error: 'Tu plan ha vencido. Canjea un nuevo código' });
+        return res.status(400).json({ error: 'Tu plan de días ha vencido. Canjea un nuevo código.' });
       }
+      // Verificar límite diario de envíos
       if (u.envios_hoy >= u.envios_por_dia)
         return res.status(400).json({
-          error: `Límite diario alcanzado (${u.envios_por_dia} envíos/día). Vuelve mañana`
+          error: `Límite diario alcanzado (${u.envios_por_dia} envíos/día). Vuelve mañana.`
         });
-      if (u.likes_disponibles <= 0)
-        return res.status(400).json({ error: 'No tienes likes disponibles en tu plan' });
+      // Solo plan por likes verifica likes_disponibles
+      if (u.plan_tipo === 'likes' && u.likes_disponibles <= 0) {
+        await pool.query('UPDATE usuarios SET plan_activo=false WHERE id=$1', [u.id]);
+        return res.status(400).json({ error: 'Has completado todos tus likes del plan. ¡Plan finalizado!' });
+      }
     }
 
     const serverUpper = (server || 'BR').toUpperCase();
@@ -556,7 +575,7 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
 
     if (interpretado.tipo === 'auth_error') {
       return res.status(500).json({
-        error: '❌ Error de autenticación con la API. Verifica que FF_API_KEY esté bien configurada.'
+        error: '❌ Error de autenticación con la API. Verifica que FF_API_KEY esté configurada.'
       });
     }
     if (interpretado.tipo === 'limite') {
@@ -565,34 +584,19 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
       });
     }
     if (interpretado.tipo === 'ya_recibio') {
-      // Devolver info del jugador pero indicar que ya recibio likes
       const d = apiData;
       const player = d.player || d.nickname || ff_uid.trim();
       const level  = d.level  || '—';
       const region = d.region || serverFinal;
       const before = parseInt(d.likes_before || 0, 10);
-      // Calcular tiempo restante hasta medianoche (hora local del servidor)
       const ahora = new Date();
-      const manana = new Date(ahora);
-      manana.setDate(manana.getDate() + 1);
-      manana.setHours(0, 0, 0, 0);
+      const manana = new Date(ahora); manana.setDate(manana.getDate()+1); manana.setHours(0,0,0,0);
       const diffMs = manana - ahora;
-      const horas  = Math.floor(diffMs / 3600000);
-      const minutos = Math.floor((diffMs % 3600000) / 60000);
-      const tiempoRestante = horas > 0 ? `${horas}h ${minutos}m` : `${minutos}m`;
+      const horas = Math.floor(diffMs/3600000), mins = Math.floor((diffMs%3600000)/60000);
+      const tiempoRestante = horas > 0 ? `${horas}h ${mins}m` : `${mins}m`;
       return res.status(400).json({
-        error: `Este UID ya recibió likes hoy. Podrás enviare nuevamente en ${tiempoRestante}.`,
-        data: {
-          jugador: player,
-          uid:     d.uid || ff_uid.trim(),
-          nivel:   level,
-          region:  region,
-          likes_antes: before,
-          likes_despues: before,
-          likes_agregados: 0,
-          tiempo_restante: tiempoRestante,
-          ya_recibio: true,
-        }
+        error: `Este UID ya recibió likes hoy. Disponible en ${tiempoRestante}.`,
+        data: { jugador:player, uid:d.uid||ff_uid.trim(), nivel:level, region, likes_antes:before, likes_despues:before, likes_agregados:0, tiempo_restante:tiempoRestante, ya_recibio:true }
       });
     }
     if (interpretado.tipo === 'error') {
@@ -602,8 +606,7 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
 
     const d = apiData;
     const likesAdded = Math.min(
-      parseInt(d.likes_added || 0, 10) || parseInt(d.successful_likes || 0, 10),
-      230
+      parseInt(d.likes_added || 0, 10) || parseInt(d.successful_likes || 0, 10), 230
     );
     const player = d.player || d.nickname || ff_uid.trim();
     const level  = d.level  || '—';
@@ -612,21 +615,30 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
     const after  = parseInt(d.likes_after  || 0, 10);
     const tiempo = d.processing_time_seconds ? `${d.processing_time_seconds}s` : '—';
 
-    // Solo actualizar contadores y guardar historial si realmente se enviaron likes
     if (likesAdded > 0 || after > before) {
       if (u.ilimitado) {
         await pool.query(
-          `UPDATE usuarios SET envios_hoy=envios_hoy+1, fecha_ultimo_envio=$1 WHERE id=$2`,
-          [today, req.user.id]
+          `UPDATE usuarios SET envios_hoy=envios_hoy+1, likes_enviados_plan=likes_enviados_plan+$1, fecha_ultimo_envio=$2 WHERE id=$3`,
+          [likesAdded, today, req.user.id]
         );
-      } else {
-        const likesDecrement = u.plan_tipo === 'likes' ? likesAdded : 1;
+      } else if (u.plan_tipo === 'likes') {
+        const newDisp = Math.max((u.likes_disponibles||0) - likesAdded, 0);
+        const newEnv  = (u.likes_enviados_plan||0) + likesAdded;
+        // Si se agotaron los likes, desactivar plan automáticamente
+        const planSigue = newDisp > 0;
         await pool.query(
           `UPDATE usuarios SET envios_hoy=envios_hoy+1,
-           likes_disponibles=GREATEST(likes_disponibles-$1, 0),
-           likes_enviados_plan=likes_enviados_plan+$2,
-           fecha_ultimo_envio=$3 WHERE id=$4`,
-          [likesDecrement, likesAdded, today, req.user.id]
+           likes_disponibles=$1, likes_enviados_plan=$2,
+           plan_activo=$3, fecha_ultimo_envio=$4 WHERE id=$5`,
+          [newDisp, newEnv, planSigue, today, req.user.id]
+        );
+      } else {
+        // Plan por días — sólo incrementa envios_hoy y lleva registro de cuántos likes se enviaron
+        await pool.query(
+          `UPDATE usuarios SET envios_hoy=envios_hoy+1,
+           likes_enviados_plan=likes_enviados_plan+$1,
+           fecha_ultimo_envio=$2 WHERE id=$3`,
+          [likesAdded, today, req.user.id]
         );
       }
 
@@ -635,20 +647,20 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
          VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
         [req.user.id, ff_uid.trim(), player, before, after, likesAdded, level, region]
       );
+
+      // Guardar última notificación para feed de landing
+      try {
+        await pool.query(
+          `INSERT INTO notificaciones_likes (username, ff_uid, player_name, likes_agregados)
+           VALUES ($1,$2,$3,$4)`,
+          [u.username, ff_uid.trim(), player, likesAdded]
+        );
+      } catch(_) {} // tabla puede no existir aún, no bloquear
     }
 
     res.json({
       ok: true,
-      data: {
-        jugador:         player,
-        uid:             d.uid || ff_uid.trim(),
-        nivel:           level,
-        region:          region,
-        likes_antes:     before,
-        likes_despues:   after,
-        likes_agregados: likesAdded,
-        tiempo:          tiempo,
-      },
+      data: { jugador:player, uid:d.uid||ff_uid.trim(), nivel:level, region, likes_antes:before, likes_despues:after, likes_agregados:likesAdded, tiempo },
       message: `✅ ¡${likesAdded} likes enviados a ${player}!`
     });
   } catch (err) {
@@ -656,7 +668,6 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
-
 app.post('/api/cambiar-pass', authMiddleware, async (req, res) => {
   try {
     const { password_actual, password_nueva } = req.body;
@@ -717,6 +728,7 @@ app.get('/api/admin/stats', adminMiddleware, async (req, res) => {
       codigosUsados:    parseInt(uc.rows[0].count, 10),
       planesActivos:    parseInt(ap.rows[0].count, 10),
       enviosHoy:        parseInt(envHoy.rows[0].total, 10),
+      limiteApiDia:     parseInt(process.env.FF_API_LIMIT_DIA || 0, 10),
       usuariosRecientes: ru.rows,
     });
   } catch (err) {
@@ -821,33 +833,52 @@ app.get('/api/admin/usuarios/buscar', adminMiddleware, async (req, res) => {
 
 app.put('/api/admin/usuarios/:id', adminMiddleware, async (req, res) => {
   try {
-    const { likes_disponibles, dias_adicionales, envios_por_dia, plan_activo } = req.body;
+    const { dias_adicionales, envios_por_dia, plan_activo, plan_tipo, likes_adicionales } = req.body;
     const id = req.params.id;
-    let extra = '';
-    const params = [likes_disponibles, envios_por_dia, plan_activo];
-    let idx = 4;
+
+    // Get current user state
+    const cur = await pool.query('SELECT * FROM usuarios WHERE id=$1', [id]);
+    if (!cur.rows.length) return res.status(404).json({ error: 'Usuario no encontrado' });
+    const u = cur.rows[0];
+
+    let sets = [], params = [];
+    let idx = 1;
+
+    // Siempre actualizar plan_activo y envios_por_dia
+    sets.push(`plan_activo=$${idx++}`); params.push(plan_activo !== undefined ? plan_activo : u.plan_activo);
+    sets.push(`envios_por_dia=$${idx++}`); params.push(envios_por_dia || u.envios_por_dia);
+
+    const tipoPlan = plan_tipo || u.plan_tipo || 'dias';
 
     if (plan_activo && dias_adicionales > 0) {
-      const vence = new Date(Date.now() + dias_adicionales * 86400000).toISOString();
-      params.push(vence);
-      extra += `, plan_vence=$${idx++}`;
-      params.push(`Plan ${dias_adicionales} días (Admin)`);
-      extra += `, plan_nombre=$${idx++}`;
+      // Extender por días desde ahora (o desde vencimiento actual si aún no vence)
+      const base = (u.plan_vence && new Date(u.plan_vence) > new Date()) ? new Date(u.plan_vence) : new Date();
+      const vence = new Date(base.getTime() + dias_adicionales * 86400000).toISOString();
+      sets.push(`plan_vence=$${idx++}`); params.push(vence);
+      sets.push(`plan_tipo=$${idx++}`); params.push('dias');
+      sets.push(`plan_nombre=$${idx++}`); params.push(`Plan ${dias_adicionales} días (Admin)`);
     } else if (!plan_activo) {
-      params.push(null);
-      extra += `, plan_vence=$${idx++}`;
+      sets.push(`plan_vence=$${idx++}`); params.push(null);
     }
-    params.push(id);
 
-    await pool.query(
-      `UPDATE usuarios SET likes_disponibles=$1, envios_por_dia=$2, plan_activo=$3${extra} WHERE id=$${idx}`,
-      params
-    );
+    // Si es plan por likes, agregar likes adicionales
+    if (likes_adicionales > 0) {
+      const newDisp = (u.likes_disponibles||0) + likes_adicionales;
+      sets.push(`likes_disponibles=$${idx++}`); params.push(newDisp);
+      sets.push(`likes_limite_plan=$${idx++}`); params.push(newDisp);
+      sets.push(`likes_enviados_plan=$${idx++}`); params.push(0);
+      sets.push(`plan_tipo=$${idx++}`); params.push('likes');
+      sets.push(`plan_nombre=$${idx++}`); params.push(`Plan ${likes_adicionales} Likes (Admin)`);
+      sets.push(`plan_vence=$${idx++}`); params.push(null);
+    }
+
+    params.push(id);
+    await pool.query(`UPDATE usuarios SET ${sets.join(',')} WHERE id=$${idx}`, params);
+
     const updated = await pool.query(
       `SELECT id,uid,username,contact,plan_activo,plan_nombre,plan_tipo,likes_disponibles,
        likes_limite_plan,likes_enviados_plan,envios_por_dia,envios_hoy,plan_vence,ilimitado,creado_en
-       FROM usuarios WHERE id=$1`,
-      [id]
+       FROM usuarios WHERE id=$1`, [id]
     );
     res.json({ ok: true, usuario: updated.rows[0] });
   } catch (err) {
@@ -884,6 +915,20 @@ app.post('/api/admin/codigos-recuperacion', adminMiddleware, async (req, res) =>
     res.json({ ok: true, codigo });
   } catch (err) {
     res.status(500).json({ error: 'Error interno' });
+  }
+});
+
+// Notificaciones públicas para landing (últimos likes enviados)
+app.get('/api/notificaciones-likes', async (req, res) => {
+  try {
+    const r = await pool.query(
+      `SELECT username, player_name, likes_agregados, creado_en
+       FROM notificaciones_likes
+       ORDER BY creado_en DESC LIMIT 20`
+    );
+    res.json({ ok: true, notificaciones: r.rows });
+  } catch (err) {
+    res.json({ ok: false, notificaciones: [] });
   }
 });
 
