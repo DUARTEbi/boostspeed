@@ -422,25 +422,30 @@
 
   let recUserId = null;
 
-  (function(){
-    const c = document.getElementById('meteors');
+(function(){
+    const c=document.getElementById('meteors');
     const ANGLE=25,RAD=ANGLE*Math.PI/180;
     const VH=window.innerHeight||900,VW=window.innerWidth||800;
     const totalDist=VH+200,moveY=totalDist,moveX=-Math.tan(RAD)*totalDist;
-    for(let i=0;i<8;i++){
+    function spawnMeteor(){
       const m=document.createElement('div');m.className='meteor';
-      const len=40+Math.random()*55,dur=0.25+Math.random()*0.35;
-      const delay=-(Math.random()*12);
-      const startX=Math.random()*(VW+200);
-      m.style.cssText=`left:${startX}px;top:${-len-20}px;width:2px;height:${len}px;transform:rotate(-${ANGLE}deg);background:linear-gradient(to bottom,transparent 0%,rgba(180,255,190,.2) 30%,rgba(0,255,30,.7) 65%,rgba(0,255,30,.95) 82%,#ffffff 100%);border-radius:0 0 2px 2px;position:absolute;opacity:0`;
-      m.animate([
-        {opacity:0,transform:`rotate(-${ANGLE}deg) translate(0px,0px)`},
-        {opacity:.9,offset:.07},
-        {opacity:.55,offset:.80},
-        {opacity:0,transform:`rotate(-${ANGLE}deg) translate(${moveX}px,${moveY}px)`},
-      ],{duration:dur*1000,delay:delay*1000,iterations:Infinity,easing:'linear'});
+      const len=60+Math.random()*50;
+      const startX=Math.random()*(VW+100);
+      m.style.cssText=`left:${startX}px;top:${-len-20}px;width:2px;height:${len}px;transform:rotate(-${ANGLE}deg);background:linear-gradient(to bottom,transparent 0%,rgba(180,255,190,.15) 25%,rgba(0,255,30,.6) 60%,rgba(0,255,30,.95) 82%,#ffffff 100%);border-radius:0 0 2px 2px;position:absolute;opacity:0`;
       c.appendChild(m);
+      const totalDur=2800+Math.random()*1200;
+      m.animate([
+        {opacity:0,transform:`rotate(-${ANGLE}deg) translate(0px,0px)`,easing:'ease-in'},
+        {opacity:.85,transform:`rotate(-${ANGLE}deg) translate(${moveX*.12}px,${moveY*.12}px)`,offset:0.12,easing:'ease-in'},
+        {opacity:.7,transform:`rotate(-${ANGLE}deg) translate(${moveX*.35}px,${moveY*.35}px)`,offset:0.35,easing:'cubic-bezier(.4,0,1,1)'},
+        {opacity:.3,transform:`rotate(-${ANGLE}deg) translate(${moveX*.75}px,${moveY*.75}px)`,offset:0.75,easing:'cubic-bezier(.6,0,1,1)'},
+        {opacity:0,transform:`rotate(-${ANGLE}deg) translate(${moveX}px,${moveY}px)`},
+      ],{duration:totalDur,fill:'forwards'}).onfinish=()=>m.remove();
+      setTimeout(spawnMeteor,1500+Math.random()*4500);
     }
+    spawnMeteor();
+    setTimeout(spawnMeteor,800+Math.random()*1200);
+    setTimeout(spawnMeteor,2200+Math.random()*1500);
   })();
 
 
