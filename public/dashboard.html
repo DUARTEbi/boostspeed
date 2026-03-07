@@ -50,8 +50,8 @@ body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-he
 main{position:relative;z-index:1;flex:1;padding:1rem 1rem 0;max-width:780px;margin:0 auto;width:100%;min-height:0}
 .pane{display:none;position:relative}
 .pane.active{display:block;animation:tabIn .4s cubic-bezier(.23,1,.32,1) both}
-/* chat pane overrides generic .pane */
-#pane-chat.active{display:flex;}
+#pane-chat{display:none}
+#pane-chat.active{display:flex;flex-direction:column}
 #chat-wrap .ctit{padding:.85rem .85rem 0}
 @keyframes tabIn{0%{opacity:0;transform:translateY(16px) scale(.988)}100%{opacity:1;transform:translateY(0) scale(1)}}
 @keyframes tabOut{0%{opacity:1;transform:translateY(0)}100%{opacity:0;transform:translateY(-10px)}}
@@ -316,25 +316,17 @@ select option{background:var(--bg2)}
 .ut-item:nth-child(3) strong{animation-delay:1.5s}
 .ut-item:nth-child(4) strong{animation-delay:2.25s}
 @keyframes uptimePulse{0%,100%{opacity:.75}50%{opacity:1;text-shadow:0 0 8px rgba(0,255,30,.6)}}
-/* ══ CHAT GLOBAL — ocupa toda la pantalla disponible, nada se desborda ══ */
-#pane-chat{
-  position:fixed !important;
-  top:56px; left:0; right:0;
-  bottom:calc(64px + env(safe-area-inset-bottom));
-  display:none; flex-direction:column;
-  z-index:10; margin:0 !important;
-  animation:tabIn .4s cubic-bezier(.23,1,.32,1) both;
-}
-#pane-chat.active{display:flex;}
+/* ══ CHAT GLOBAL ══ */
+#pane-chat{ margin:-1rem -1rem 0; }
+@media(min-width:768px){ #pane-chat{ margin:-1.8rem -2.5rem 0; } }
 #chat-wrap{
-  display:flex;flex-direction:column;
-  flex:1; min-height:0;
-  background:var(--sur);border:none;
-  overflow:hidden;position:relative;
+  display:flex; flex-direction:column;
+  height:calc(100dvh - 56px - 64px - 1rem);
+  background:var(--sur); border:1px solid var(--bdr);
+  overflow:hidden; position:relative;
 }
 @media(min-width:768px){
-  #pane-chat{top:62px;bottom:0;}
-  #chat-wrap{border:1px solid var(--bdr);border-radius:14px;margin:1rem;}
+  #chat-wrap{ height:calc(100dvh - 62px - 2rem); border-radius:0; }
 }
 #chat-msgs{
   flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:.42rem;
@@ -835,7 +827,6 @@ select option{background:var(--bg2)}
   </button>
 </div>
 
-</main>
 
 <!-- ═══ CHAT ═══ -->
 <div class="pane" id="pane-chat">
@@ -857,6 +848,8 @@ select option{background:var(--bg2)}
     </div>
   </div>
 </div>
+
+</main>
 
 <!-- BOTTOM NAV -->
 <nav class="bnav">
@@ -1139,33 +1132,40 @@ async function cargarTop() {  const list = document.getElementById('top-list');
   }
 }
 
+let _currentTab = 'inicio';
 function tab(t) {
-  // Salida suave del pane actual
-  const current = document.querySelector('.pane.active');
-  if (current && current.id !== 'pane-' + t) {
-    current.style.animation = 'tabOut .18s cubic-bezier(.55,0,1,.45) forwards';
-    setTimeout(() => { current.style.animation = ''; current.classList.remove('active'); }, 170);
-  } else if (current) {
-    current.classList.remove('active');
-  }
-  // Activar nuevo pane con delay para que salida se vea
-  setTimeout(() => {
-    document.getElementById('pane-' + t).classList.add('active');
-  }, current && current.id !== 'pane-' + t ? 80 : 0);
+  if (t === _currentTab) return; // no-op si ya estamos ahí
+  _currentTab = t;
 
-  // Sync nav móvil
+  // ── Ocultar TODOS los panes instantáneamente ──
+  document.querySelectorAll('.pane').forEach(p => {
+    p.classList.remove('active');
+    p.style.animation = '';
+  });
+
+  // ── Mostrar el pane destino inmediatamente con animación ──
+  const next = document.getElementById('pane-' + t);
+  if (next) {
+    next.style.animation = 'none'; // reset
+    next.offsetHeight;             // force reflow
+    next.style.animation = '';
+    next.classList.add('active');
+  }
+
+  // ── Sync navs ──
   document.querySelectorAll('.bn').forEach(b => b.classList.remove('active'));
   const mob = document.getElementById('bn-' + t);
   if (mob) mob.classList.add('active');
-  // Sync nav PC
   document.querySelectorAll('.pc-nav-btn').forEach(b => b.classList.remove('active'));
   const pc = document.getElementById('pc-' + t);
   if (pc) pc.classList.add('active');
 
+  // ── Acciones por pestaña ──
   if (t === 'hist')   cargarHistFull();
   if (t === 'inicio') { cargarTop(); cargarPublicStats(); }
   if (t === 'likes')  cargarPerfil();
-  // Mostrar bot solo en inicio
+
+  // Bot IA solo en inicio
   const aiBtn = document.getElementById('ai-chat-btn');
   const aiBox = document.getElementById('ai-chat-box');
   if (aiBtn) {
@@ -1176,6 +1176,8 @@ function tab(t) {
       if (aiOpen) { aiOpen = false; aiBox && aiBox.classList.remove('open'); }
     }
   }
+
+  // Chat interval
   if (t === 'chat') {
     cargarChat(true);
     if (!chatInterval) chatInterval = setInterval(() => cargarChat(false), 3000);
