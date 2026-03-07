@@ -50,7 +50,10 @@ main{position:relative;z-index:1;flex:1;padding:1.4rem;max-width:1060px;margin:0
 @keyframes pIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
 
 .card{background:var(--sur);border:1px solid var(--bdr);border-radius:13px;padding:1.3rem;margin-bottom:1.1rem;position:relative;overflow:hidden;transition:border-color .3s,box-shadow .3s}
-.card::before{content:'';position:absolute;top:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g),transparent)}
+.card::before{content:'';position:absolute;top:0;left:-100%;width:55%;height:2px;background:linear-gradient(90deg,transparent,var(--g),transparent);animation:cardScan 3.5s ease-in-out infinite}
+@keyframes cardScan{0%{left:-55%}100%{left:160%}}
+.card::after{content:'';position:absolute;bottom:0;right:-80%;width:40%;height:1px;background:linear-gradient(90deg,transparent,rgba(0,255,30,.35),transparent);animation:cardScanB 4.5s ease-in-out infinite}
+@keyframes cardScanB{0%{right:-40%}100%{right:150%}}
 .card:hover{border-color:rgba(0,255,30,.2);box-shadow:0 6px 26px rgba(0,0,0,.45)}
 .ct{font-family:'Rajdhani',sans-serif;font-size:1.08rem;font-weight:700;margin-bottom:.95rem;display:flex;align-items:center;gap:.45rem}
 
@@ -351,10 +354,6 @@ tr:hover td{background:rgba(0,255,30,.02)}
             <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="20 6 9 17 4 12"/></svg>
             Guardar cambios
           </button>
-          <button class="btn bsm" style="background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.25);color:var(--red);font-weight:700;font-family:'Exo 2',sans-serif;border-radius:6px;cursor:pointer;padding:.3rem .65rem;font-size:.75rem" onclick="pedirEliminar()">
-            <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6"/><path d="M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
-            Eliminar usuario
-          </button>
         </div>
       </div>
     </div>
@@ -520,7 +519,7 @@ async function loadDash() {
       <tr>
         <td><code style="color:var(--g);font-size:.75rem">${u.uid}</code></td>
         <td>${u.username}</td>
-        <td><span class="badge ${u.plan_activo ? 'bok' : 'bnone'}">${u.plan_activo ? u.plan_nombre : 'Sin plan'}</span></td>
+        <td><span class="badge ${u.plan_activo ? (u.ilimitado ? 'bilim' : 'bok') : 'bnone'}">${u.plan_activo ? (u.ilimitado ? '🚀 Ilimitado' : u.plan_nombre) : 'Sin plan'}</span></td>
         <td style="color:var(--mut);font-size:.78rem">${new Date(u.creado_en).toLocaleDateString('es')}</td>
       </tr>`).join('')
     : '<tr><td colspan="4" style="text-align:center;color:var(--mut);padding:1.8rem">Sin usuarios</td></tr>';
@@ -674,38 +673,26 @@ function mostrarDetUsr(u) {
 }
 async function guardarEdit() {
   if (!editUID) return;
-  let body = {};
+  let r;
   if (editTipo === 'ilimitado') {
-    // Aplicar plan ilimitado directamente via canjear no funciona, actualizamos directo
-    body = { plan_activo: true, envios_por_dia: 999, dias_adicionales: 0, likes_adicionales: 0 };
-    // Actualizamos a ilimitado manualmente
-    const r = await API.putAdmin('/api/admin/usuarios/' + editUID + '/ilimitado', {}, admTok);
-    if (!r.ok) {
-      // Fallback: usar endpoint normal con datos ilimitados
-      const r2 = await API.putAdmin('/api/admin/usuarios/' + editUID, { plan_activo: true, envios_por_dia: 999, dias_adicionales: 36500 }, admTok);
-      if (!r2.ok) return showMsg('msg-edit', r2.error, 'err');
-      showMsg('msg-edit', '✓ Plan ilimitado asignado', 'ok');
-      mostrarDetUsr(r2.usuario); loadDash(); loadUsrs();
-    }
-    return;
+    r = await API.putAdmin('/api/admin/usuarios/' + editUID + '/ilimitado', {}, admTok);
   } else if (editTipo === 'dias') {
-    body = {
+    r = await API.putAdmin('/api/admin/usuarios/' + editUID, {
       plan_tipo: 'dias',
       dias_adicionales: parseInt(document.getElementById('e-dias').value) || 0,
       envios_por_dia: parseInt(document.getElementById('e-env-dias').value) || 3,
       plan_activo: document.getElementById('e-stat-dias').value === 'true',
       likes_adicionales: 0,
-    };
+    }, admTok);
   } else {
-    body = {
+    r = await API.putAdmin('/api/admin/usuarios/' + editUID, {
       plan_tipo: 'likes',
       likes_adicionales: parseInt(document.getElementById('e-lk').value) || 0,
       envios_por_dia: parseInt(document.getElementById('e-env-likes').value) || 3,
       plan_activo: document.getElementById('e-stat-likes').value === 'true',
       dias_adicionales: 0,
-    };
+    }, admTok);
   }
-  const r = await API.putAdmin('/api/admin/usuarios/' + editUID, body, admTok);
   if (!r.ok) return showMsg('msg-edit', r.error, 'err');
   showMsg('msg-edit', '✓ Actualizado correctamente', 'ok');
   mostrarDetUsr(r.usuario);
@@ -735,17 +722,23 @@ document.getElementById('ov-del').addEventListener('click', e => { if (e.target 
 async function loadUsrs() {
   const r = await API.getAdmin('/api/admin/usuarios', admTok); if (!r.ok) return;
   document.getElementById('tb-usr').innerHTML = r.usuarios.length
-    ? r.usuarios.map(u => `
-      <tr>
-        <td><code style="color:var(--g);font-size:.74rem">${u.uid}</code></td>
-        <td>${u.username}</td>
-        <td style="color:var(--mut);font-size:.78rem;max-width:120px;overflow:hidden;text-overflow:ellipsis">${u.contact}</td>
-        <td><span class="badge ${u.plan_activo?'bok':'bnone'}">${u.plan_activo?'Activo':'Sin plan'}</span></td>
-        <td><span class="badge ${u.ilimitado?'bilim':u.plan_tipo==='likes'?'blikes':'bdias'}">${u.ilimitado?'🚀 Ilim.':u.plan_tipo||'días'}</span></td>
-        <td>${u.ilimitado?'∞':(u.likes_disponibles||0).toLocaleString('es')}</td>
-        <td style="color:var(--mut);font-size:.78rem">${new Date(u.creado_en).toLocaleDateString('es')}</td>
-        <td><button class="btn bo bsm" onclick='mostrarDetUsr(${JSON.stringify(u).replace(/'/g,"&#39;")})'>Ver</button></td>
-      </tr>`).join('')
+    ? r.usuarios.map(u => {
+        const planInfo = u.ilimitado ? '∞ Ilimitado'
+          : u.plan_tipo === 'likes' ? `${(u.likes_disponibles||0).toLocaleString('es')} lk restantes`
+          : u.plan_vence ? `${Math.max(0,Math.ceil((new Date(u.plan_vence)-Date.now())/86400000))}d restantes`
+          : '—';
+        return `
+        <tr>
+          <td><code style="color:var(--g);font-size:.74rem">${u.uid}</code></td>
+          <td>${u.username}</td>
+          <td style="color:var(--mut);font-size:.78rem;max-width:120px;overflow:hidden;text-overflow:ellipsis">${u.contact}</td>
+          <td><span class="badge ${u.plan_activo?'bok':'bnone'}">${u.plan_activo?'Activo':'Sin plan'}</span></td>
+          <td><span class="badge ${u.ilimitado?'bilim':u.plan_tipo==='likes'?'blikes':'bdias'}">${u.ilimitado?'🚀 Ilim.':u.plan_tipo||'días'}</span></td>
+          <td style="font-size:.78rem">${planInfo}</td>
+          <td style="color:var(--mut);font-size:.78rem">${new Date(u.creado_en).toLocaleDateString('es')}</td>
+          <td><button class="btn bo bsm" onclick='mostrarDetUsr(${JSON.stringify(u).replace(/'/g,"&#39;")})'>Ver</button></td>
+        </tr>`;
+      }).join('')
     : '<tr><td colspan="8" style="text-align:center;color:var(--mut);padding:1.8rem">Sin usuarios</td></tr>';
 }
 
