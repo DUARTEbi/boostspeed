@@ -15,11 +15,14 @@
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
 body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
-#ptcl{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-.pt{position:absolute;border-radius:50%;background:var(--g);animation:ptf linear infinite;opacity:0}
-@keyframes ptf{0%{transform:translateY(100vh);opacity:0}10%{opacity:.12}90%{opacity:.04}100%{transform:translateY(-8vh);opacity:0}}
+/* ── COLOR CYCLE: controlado por JS ── */
+#meteors{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.meteor{position:absolute;pointer-events:none}
 .bggl{position:fixed;top:-20%;left:50%;transform:translateX(-50%);width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,30,.04) 0%,transparent 65%);pointer-events:none;z-index:0;animation:bgp 6s ease-in-out infinite}
 @keyframes bgp{0%,100%{opacity:.6}50%{opacity:1}}
+/* Rayito */
+.logo-bolt{display:inline-block;font-style:normal;margin-left:.08rem;animation:boltFlash 2.4s ease-in-out infinite;transform-origin:center bottom}
+@keyframes boltFlash{0%,100%{opacity:.3;transform:scaleY(.85)}15%{opacity:1;transform:scaleY(1.18)}40%{opacity:.5}60%{opacity:1;transform:scaleY(1.08)}}
 
 /* LOGIN */
 #login-scr{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center;padding:1rem}
@@ -162,7 +165,7 @@ tr:hover td{background:rgba(0,255,30,.02)}
 </style>
 </head>
 <body>
-<div id="ptcl"></div>
+<div id="meteors"></div>
 <div class="bggl"></div>
 
 <!-- LOGIN -->
@@ -179,7 +182,7 @@ tr:hover td{background:rgba(0,255,30,.02)}
 
 <!-- TOPBAR -->
 <div class="topb" id="topb">
-  <div class="logo"><div class="pulse"></div>BoostSpeed<span class="abadge" style="margin-left:.4rem">Admin</span></div>
+  <div class="logo"><div class="pulse"></div>Boost<span style="color:var(--txt);font-weight:500">Speed</span><i class="logo-bolt">⚡</i><span class="abadge" style="margin-left:.5rem">Admin</span></div>
   <div class="tnav" id="tnav">
     <button class="tn active" id="at-dash" onclick="aTab('dash')">Dashboard</button>
     <button class="tn" id="at-cod"  onclick="aTab('cod')">Códigos</button>
@@ -446,7 +449,28 @@ tr:hover td{background:rgba(0,255,30,.02)}
 let admTok = null, editUID = null, recUID = null, tipoPlan = 'dias', editTipo = 'dias';
 let admUser = 'admin';
 
-(()=>{const c=document.getElementById('ptcl');for(let i=0;i<13;i++){const p=document.createElement('div');p.className='pt';const s=Math.random()*2.5+.8;p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;animation-duration:${Math.random()*20+12}s;animation-delay:${Math.random()*16}s`;c.appendChild(p);}})();
+(()=>{
+  const c=document.getElementById('meteors');
+  const ANGLE=25,RAD=ANGLE*Math.PI/180;
+  const VH=window.innerHeight||900,VW=window.innerWidth||1200;
+  const totalDist=VH+200,moveY=totalDist,moveX=-Math.tan(RAD)*totalDist;
+  for(let i=0;i<30;i++){
+    const m=document.createElement('div');m.className='meteor';
+    const len=55+Math.random()*90,dur=2.2+Math.random()*5.5;
+    const delay=-(Math.random()*dur);
+    const startX=Math.random()*(VW+200);
+    m.style.cssText=`left:${startX}px;top:${-len-20}px;width:2px;height:${len}px;transform:rotate(-${ANGLE}deg);background:linear-gradient(to bottom,transparent 0%,rgba(180,255,190,.2) 30%,rgba(0,255,30,.7) 65%,rgba(0,255,30,.95) 82%,#ffffff 100%);border-radius:0 0 2px 2px;position:absolute;opacity:0`;
+    m.animate([
+      {opacity:0,transform:`rotate(-${ANGLE}deg) translate(0px,0px)`},
+      {opacity:.9,offset:.07},
+      {opacity:.5,offset:.80},
+      {opacity:0,transform:`rotate(-${ANGLE}deg) translate(${moveX}px,${moveY}px)`},
+    ],{duration:dur*1000,delay:delay*1000,iterations:Infinity,easing:'linear'});
+    c.appendChild(m);
+  }
+})();
+
+
 
 window.addEventListener('DOMContentLoaded', () => {
   const t = localStorage.getItem('bs_admin_token');
