@@ -16,12 +16,16 @@
     html{scroll-behavior:smooth}
     body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden}
 
-    #particles{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-    .p{position:absolute;border-radius:50%;background:var(--g);animation:float linear infinite;opacity:0}
-    @keyframes float{0%{transform:translateY(100vh) scale(0);opacity:0}10%{opacity:.3}90%{opacity:.1}100%{transform:translateY(-10vh) scale(1.4);opacity:0}}
+    /* ── COLOR CYCLE: controlado por JS (ver final del script) ── */
+    #meteors{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+    .meteor{position:absolute;pointer-events:none}
 
-    .bg-glow{position:fixed;top:-30%;left:50%;transform:translateX(-50%);width:900px;height:900px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,30,.07) 0%,transparent 65%);pointer-events:none;z-index:0;animation:pulse-bg 4s ease-in-out infinite}
-    @keyframes pulse-bg{0%,100%{opacity:.6;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.08)}}
+    .bg-glow{position:fixed;top:-30%;left:50%;transform:translateX(-50%);width:900px;height:900px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,30,.06) 0%,transparent 65%);pointer-events:none;z-index:0;animation:pulse-bg 6s ease-in-out infinite}
+    @keyframes pulse-bg{0%,100%{opacity:.5;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.06)}}
+
+    /* Rayito */
+    .logo-bolt{display:inline-block;font-style:normal;margin-left:.08rem;animation:boltFlash 2.4s ease-in-out infinite;transform-origin:center bottom}
+    @keyframes boltFlash{0%,100%{opacity:.3;transform:scaleY(.85)}15%{opacity:1;transform:scaleY(1.18)}40%{opacity:.5}60%{opacity:1;transform:scaleY(1.08)}}
 
     nav{position:sticky;top:0;z-index:200;background:rgba(7,7,7,.88);backdrop-filter:blur(22px);border-bottom:1px solid var(--bdr);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:62px;animation:slideDown .6s cubic-bezier(.23,1,.32,1) both}
     @keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
@@ -188,12 +192,12 @@
   </style>
 </head>
 <body>
-<div id="particles"></div>
+<div id="meteors"></div>
 <div class="bg-glow"></div>
 <div id="notif-container"></div>
 
 <nav>
-  <a class="logo" href="/"><div class="pulse"></div>Boost<span>Speed</span></a>
+  <a class="logo" href="/"><div class="pulse"></div>Boost<span>Speed</span><i class="logo-bolt">⚡</i></a>
   <div class="nav-btns">
     <button class="btn btn-ghost" onclick="abrirModal('login')">Iniciar sesión</button>
     <button class="btn btn-p" onclick="abrirModal('registro')">Crear cuenta</button>
@@ -299,7 +303,7 @@
   <div class="steps">
     <div class="step"><div class="sn">01</div><div class="sb"><h3>Crea tu cuenta</h3><p>Regístrate con usuario, contraseña y correo o teléfono. Obtienes tu ID único al instante.</p></div></div>
     <div class="step"><div class="sn">02</div><div class="sb"><h3>Canjea tu código</h3><p>Ingresa el código que recibiste del administrador. Tu plan se activa automáticamente.</p></div></div>
-    <div class="step"><div class="sn">03</div><div class="sb"><h3>Envía los likes</h3><p>Ingresa el UID de Free Fire y pulsa enviar. Los likes llegan en segundos.</p></div></div>
+    <div class="step"><div class="sn">03</div><div class="sb"><h3>Envía los likes</h3><p>Ingresa el UID de Free Fire y pulsa enviar. Los likes llegan en minutos.</p></div></div>
   </div>
 </section>
 
@@ -419,14 +423,26 @@
   let recUserId = null;
 
   (function(){
-    const c=document.getElementById('particles');
-    for(let i=0;i<20;i++){
-      const p=document.createElement('div'); p.className='p';
-      const s=Math.random()*3+1.5;
-      p.style.cssText=`width:${s}px;height:${s}px;left:${Math.random()*100}%;animation-duration:${Math.random()*18+10}s;animation-delay:${Math.random()*12}s`;
-      c.appendChild(p);
+    const c = document.getElementById('meteors');
+    const ANGLE=25,RAD=ANGLE*Math.PI/180;
+    const VH=window.innerHeight||900,VW=window.innerWidth||800;
+    const totalDist=VH+200,moveY=totalDist,moveX=-Math.tan(RAD)*totalDist;
+    for(let i=0;i<30;i++){
+      const m=document.createElement('div');m.className='meteor';
+      const len=55+Math.random()*90,dur=2.2+Math.random()*5.5;
+      const delay=-(Math.random()*dur);
+      const startX=Math.random()*(VW+200);
+      m.style.cssText=`left:${startX}px;top:${-len-20}px;width:2px;height:${len}px;transform:rotate(-${ANGLE}deg);background:linear-gradient(to bottom,transparent 0%,rgba(180,255,190,.2) 30%,rgba(0,255,30,.7) 65%,rgba(0,255,30,.95) 82%,#ffffff 100%);border-radius:0 0 2px 2px;position:absolute;opacity:0`;
+      m.animate([
+        {opacity:0,transform:`rotate(-${ANGLE}deg) translate(0px,0px)`},
+        {opacity:.9,offset:.07},
+        {opacity:.55,offset:.80},
+        {opacity:0,transform:`rotate(-${ANGLE}deg) translate(${moveX}px,${moveY}px)`},
+      ],{duration:dur*1000,delay:delay*1000,iterations:Infinity,easing:'linear'});
+      c.appendChild(m);
     }
   })();
+
 
   const obs=new IntersectionObserver(entries=>{
     entries.forEach(e=>{
