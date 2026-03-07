@@ -251,8 +251,22 @@ select option{background:var(--bg2)}
 .uptime-row{display:flex;align-items:center;justify-content:center;gap:1.2rem;padding:.65rem;background:var(--bg3);border:1px solid var(--bdr);border-radius:10px;margin-bottom:.9rem;flex-wrap:wrap}
 .ut-item{display:flex;align-items:center;gap:.4rem;font-size:.75rem;color:var(--mut)}
 .ut-item strong{color:var(--g);font-family:'Rajdhani',sans-serif;font-size:.9rem}
+/* CHAT */
+.chat-msg{display:flex;gap:.55rem;align-items:flex-start;animation:msgIn .3s cubic-bezier(.23,1,.32,1)}
+@keyframes msgIn{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+.chat-av{width:30px;height:30px;border-radius:8px;background:var(--gdim);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;font-family:'Rajdhani',sans-serif;font-size:.75rem;font-weight:700;color:var(--g);flex-shrink:0}
+.chat-av.me{background:rgba(0,255,30,.18);border-color:rgba(0,255,30,.35)}
+.chat-bubble{background:var(--bg3);border:1px solid var(--bdr);border-radius:0 10px 10px 10px;padding:.5rem .75rem;max-width:82%;position:relative;overflow:hidden}
+.chat-bubble.me{background:rgba(0,255,30,.07);border-color:rgba(0,255,30,.2);border-radius:10px 0 10px 10px}
+.chat-bubble::after{content:'';position:absolute;top:0;left:-60%;width:50%;height:1px;background:linear-gradient(90deg,transparent,rgba(0,255,30,.5),transparent);animation:bubbleLine 2s ease-out forwards}
+@keyframes bubbleLine{0%{left:-60%}100%{left:120%}}
+.chat-user{font-family:'Rajdhani',sans-serif;font-size:.72rem;font-weight:700;color:var(--g);margin-bottom:.2rem}
+.chat-user.me{color:rgba(0,255,30,.8)}
+.chat-text{font-size:.82rem;color:var(--txt);line-height:1.45;word-break:break-word}
+.chat-time{font-size:.65rem;color:var(--mut);margin-top:.18rem;text-align:right}
+.chat-msg.right{flex-direction:row-reverse}
+.chat-msg.right .chat-bubble{border-radius:10px 0 10px 10px}
 </style>
-</head>
 <body>
 <div id="ptcl"></div>
 <div class="bggl"></div>
@@ -548,6 +562,29 @@ select option{background:var(--bg2)}
 
 </main>
 
+<!-- ═══ CHAT ═══ -->
+<div class="pane" id="pane-chat">
+  <div class="card" style="display:flex;flex-direction:column;height:calc(100vh - 180px);min-height:380px">
+    <div class="ctit" style="margin-bottom:.6rem">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><path d="M17 8h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2v4l-4-4H9a2 2 0 0 1-2-2v-1"/><path d="M15 3H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2v4l4-4h4a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg>
+      Chat
+      <span style="font-size:.68rem;color:var(--mut);margin-left:auto;font-weight:400">Solo últimos 20 mensajes · Sin groserías ni links</span>
+    </div>
+    <!-- Mensajes -->
+    <div id="chat-msgs" style="flex:1;overflow-y:auto;display:flex;flex-direction:column;gap:.45rem;padding:.3rem 0;margin-bottom:.75rem;scrollbar-width:thin;scrollbar-color:var(--bdr) transparent"></div>
+    <!-- Input -->
+    <div style="display:flex;gap:.5rem;align-items:flex-end">
+      <input type="text" id="chat-input" placeholder="Escribe un mensaje..." maxlength="200"
+        style="flex:1;background:var(--bg2);border:1px solid var(--bdr);border-radius:9px;padding:.6rem .9rem;color:var(--txt);font-family:'Exo 2',sans-serif;font-size:.86rem;outline:none;transition:border-color .2s"
+        onkeydown="if(event.key==='Enter')enviarMensaje()"
+        onfocus="this.style.borderColor='var(--g)'" onblur="this.style.borderColor='var(--bdr)'"/>
+      <button onclick="enviarMensaje()" style="background:var(--g);border:none;border-radius:9px;padding:.62rem .9rem;cursor:pointer;transition:all .2s;flex-shrink:0" onmouseover="this.style.background='var(--gm)'" onmouseout="this.style.background='var(--g)'">
+        <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg>
+      </button>
+    </div>
+  </div>
+</div>
+
 <!-- BOTTOM NAV -->
 <nav class="bnav">
   <button class="bn active" id="bn-inicio" onclick="tab('inicio')">
@@ -561,6 +598,9 @@ select option{background:var(--bg2)}
   </button>
   <button class="bn" id="bn-acceso" onclick="tab('acceso')">
     <div class="bnI"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>Acceso
+  </button>
+  <button class="bn" id="bn-chat" onclick="tab('chat')">
+    <div class="bnI"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 8h2a2 2 0 0 1 2 2v6a2 2 0 0 1-2 2h-2v4l-4-4H9a2 2 0 0 1-2-2v-1"/><path d="M15 3H5a2 2 0 0 0-2 2v6a2 2 0 0 0 2 2h2v4l4-4h4a2 2 0 0 0 2-2V5a2 2 0 0 0-2-2z"/></svg></div>Chat
   </button>
   <button class="bn" id="bn-perfil" onclick="tab('perfil')">
     <div class="bnI"><svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>Perfil
@@ -763,9 +803,16 @@ function tab(t) {
   document.querySelectorAll('.bn').forEach(b => b.classList.remove('active'));
   document.getElementById('pane-' + t).classList.add('active');
   document.getElementById('bn-' + t).classList.add('active');
-  if (t === 'hist') cargarHistFull();
+  if (t === 'hist')   cargarHistFull();
   if (t === 'inicio') { cargarTop(); cargarPublicStats(); }
-  if (t === 'likes') cargarPerfil();
+  if (t === 'likes')  cargarPerfil();
+  // Chat: iniciar polling al entrar, detener al salir
+  if (t === 'chat') {
+    cargarChat(true);
+    if (!chatInterval) chatInterval = setInterval(() => cargarChat(false), 3000);
+  } else {
+    if (chatInterval) { clearInterval(chatInterval); chatInterval = null; }
+  }
 }
 async function cargarHistFull() {
   const res = await API.get('/api/perfil');
@@ -918,6 +965,57 @@ function mostrarMsg(id, txt, tipo) {
   el.className = 'msg ' + tipo;
   el.style.display = txt ? 'block' : 'none';
   if (txt) setTimeout(() => { if (el.textContent === txt) el.style.display = 'none'; }, 5500);
+}
+
+// ── CHAT ─────────────────────────────────────────────────────────
+let chatInterval = null;
+let ultimoMsgId = 0;
+let chatCooldown = false;
+
+async function cargarChat(scroll = true) {
+  const res = await API.get('/api/chat');
+  if (!res.ok) return;
+  const cont = document.getElementById('chat-msgs');
+  const msgs = res.mensajes || [];
+  if (!msgs.length) {
+    cont.innerHTML = `<div style="text-align:center;color:var(--mut);font-size:.8rem;padding:2rem 0">Sin mensajes aún. ¡Sé el primero!</div>`;
+    return;
+  }
+  // Solo re-renderizar si hay mensajes nuevos
+  const ultimoId = msgs[msgs.length - 1].id;
+  if (ultimoId === ultimoMsgId && cont.children.length > 0) return;
+  ultimoMsgId = ultimoId;
+  const yo = userData ? userData.username : '';
+  cont.innerHTML = msgs.map(m => {
+    const esYo = m.username === yo;
+    const ini  = m.username.slice(0,2).toUpperCase();
+    const hora  = new Date(m.creado_en).toLocaleTimeString('es',{hour:'2-digit',minute:'2-digit'});
+    return `<div class="chat-msg ${esYo ? 'right' : ''}">
+      <div class="chat-av ${esYo ? 'me' : ''}">${ini}</div>
+      <div class="chat-bubble ${esYo ? 'me' : ''}">
+        <div class="chat-user ${esYo ? 'me' : ''}">${m.username}</div>
+        <div class="chat-text">${escHTML(m.mensaje)}</div>
+        <div class="chat-time">${hora}</div>
+      </div>
+    </div>`;
+  }).join('');
+  if (scroll) cont.scrollTop = cont.scrollHeight;
+}
+
+function escHTML(t) {
+  return t.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;');
+}
+
+async function enviarMensaje() {
+  if (chatCooldown) return;
+  const inp = document.getElementById('chat-input');
+  const msg = inp.value.trim();
+  if (!msg) return;
+  inp.value = '';
+  chatCooldown = true;
+  setTimeout(() => { chatCooldown = false; }, 3100);
+  await API.post('/api/chat', { mensaje: msg });
+  await cargarChat(true);
 }
 </script>
 </body>
