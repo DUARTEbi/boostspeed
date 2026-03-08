@@ -24,8 +24,8 @@ html,body{height:100%;height:100dvh}
 body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden;padding-bottom:72px}
 
 /* ── METEOROS — caen diagonal abajo-izquierda, punta al frente ── */
-#meteors{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;contain:strict}
-.meteor{position:absolute;pointer-events:none;will-change:transform,opacity;contain:layout style}
+#meteors{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+.meteor{position:absolute;pointer-events:none;will-change:transform,opacity;}
 /* ── COLOR CYCLE: controlado por JS con requestAnimationFrame ── */
 
 .bggl{position:fixed;top:-20%;left:50%;transform:translateX(-50%);width:900px;height:900px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,30,.032) 0%,transparent 65%);pointer-events:none;z-index:0;animation:bgp 8s ease-in-out infinite}
@@ -53,7 +53,7 @@ body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-he
 .uchip{display:flex;align-items:center;gap:.45rem;background:var(--sur);border:1px solid var(--bdr);border-radius:100px;padding:.22rem .65rem .22rem .28rem;font-size:.8rem;font-weight:600;flex-shrink:0;white-space:nowrap}
 .uav{width:27px;height:27px;border-radius:50%;background:var(--gdim);border:1px solid rgba(0,255,30,.28);display:flex;align-items:center;justify-content:center;font-size:.78rem;color:var(--g);font-weight:700;font-family:'Rajdhani',sans-serif;flex-shrink:0}
 
-main{position:relative;z-index:1;flex:1;padding:1rem 1rem 0;max-width:780px;margin:0 auto;width:100%;min-height:0;contain:layout}
+main{position:relative;z-index:1;flex:1;padding:1rem 1rem 0;max-width:780px;margin:0 auto;width:100%;min-height:0}
 .pane{display:none;position:relative}
 .pane.active{display:block;animation:tabIn .4s cubic-bezier(.23,1,.32,1) both}
 #pane-chat{display:none}
@@ -489,7 +489,7 @@ select option{background:var(--bg2)}
   *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
   #meteors{display:none}
 }
-.pane{contain:layout style}
+.pane{}
 /* ── AI SUPPORT CHAT ── */
 #ai-chat-btn{position:fixed;bottom:82px;right:16px;z-index:200;will-change:transform,opacity;width:48px;height:48px;border-radius:50%;background:var(--g);border:none;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,255,30,.4);transition:bottom .2s,all .25s;animation:aiPulse 2.5s ease-in-out infinite}
 @keyframes aiPulse{0%,100%{box-shadow:0 4px 20px rgba(0,255,30,.35)}50%{box-shadow:0 4px 30px rgba(0,255,30,.7),0 0 0 8px rgba(0,255,30,.08)}}
@@ -543,6 +543,12 @@ select option{background:var(--bg2)}
   .card::after,.card::before,.sb::before,.esb::after,.limitbar-wrap::after,
   .plan-banner::after,.info-card::before,.invite-card::after,.uptime-row::after,
   .rbox::before,.rbox::after,.top-item::after,.div::after{animation:none}
+}
+
+/* ── Respeta accesibilidad del SO (solo si el usuario lo activa) ── */
+@media(prefers-reduced-motion:reduce){
+  #meteors{display:none}
+  .logo-bolt,.logo{animation:none}
 }
 </style>
 <div id="meteors"></div>
