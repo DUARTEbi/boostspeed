@@ -615,15 +615,24 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
     }
 
     const d = apiData;
-    const likesAdded = Math.min(
-      parseInt(d.likes_added || 0, 10) || parseInt(d.successful_likes || 0, 10), 230
-    );
     const player = d.player || d.nickname || ff_uid.trim();
     const level  = d.level  || '—';
     const region = d.region || serverFinal;
     const before = parseInt(d.likes_before || 0, 10);
     const after  = parseInt(d.likes_after  || 0, 10);
     const tiempo = d.processing_time_seconds ? `${d.processing_time_seconds}s` : '—';
+
+    // Calcular likes reales: priorizar diferencia real (after-before), luego campos de la API
+    // Esto evita que errores de parseo o campos parciales den valores bajos como 20
+    const fromDiff       = (after > 0 && before >= 0 && after > before) ? (after - before) : 0;
+    const fromAdded      = parseInt(d.likes_added      || 0, 10);
+    const fromSuccessful = parseInt(d.successful_likes || 0, 10);
+    // Tomar el mayor valor entre las 3 fuentes — la API a veces solo reporta uno de ellos
+    let likesAdded = Math.max(fromDiff, fromAdded, fromSuccessful);
+    // Clamp: la API envía máx 215 likes; si supera 215 por error de la API lo corregimos
+    if (likesAdded > 215) likesAdded = 215;
+
+    console.log(`[enviar-likes] Likes: diff=${fromDiff} added=${fromAdded} successful=${fromSuccessful} → final=${likesAdded}`);
 
     if (likesAdded > 0 || after > before) {
       if (u.ilimitado) {
