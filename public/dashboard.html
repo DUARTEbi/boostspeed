@@ -485,8 +485,7 @@ select option{background:var(--bg2)}
 
 
 /* ── Performance & Reduced Motion ── */
-@media (prefers-reduced-motion: reduce){
-  *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+
   #meteors{display:none}
 }
 .pane{}
@@ -538,16 +537,11 @@ select option{background:var(--bg2)}
 }
 
 /* ── Reduced motion: solo si el USUARIO lo activa en su SO ── */
-@media(prefers-reduced-motion:reduce){
-  #meteors{display:none}
   .card::after,.card::before,.sb::before,.esb::after,.limitbar-wrap::after,
   .plan-banner::after,.info-card::before,.invite-card::after,.uptime-row::after,
   .rbox::before,.rbox::after,.top-item::after,.div::after{animation:none}
 }
 
-/* ── Respeta accesibilidad del SO (solo si el usuario lo activa) ── */
-@media(prefers-reduced-motion:reduce){
-  #meteors{display:none}
   .logo-bolt,.logo{animation:none}
 }
 </style>
@@ -998,11 +992,8 @@ let recUserId = null;
 
   // Arrancar con 1-3 meteoros iniciales escalonados
   spawnMeteor();
-  const _le=navigator.hardwareConcurrency<=4||(navigator.deviceMemory&&navigator.deviceMemory<=2);
-  if(!_le){
-    setTimeout(spawnMeteor, 800+Math.random()*1200);
-    setTimeout(spawnMeteor, 2200+Math.random()*1500);
-  }
+  setTimeout(spawnMeteor, 800+Math.random()*1200);
+  setTimeout(spawnMeteor, 2200+Math.random()*1500);
 })();
 
 
