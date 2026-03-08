@@ -623,23 +623,27 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
     const tiempo = d.processing_time_seconds ? `${d.processing_time_seconds}s` : '—';
 
  // ── CÁLCULO DE LIKES REALES ──────────────────────────────────────
-    // Fuente 1: diferencia real after-before (la más confiable)
+   // ── CÁLCULO DE LIKES REALES ──────────────────────────────────────
     const fromDiff       = (after > 0 && before >= 0 && after > before) ? (after - before) : 0;
     const fromAdded      = parseInt(d.likes_added      || 0, 10);
     const fromSuccessful = parseInt(d.successful_likes || 0, 10);
 
-    // Tomar el mayor entre las 3 fuentes
-    let likesAdded = Math.max(fromDiff, fromAdded, fromSuccessful);
+    let likesAdded;
 
-    // La API SIEMPRE envía mínimo 215 en un envío exitoso.
-    // Si los campos reportan un valor bajo (20, 50, etc.) es error de la API,
-    // forzar mínimo 215 para reflejar la realidad.
-    if (likesAdded < 215) likesAdded = 215;
+    // fromDiff es la fuente más confiable: es la diferencia real visible en el perfil
+    if (fromDiff >= 210 && fromDiff <= 225) {
+      likesAdded = fromDiff; // número exacto real (ej: 218, 221, 215)
+    } else {
+      // fromDiff no disponible o raro → usar los campos de la API
+      likesAdded = Math.max(fromAdded, fromSuccessful);
+      // Si aún así da bajo, forzar 215 (mínimo que envía la API)
+      if (likesAdded < 215) likesAdded = 215;
+    }
 
-    // Cap máximo real de la API
+    // Cap por seguridad
     if (likesAdded > 221) likesAdded = 221;
 
-    console.log(`[enviar-likes] Likes: diff=${fromDiff} added=${fromAdded} successful=${fromSuccessful} → final=${likesAdded}`);
+    console.log(`[enviar-likes] diff=${fromDiff} added=${fromAdded} successful=${fromSuccessful} → final=${likesAdded}`);
 
     if (likesAdded > 0) {
       if (u.ilimitado) {
@@ -658,20 +662,6 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
           [newDisp, newEnv, planSigue, today, req.user.id]
         );
       } else {
-        // Plan por días — sólo incrementa envios_hoy y lleva registro de cuántos likes se enviaron
-        await pool.query(
-          `UPDATE usuarios SET envios_hoy=envios_hoy+1,
-           likes_enviados_plan=likes_enviados_plan+$1,
-           fecha_ultimo_envio=$2 WHERE id=$3`,
-          [likesAdded, today, req.user.id]
-        );
-      }
-
-      await pool.query(
-        `INSERT INTO historial (usuario_id,ff_uid,player_name,likes_antes,likes_despues,likes_agregados,nivel,region)
-         VALUES ($1,$2,$3,$4,$5,$6,$7,$8)`,
-        [req.user.id, ff_uid.trim(), player, before, after, likesAdded, level, region]
-      );
 
       // Guardar última notificación para feed de landing
       try {
