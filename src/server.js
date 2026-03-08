@@ -78,7 +78,6 @@ async function initDB() {
         creado_en   TIMESTAMP DEFAULT NOW(),
         expira_en   TIMESTAMP DEFAULT NOW() + INTERVAL '48 hours'
       );
-
       CREATE TABLE IF NOT EXISTS notificaciones_likes (
         id              SERIAL PRIMARY KEY,
         username        VARCHAR(50) NOT NULL,
@@ -87,7 +86,6 @@ async function initDB() {
         likes_agregados INTEGER,
         creado_en       TIMESTAMP DEFAULT NOW()
       );
-
       CREATE TABLE IF NOT EXISTS chat_mensajes (
         id          SERIAL PRIMARY KEY,
         usuario_id  INTEGER REFERENCES usuarios(id) ON DELETE CASCADE,
@@ -95,8 +93,6 @@ async function initDB() {
         mensaje     TEXT NOT NULL,
         creado_en   TIMESTAMP DEFAULT NOW()
       );
-
-      -- Agregar columnas si no existen (para bases de datos existentes)
       ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS plan_tipo VARCHAR(20) DEFAULT 'dias';
       ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS likes_limite_plan INTEGER DEFAULT 0;
       ALTER TABLE usuarios ADD COLUMN IF NOT EXISTS likes_enviados_plan INTEGER DEFAULT 0;
@@ -207,20 +203,10 @@ function interpretarRespuestaFF(apiData) {
   }
 
   if (status === 1 || added > 0 || successful > 0) {
-    // Verificar si los likes realmente aumentaron
-    if (after > 0 && before > 0 && after <= before) {
-      return { tipo: 'ya_recibio', data: apiData };
-    }
-    // Caso: la API reporta added/successful pero likes_after == likes_before (no cambió)
     if (after > 0 && before > 0 && after === before) {
       return { tipo: 'ya_recibio', data: apiData };
     }
     return { tipo: 'ok', data: apiData };
-  }
-
-  // Si status=1 pero likes no cambiaron
-  if (status === 1 && after > 0 && before > 0 && after === before) {
-    return { tipo: 'ya_recibio', data: apiData };
   }
 
   return { tipo: 'error', data: apiData };
@@ -248,7 +234,6 @@ app.get('/api/public-stats', async (req, res) => {
   }
 });
 
-// TOP usuarios (excluye ilimitados)
 app.get('/api/top-usuarios', async (req, res) => {
   try {
     const r = await pool.query(`
@@ -268,7 +253,6 @@ app.get('/api/top-usuarios', async (req, res) => {
   }
 });
 
-// Stats del día para admin (envíos realizados hoy en total)
 app.get('/api/admin/envios-hoy', adminMiddleware, async (req, res) => {
   try {
     const today = new Date().toISOString().slice(0, 10);
@@ -314,7 +298,6 @@ app.post('/api/registro', async (req, res) => {
       [uid, username, hash, contact]
     );
     const user = result.rows[0];
-    // Token de larga duración (1 año) para sesión permanente
     const token = jwt.sign(
       { id: user.id, uid: user.uid, username: user.username },
       process.env.JWT_SECRET || 'bs_secret_2026',
@@ -341,7 +324,6 @@ app.post('/api/login', async (req, res) => {
     if (!await bcrypt.compare(password, user.password))
       return res.status(400).json({ error: 'Usuario o contraseña incorrectos' });
 
-    // Token de larga duración (1 año) para sesión permanente
     const token = jwt.sign(
       { id: user.id, uid: user.uid, username: user.username },
       process.env.JWT_SECRET || 'bs_secret_2026',
@@ -359,11 +341,9 @@ app.post('/api/recuperar', async (req, res) => {
   try {
     const { contact } = req.body;
     if (!contact) return res.status(400).json({ error: 'Ingresa tu correo o teléfono' });
-
     const result = await pool.query('SELECT uid, username FROM usuarios WHERE contact=$1', [contact]);
     if (!result.rows.length)
       return res.status(404).json({ error: 'No se encontró ninguna cuenta con ese contacto' });
-
     const u = result.rows[0];
     res.json({
       ok: true,
@@ -374,7 +354,6 @@ app.post('/api/recuperar', async (req, res) => {
   }
 });
 
-// Recuperar - verificar contacto (paso 1 del dashboard)
 app.post('/api/recuperar-check', async (req, res) => {
   try {
     const { contact } = req.body;
@@ -388,7 +367,6 @@ app.post('/api/recuperar-check', async (req, res) => {
   }
 });
 
-// Recuperar - verificar código (paso 2)
 app.post('/api/recuperar-verificar', async (req, res) => {
   try {
     const { userId, codigo } = req.body;
@@ -404,7 +382,6 @@ app.post('/api/recuperar-verificar', async (req, res) => {
   }
 });
 
-// Recuperar - cambiar contraseña (paso 3)
 app.post('/api/recuperar-cambiar', async (req, res) => {
   try {
     const { userId, password_nueva } = req.body;
@@ -447,13 +424,29 @@ app.get('/api/perfil', authMiddleware, async (req, res) => {
        FROM historial WHERE usuario_id=$1 ORDER BY fecha DESC LIMIT 30`,
       [req.user.id]
     );
-    // Total likes enviados por el usuario
     const totalLikes = await pool.query(
       `SELECT COALESCE(SUM(likes_agregados),0) AS total FROM historial WHERE usuario_id=$1`,
       [req.user.id]
     );
     u.total_likes_enviados = parseInt(totalLikes.rows[0].total, 10);
-    res.json({ ok: true, user: u, historial: hist.rows });
+
+    // Estadísticas públicas incluidas en el perfil para el dashboard
+    const [statsUsuarios, statsLikes, statsHoy] = await Promise.all([
+      pool.query('SELECT COUNT(*) FROM usuarios'),
+      pool.query('SELECT COALESCE(SUM(likes_agregados),0) AS total FROM historial'),
+      pool.query(`SELECT COALESCE(SUM(likes_agregados),0) AS total FROM historial WHERE fecha::date = CURRENT_DATE`),
+    ]);
+
+    res.json({
+      ok: true,
+      user: u,
+      historial: hist.rows,
+      stats: {
+        usuarios:  parseInt(statsUsuarios.rows[0].count, 10),
+        likes:     parseInt(statsLikes.rows[0].total, 10),
+        likes_hoy: parseInt(statsHoy.rows[0].total, 10),
+      }
+    });
   } catch (err) {
     console.error(err);
     res.status(500).json({ error: 'Error interno' });
@@ -475,7 +468,6 @@ app.post('/api/canjear', authMiddleware, async (req, res) => {
     const user = await pool.query('SELECT uid FROM usuarios WHERE id=$1', [req.user.id]);
 
     if (cod.ilimitado) {
-      // Plan ilimitado — envios_por_dia=999, likes_disponibles=999999 (interno, no se muestra)
       await pool.query(
         `UPDATE usuarios SET plan_activo=true, plan_nombre='Plan Ilimitado',
          plan_tipo='ilimitado', likes_disponibles=999999, likes_limite_plan=999999,
@@ -486,8 +478,6 @@ app.post('/api/canjear', authMiddleware, async (req, res) => {
       res.json({ ok: true, message: '🚀 Plan Ilimitado activado correctamente' });
 
     } else if (cod.tipo === 'likes') {
-      // Plan por likes — likes_disponibles = total de likes del plan
-      // likes_limite_plan = total original para calcular progreso
       await pool.query(
         `UPDATE usuarios SET plan_activo=true, plan_nombre=$1, plan_tipo='likes',
          likes_disponibles=$2, likes_limite_plan=$2,
@@ -505,8 +495,6 @@ app.post('/api/canjear', authMiddleware, async (req, res) => {
       });
 
     } else {
-      // Plan por días — NO necesita likes_disponibles para enviar
-      // likes_disponibles se usa internamente para contar cuántos likes SE HAN ENVIADO
       const vence = new Date(Date.now() + cod.dias * 86400000).toISOString();
       await pool.query(
         `UPDATE usuarios SET plan_activo=true, plan_nombre=$1, plan_tipo='dias',
@@ -551,17 +539,14 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: 'Necesitas un plan activo para enviar likes' });
 
     if (!u.ilimitado) {
-      // Verificar vencimiento por días
       if (u.plan_tipo === 'dias' && u.plan_vence && new Date(u.plan_vence) < new Date()) {
         await pool.query('UPDATE usuarios SET plan_activo=false WHERE id=$1', [u.id]);
         return res.status(400).json({ error: 'Tu plan de días ha vencido. Canjea un nuevo código.' });
       }
-      // Verificar límite diario de envíos
       if (u.envios_hoy >= u.envios_por_dia)
         return res.status(400).json({
           error: `Límite diario alcanzado (${u.envios_por_dia} envíos/día). Vuelve mañana.`
         });
-      // Solo plan por likes verifica likes_disponibles
       if (u.plan_tipo === 'likes' && u.likes_disponibles <= 0) {
         await pool.query('UPDATE usuarios SET plan_activo=false WHERE id=$1', [u.id]);
         return res.status(400).json({ error: 'Has completado todos tus likes del plan. ¡Plan finalizado!' });
@@ -581,7 +566,7 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
     }
 
     const interpretado = interpretarRespuestaFF(apiData);
-    console.log(`[enviar-likes] Interpretación: ${interpretado.tipo}`, apiData);
+    console.log(`[enviar-likes] Interpretación: ${interpretado.tipo}`, JSON.stringify(apiData));
 
     if (interpretado.tipo === 'auth_error') {
       return res.status(500).json({
@@ -614,6 +599,7 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
       return res.status(400).json({ error: '❌ ' + motivo });
     }
 
+    // ── CÁLCULO DE LIKES — tomar el MAYOR entre las 3 fuentes disponibles ──
     const d = apiData;
     const player = d.player || d.nickname || ff_uid.trim();
     const level  = d.level  || '—';
@@ -622,19 +608,29 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
     const after  = parseInt(d.likes_after  || 0, 10);
     const tiempo = d.processing_time_seconds ? `${d.processing_time_seconds}s` : '—';
 
-    // Calcular likes reales: priorizar diferencia real (after-before), luego campos de la API
-    // Esto evita que errores de parseo o campos parciales den valores bajos como 20
     const fromDiff       = (after > 0 && before >= 0 && after > before) ? (after - before) : 0;
     const fromAdded      = parseInt(d.likes_added      || 0, 10);
     const fromSuccessful = parseInt(d.successful_likes || 0, 10);
-    // Tomar el mayor valor entre las 3 fuentes — la API a veces solo reporta uno de ellos
+
+    // Tomar el valor MÁS ALTO entre las 3 fuentes — la API a veces solo reporta una
     let likesAdded = Math.max(fromDiff, fromAdded, fromSuccessful);
-    // Clamp: la API envía máx 215 likes; si supera 215 por error de la API lo corregimos
+
+    // Si la API reportó status=1 pero todos los campos dan 0, asumir envío exitoso
+    // y usar el valor que más sentido tenga (likes_added suele ser el correcto)
+    if (likesAdded === 0 && apiData.status === 1) {
+      // Fallback: intentar parsear cualquier campo numérico que tenga valor
+      const posibles = ['likes_added','successful_likes','likes_sent','count','amount']
+        .map(k => parseInt(d[k] || 0, 10))
+        .filter(v => v > 0);
+      if (posibles.length > 0) likesAdded = Math.max(...posibles);
+    }
+
+    // Cap máximo: la API envía máx 215 likes reales
     if (likesAdded > 215) likesAdded = 215;
 
-    console.log(`[enviar-likes] Likes: diff=${fromDiff} added=${fromAdded} successful=${fromSuccessful} → final=${likesAdded}`);
+    console.log(`[enviar-likes] Cálculo: diff=${fromDiff} added=${fromAdded} successful=${fromSuccessful} → final=${likesAdded}`);
 
-    if (likesAdded > 0 || after > before) {
+    if (likesAdded > 0) {
       if (u.ilimitado) {
         await pool.query(
           `UPDATE usuarios SET envios_hoy=envios_hoy+1, likes_enviados_plan=likes_enviados_plan+$1, fecha_ultimo_envio=$2 WHERE id=$3`,
@@ -643,7 +639,6 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
       } else if (u.plan_tipo === 'likes') {
         const newDisp = Math.max((u.likes_disponibles||0) - likesAdded, 0);
         const newEnv  = (u.likes_enviados_plan||0) + likesAdded;
-        // Si se agotaron los likes, desactivar plan automáticamente
         const planSigue = newDisp > 0;
         await pool.query(
           `UPDATE usuarios SET envios_hoy=envios_hoy+1,
@@ -652,7 +647,6 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
           [newDisp, newEnv, planSigue, today, req.user.id]
         );
       } else {
-        // Plan por días — sólo incrementa envios_hoy y lleva registro de cuántos likes se enviaron
         await pool.query(
           `UPDATE usuarios SET envios_hoy=envios_hoy+1,
            likes_enviados_plan=likes_enviados_plan+$1,
@@ -667,14 +661,13 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
         [req.user.id, ff_uid.trim(), player, before, after, likesAdded, level, region]
       );
 
-      // Guardar última notificación para feed de landing
       try {
         await pool.query(
           `INSERT INTO notificaciones_likes (username, ff_uid, player_name, likes_agregados)
            VALUES ($1,$2,$3,$4)`,
           [u.username, ff_uid.trim(), player, likesAdded]
         );
-      } catch(_) {} // tabla puede no existir aún, no bloquear
+      } catch(_) {}
     }
 
     res.json({
@@ -687,6 +680,7 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
     res.status(500).json({ error: 'Error interno del servidor' });
   }
 });
+
 app.post('/api/cambiar-pass', authMiddleware, async (req, res) => {
   try {
     const { password_actual, password_nueva } = req.body;
@@ -760,7 +754,6 @@ app.post('/api/admin/codigos', adminMiddleware, async (req, res) => {
     const { tipo, dias, likes, envios_dia, custom, ilimitado } = req.body;
 
     if (ilimitado) {
-      // Código ilimitado
       let codigo, intentos = 0;
       do {
         codigo = genCodigo(intentos === 0 ? custom : '');
@@ -855,7 +848,6 @@ app.put('/api/admin/usuarios/:id', adminMiddleware, async (req, res) => {
     const { dias_adicionales, envios_por_dia, plan_activo, plan_tipo, likes_adicionales } = req.body;
     const id = req.params.id;
 
-    // Get current user state
     const cur = await pool.query('SELECT * FROM usuarios WHERE id=$1', [id]);
     if (!cur.rows.length) return res.status(404).json({ error: 'Usuario no encontrado' });
     const u = cur.rows[0];
@@ -863,14 +855,10 @@ app.put('/api/admin/usuarios/:id', adminMiddleware, async (req, res) => {
     let sets = [], params = [];
     let idx = 1;
 
-    // Siempre actualizar plan_activo y envios_por_dia
     sets.push(`plan_activo=$${idx++}`); params.push(plan_activo !== undefined ? plan_activo : u.plan_activo);
     sets.push(`envios_por_dia=$${idx++}`); params.push(envios_por_dia || u.envios_por_dia);
 
-    const tipoPlan = plan_tipo || u.plan_tipo || 'dias';
-
     if (plan_activo && dias_adicionales > 0) {
-      // Extender por días desde ahora (o desde vencimiento actual si aún no vence)
       const base = (u.plan_vence && new Date(u.plan_vence) > new Date()) ? new Date(u.plan_vence) : new Date();
       const vence = new Date(base.getTime() + dias_adicionales * 86400000).toISOString();
       sets.push(`plan_vence=$${idx++}`); params.push(vence);
@@ -880,7 +868,6 @@ app.put('/api/admin/usuarios/:id', adminMiddleware, async (req, res) => {
       sets.push(`plan_vence=$${idx++}`); params.push(null);
     }
 
-    // Si es plan por likes, agregar likes adicionales
     if (likes_adicionales > 0) {
       const newDisp = (u.likes_disponibles||0) + likes_adicionales;
       sets.push(`likes_disponibles=$${idx++}`); params.push(newDisp);
@@ -906,7 +893,6 @@ app.put('/api/admin/usuarios/:id', adminMiddleware, async (req, res) => {
   }
 });
 
-// Endpoint dedicado para asignar plan ilimitado
 app.put('/api/admin/usuarios/:id/ilimitado', adminMiddleware, async (req, res) => {
   try {
     const id = req.params.id;
@@ -937,7 +923,6 @@ app.delete('/api/admin/usuarios/:id', adminMiddleware, async (req, res) => {
   }
 });
 
-// Generar código de recuperación (admin)
 app.post('/api/admin/codigos-recuperacion', adminMiddleware, async (req, res) => {
   try {
     const { usuario_id, codigo_custom } = req.body;
@@ -947,7 +932,6 @@ app.post('/api/admin/codigos-recuperacion', adminMiddleware, async (req, res) =>
     let codigo = codigo_custom ? codigo_custom.trim().toUpperCase() : '';
     if (!codigo) { for (let i = 0; i < 8; i++) codigo += c[Math.floor(Math.random() * c.length)]; }
 
-    // Invalida códigos anteriores del mismo usuario
     await pool.query('DELETE FROM codigos_recuperacion WHERE usuario_id=$1', [usuario_id]);
     await pool.query(
       `INSERT INTO codigos_recuperacion (usuario_id, codigo) VALUES ($1, $2)`,
@@ -964,63 +948,51 @@ app.post('/api/admin/codigos-recuperacion', adminMiddleware, async (req, res) =>
 // ════════════════════════════════════════════════════════════════
 
 const PALABROTAS = [
-  // Español
   'puta','puto','putos','putas','hijueputa','hijueputo','hp','gonorrea','gonorreas',
   'mierda','mierdas','culo','culos','verga','vergas','pendejo','pendejos','pendeja','pendejas',
   'marica','maricas','malparido','malparida','malparidos','hdp','idiota','idiotas',
   'estupido','estupidos','estupida','estupidas','estúpido','estúpida','retrasado','retrasada',
   'polla','pollas','coño','coños','joder','gilipollas','cabrón','cabron','cabrones',
-  'follar','putero','putear','mamaguevo','mamaguevo','coger','cogelo','ojete',
+  'follar','putero','putear','mamaguevo','coger','cogelo','ojete',
   'chinga','chingada','chingadas','chingadera','culero','culeros','pinche','pinches',
-  'cabeza de pene','weon','huevon','huevona','huevones','culiao','culiado','culiao',
+  'weon','huevon','huevona','huevones','culiao','culiado',
   'hijodeputa','hijo de puta','hijo de perra','perra','perras','zorra','zorras',
-  'pene','penes','vagina','vaginas','culo','trasero','ano',
-  // Inglés
   'fuck','fucking','fucked','fucker','fuckers','shit','shits','shitty',
   'ass','asses','asshole','assholes','bitch','bitches','bastard','bastards',
   'crap','craps','damn','damned','cunt','cunts','dick','dicks','cock','cocks',
   'pussy','pussies','whore','whores','slut','sluts','nigger','niggers','nigga',
   'faggot','fag','fags','retard','retards','motherfucker','mofo',
   'bullshit','jackass','douchebag','dipshit',
-  // Portugués
-  'porra','caralho','foda','fodase','foda-se','viado','viadao','buceta','boceta',
-  'merda','otario','otário','pau','cu','arrombado','cuzao','cuzão',
-  // Variaciones leet/ofuscadas comunes
+  'porra','caralho','foda','fodase','foda-se','viado','buceta','boceta',
+  'merda','otario','otário','pau','cu','arrombado',
   'pu7a','put4','sh1t','f4ck','a55','@ss','b1tch','c0ño','v3rga','p3nd3jo',
 ];
 
-// Normalizar texto para detectar ofuscación (l33tspeak, acentos, repetición)
 function normalizarTexto(t) {
   return t.toLowerCase()
-    .normalize('NFD').replace(/[\u0300-\u036f]/g, '') // quitar acentos
+    .normalize('NFD').replace(/[\u0300-\u036f]/g, '')
     .replace(/0/g,'o').replace(/1/g,'i').replace(/3/g,'e')
     .replace(/4/g,'a').replace(/5/g,'s').replace(/7/g,'t')
     .replace(/8/g,'b').replace(/@/g,'a').replace(/\$/g,'s')
-    .replace(/(.)\1{2,}/g,'$1') // aaaaa -> a (repetición)
-    .replace(/[^a-z0-9\s]/g,' '); // resto a espacio
+    .replace(/(.)\1{2,}/g,'$1')
+    .replace(/[^a-z0-9\s]/g,' ');
 }
 
 function filtrarMensaje(texto) {
   let t = texto.trim();
   if (!t || t.length < 1) return null;
   if (t.length > 200) t = t.slice(0, 200);
-
-  // Bloquear URLs/links
   if (/https?:\/\/|www\.|\.com|\.net|\.org|\.io|\.co|t\.me|wa\.me|discord\.|bit\.ly/i.test(t)) return null;
 
   const normalizado = normalizarTexto(t);
-
   for (const p of PALABROTAS) {
     const pnorm = normalizarTexto(p);
-    // Buscar como palabra completa O como subcadena (más estricto)
     const regex = new RegExp(`(^|\\s|[^a-z])${pnorm.replace(/\s+/g,'\\s*')}($|\\s|[^a-z])`, 'i');
     if (regex.test(normalizado) || normalizado.includes(pnorm)) return null;
   }
-
   return t;
 }
 
-// GET mensajes (últimos 20)
 app.get('/api/chat', authMiddleware, async (req, res) => {
   try {
     const r = await pool.query(
@@ -1034,23 +1006,18 @@ app.get('/api/chat', authMiddleware, async (req, res) => {
   }
 });
 
-// POST mensaje
-let cooldowns = {}; // userId -> timestamp último mensaje
+let cooldowns = {};
 app.post('/api/chat', authMiddleware, async (req, res) => {
   try {
     const { mensaje } = req.body;
     const uid = req.user.id;
-    // Cooldown 3 segundos
     const ahora = Date.now();
     if (cooldowns[uid] && ahora - cooldowns[uid] < 3000)
       return res.status(429).json({ error: 'Espera un momento antes de enviar otro mensaje' });
     cooldowns[uid] = ahora;
 
     const filtrado = filtrarMensaje(mensaje || '');
-    if (!filtrado) {
-      // Mensaje bloqueado — responder ok silenciosamente (el usuario no sabe que se descartó)
-      return res.json({ ok: true, descartado: true });
-    }
+    if (!filtrado) return res.json({ ok: true, descartado: true });
 
     const user = await pool.query('SELECT username FROM usuarios WHERE id=$1', [uid]);
     if (!user.rows.length) return res.status(400).json({ error: 'Usuario no encontrado' });
@@ -1060,7 +1027,6 @@ app.post('/api/chat', authMiddleware, async (req, res) => {
       [uid, user.rows[0].username, filtrado]
     );
 
-    // Mantener solo últimos 20 mensajes Y borrar los de más de 60 segundos
     await pool.query(
       `DELETE FROM chat_mensajes WHERE id NOT IN (SELECT id FROM chat_mensajes ORDER BY creado_en DESC LIMIT 20)
        OR creado_en < NOW() - INTERVAL '60 seconds'`
@@ -1073,7 +1039,6 @@ app.post('/api/chat', authMiddleware, async (req, res) => {
   }
 });
 
-// Notificaciones públicas para landing (últimos likes enviados)
 app.get('/api/notificaciones-likes', async (req, res) => {
   try {
     const r = await pool.query(
@@ -1088,75 +1053,6 @@ app.get('/api/notificaciones-likes', async (req, res) => {
 });
 
 // Fallback SPA
-// ── AI SOPORTE CHAT ───────────────────────────────────────────────
-app.post('/api/ai-chat', authMiddleware, async (req, res) => {
-  try {
-    const { messages } = req.body;
-    if (!messages || !Array.isArray(messages)) return res.status(400).json({ error: 'Mensajes requeridos' });
-
-    const ANTHROPIC_KEY = process.env.ANTHROPIC_API_KEY;
-    if (!ANTHROPIC_KEY) return res.status(500).json({ error: 'API no configurada' });
-
-    const SYSTEM = `Eres el asistente de soporte de BoostSpeed, una plataforma para enviar likes en Free Fire.
-
-SOLO responde preguntas sobre la plataforma BoostSpeed. Si te preguntan algo ajeno (política, ciencia, chistes, otros juegos, etc.) responde amablemente que solo puedes ayudar con temas de BoostSpeed.
-
-INFORMACIÓN DE LA PLATAFORMA:
-- BoostSpeed permite enviar likes a perfiles de Free Fire de forma segura y rápida.
-- Para usar la plataforma necesitas un PLAN DE ACCESO activado con un código.
-- Los códigos se obtienen contactando al administrador por Telegram (@DuarteStoreX) o WhatsApp (+57 316 437 7140).
-- Hay 3 tipos de plan: por DÍAS (X envíos por día durante N días), por LIKES (un total de likes a repartir), e ILIMITADO.
-- Para enviar likes: ve a la pestaña "Likes", ingresa el UID de Free Fire del jugador y presiona Enviar.
-- Solo puedes enviar likes a un mismo UID una vez cada 24 horas.
-- El UID de Free Fire es el número de identificación del jugador, se encuentra en su perfil en el juego.
-- El historial de envíos está en la pestaña "Historial".
-- Para canjear un código: ve a la pestaña "Acceso" e ingresa el código en el campo correspondiente.
-- Si olvidaste tu contraseña, contacta al administrador para un código de recuperación.
-- El servicio es seguro, sin riesgo de ban. Disponible 24/7.
-- No compartas tu contraseña ni tu código con nadie.
-- El chat de la pestaña "Chat" es para hablar con otros usuarios de la plataforma.
-
-Responde de forma breve, amigable y clara. Máximo 3 oraciones. No menciones APIs, tokens, base de datos, límites internos ni datos de otros usuarios.`;
-
-    const body = JSON.stringify({
-      model: 'claude-haiku-4-5-20251001',
-      max_tokens: 300,
-      system: SYSTEM,
-      messages: messages.slice(-8),
-    });
-
-    const options = {
-      hostname: 'api.anthropic.com',
-      path: '/v1/messages',
-      method: 'POST',
-      headers: {
-        'Content-Type': 'application/json',
-        'x-api-key': ANTHROPIC_KEY,
-        'anthropic-version': '2023-06-01',
-        'Content-Length': Buffer.byteLength(body),
-      },
-    };
-
-    const apiRes = await new Promise((resolve, reject) => {
-      const req2 = https.request(options, r => {
-        let data = '';
-        r.on('data', chunk => data += chunk);
-        r.on('end', () => resolve({ status: r.statusCode, body: data }));
-      });
-      req2.on('error', reject);
-      req2.write(body);
-      req2.end();
-    });
-
-    const parsed = JSON.parse(apiRes.body);
-    const reply = parsed.content?.[0]?.text || 'No pude procesar tu pregunta, intenta de nuevo.';
-    res.json({ ok: true, reply });
-  } catch (err) {
-    console.error('AI chat error:', err);
-    res.status(500).json({ error: 'Error interno del asistente' });
-  }
-});
-
 app.get('*', (req, res) =>
   res.sendFile(path.join(__dirname, '../public', 'index.html'))
 );
