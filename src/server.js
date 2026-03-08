@@ -629,8 +629,8 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
     const fromSuccessful = parseInt(d.successful_likes || 0, 10);
     // Tomar el mayor valor entre las 3 fuentes — la API a veces solo reporta uno de ellos
     let likesAdded = Math.max(fromDiff, fromAdded, fromSuccessful);
-    // Clamp: la API envía máx 400 likes; si supera 400 por error de la API lo corregimos
-    if (likesAdded > 220) likesAdded = 220;
+    // Clamp: la API envía máx 215 likes; si supera 215 por error de la API lo corregimos
+    if (likesAdded > 215) likesAdded = 215;
 
     console.log(`[enviar-likes] Likes: diff=${fromDiff} added=${fromAdded} successful=${fromSuccessful} → final=${likesAdded}`);
 
