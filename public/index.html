@@ -23,7 +23,7 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--g);outline-offset:2
     body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden}
 
     /* ── COLOR CYCLE: controlado por JS (ver final del script) ── */
-    #meteors{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;contain:strict;}
+    #meteors{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;contain:strict}
     .meteor{position:absolute;pointer-events:none;will-change:transform,opacity;contain:layout style}
 
     .bg-glow{position:fixed;top:-30%;left:50%;transform:translateX(-50%);width:900px;height:900px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,30,.06) 0%,transparent 65%);pointer-events:none;z-index:0;animation:pulse-bg 6s ease-in-out infinite}
@@ -33,7 +33,7 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--g);outline-offset:2
     .logo-bolt{display:inline-block;font-style:normal;margin-left:.08rem;animation:boltFlash 2.4s ease-in-out infinite;transform-origin:center bottom}
     @keyframes boltFlash{0%,100%{opacity:.3;transform:scaleY(.85)}15%{opacity:1;transform:scaleY(1.18)}40%{opacity:.5}60%{opacity:1;transform:scaleY(1.08)}}
 
-    nav{position:sticky;top:0;z-index:200;will-change:transform;background:rgba(7,7,7,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--bdr);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:62px;animation:slideDown .6s cubic-bezier(.23,1,.32,1) both}
+    nav{position:sticky;top:0;will-change:transform;z-index:200;will-change:transform;background:rgba(7,7,7,.88);backdrop-filter:blur(10px);border-bottom:1px solid var(--bdr);padding:0 1.5rem;display:flex;align-items:center;justify-content:space-between;height:62px;animation:slideDown .6s cubic-bezier(.23,1,.32,1) both}
     @keyframes slideDown{from{transform:translateY(-100%);opacity:0}to{transform:translateY(0);opacity:1}}
     .logo{font-family:'Rajdhani',sans-serif;font-size:1.55rem;font-weight:700;color:var(--g);letter-spacing:2px;text-decoration:none;display:flex;align-items:center;gap:.45rem;transition:all .25s;animation:logoGlow 3s ease-in-out infinite}
     @keyframes logoGlow{0%,100%{text-shadow:0 0 8px rgba(0,255,30,.3)}50%{text-shadow:0 0 20px rgba(0,255,30,.75),0 0 45px rgba(0,255,30,.25)}}
