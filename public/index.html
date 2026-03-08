@@ -225,8 +225,7 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--g);outline-offset:2
     /* ── Performance: GPU hints ── */
     .card,.btn,.hs-chip,.hero-chip,.ticker-item{will-change:transform}
     /* Respect reduced motion preference */
-    @media (prefers-reduced-motion: reduce) {
-      *{animation-duration:.01ms !important;animation-iteration-count:1 !important;transition-duration:.01ms !important}
+    
       #meteors{display:none}
     }
     /* Low-end: contenido isolado, no repaint cascado */
@@ -485,11 +484,8 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--g);outline-offset:2
       setTimeout(spawnMeteor,1500+Math.random()*4500);
     }
     spawnMeteor();
-    const _le=navigator.hardwareConcurrency<=4||(navigator.deviceMemory&&navigator.deviceMemory<=2);
-    if(!_le){
-      setTimeout(spawnMeteor,800+Math.random()*1200);
-      setTimeout(spawnMeteor,2200+Math.random()*1500);
-    }
+    setTimeout(spawnMeteor,800+Math.random()*1200);
+    setTimeout(spawnMeteor,2200+Math.random()*1500);
   })();
 
 
