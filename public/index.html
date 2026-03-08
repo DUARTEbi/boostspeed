@@ -23,8 +23,8 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--g);outline-offset:2
     body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;overflow-x:hidden}
 
     /* ── COLOR CYCLE: controlado por JS (ver final del script) ── */
-    #meteors{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden;contain:strict}
-    .meteor{position:absolute;pointer-events:none;will-change:transform,opacity;contain:layout style}
+    #meteors{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
+    .meteor{position:absolute;pointer-events:none;will-change:transform,opacity;}
 
     .bg-glow{position:fixed;top:-30%;left:50%;transform:translateX(-50%);width:900px;height:900px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,30,.06) 0%,transparent 65%);pointer-events:none;z-index:0;animation:pulse-bg 6s ease-in-out infinite}
     @keyframes pulse-bg{0%,100%{opacity:.5;transform:translateX(-50%) scale(1)}50%{opacity:1;transform:translateX(-50%) scale(1.06)}}
@@ -163,7 +163,7 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--g);outline-offset:2
     footer strong{color:var(--g)}
 
     /* MODAL */
-    .ov{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(4px);z-index:300;contain:layout style;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .25s}
+    .ov{position:fixed;inset:0;background:rgba(0,0,0,.82);backdrop-filter:blur(4px);z-index:300;display:flex;align-items:center;justify-content:center;padding:1rem;opacity:0;pointer-events:none;transition:opacity .25s}
     .ov.open{opacity:1;pointer-events:all}
     .modal{background:var(--bg2);border:1px solid var(--bdr);border-radius:17px;padding:2rem;width:100%;max-width:430px;position:relative;transform:translateY(22px) scale(.97);transition:transform .25s,opacity .25s;opacity:0;max-height:90vh;overflow-y:auto;overflow-x:hidden}
     /* Animated border scan line on modal */
@@ -178,7 +178,7 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--g);outline-offset:2
     .modal .sub{color:var(--mut);font-size:.87rem;margin-bottom:1.4rem;line-height:1.55}
     .fg{margin-bottom:1rem}
     .fg label{display:block;font-size:.78rem;font-weight:700;color:var(--mut);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.4rem}
-    .fg input{width:100%;background:var(--sur);border:1px solid var(--bdr);border-radius:8px;padding:.72rem 1rem;color:var(--txt);font-family:'Exo 2',sans-serif;font-size:.93rem;outline:none;transition:border-color .2s,box-shadow .2s}
+    .fg input{width:100%;background:var(--sur);border:1px solid var(--bdr);border-radius:8px;padding:.72rem 1rem;color:var(--txt);font-family:'Exo 2',sans-serif;font-size:16px;outline:none;transition:border-color .2s,box-shadow .2s;touch-action:manipulation}
     .fg input:focus{border-color:var(--g);box-shadow:0 0 0 3px rgba(0,255,30,.1)}
     .fg input::placeholder{color:var(--mut)}
     .fl{font-size:.83rem;color:var(--mut);text-align:center;margin-top:.85rem}
@@ -230,7 +230,6 @@ button:focus-visible,a:focus-visible{outline:2px solid var(--g);outline-offset:2
       #meteors{display:none}
     }
     /* Low-end: contenido isolado, no repaint cascado */
-    main,section,.sec{contain:layout}
 </style>
 </head>
 <body>
