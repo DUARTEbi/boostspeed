@@ -622,25 +622,16 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
     const after  = parseInt(d.likes_after  || 0, 10);
     const tiempo = d.processing_time_seconds ? `${d.processing_time_seconds}s` : '—';
 
- // ── CÁLCULO DE LIKES REALES ──────────────────────────────────────
-   // ── CÁLCULO DE LIKES REALES ──────────────────────────────────────
+// ── CÁLCULO DE LIKES REALES ──────────────────────────────────────
     const fromDiff       = (after > 0 && before >= 0 && after > before) ? (after - before) : 0;
     const fromAdded      = parseInt(d.likes_added      || 0, 10);
     const fromSuccessful = parseInt(d.successful_likes || 0, 10);
 
-    let likesAdded;
+    let likesAdded = (fromDiff >= 210 && fromDiff <= 225)
+      ? fromDiff
+      : Math.max(fromAdded, fromSuccessful);
 
-    // fromDiff es la fuente más confiable: es la diferencia real visible en el perfil
-    if (fromDiff >= 210 && fromDiff <= 225) {
-      likesAdded = fromDiff; // número exacto real (ej: 218, 221, 215)
-    } else {
-      // fromDiff no disponible o raro → usar los campos de la API
-      likesAdded = Math.max(fromAdded, fromSuccessful);
-      // Si aún así da bajo, forzar 215 (mínimo que envía la API)
-      if (likesAdded < 215) likesAdded = 215;
-    }
-
-    // Cap por seguridad
+    if (likesAdded < 215) likesAdded = 215;
     if (likesAdded > 221) likesAdded = 221;
 
     console.log(`[enviar-likes] diff=${fromDiff} added=${fromAdded} successful=${fromSuccessful} → final=${likesAdded}`);
