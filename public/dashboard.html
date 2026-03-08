@@ -55,6 +55,7 @@ body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-he
 
 main{position:relative;z-index:1;flex:1;padding:1rem 1rem 0;max-width:780px;margin:0 auto;width:100%;min-height:0}
 .pane{display:none;position:relative}
+#pane-inicio{padding-bottom:2rem}
 .pane.active{display:block;animation:tabIn .4s cubic-bezier(.23,1,.32,1) both}
 #pane-chat{display:none}
 #pane-chat.active{display:flex;flex-direction:column}
@@ -126,7 +127,7 @@ main{position:relative;z-index:1;flex:1;padding:1rem 1rem 0;max-width:780px;marg
 .info-desc{color:var(--mut);font-size:.73rem;line-height:1.5}
 
 /* INVITE CARD */
-.invite-card{background:linear-gradient(135deg,rgba(0,255,30,.06) 0%,rgba(0,255,30,.02) 100%);border:1px solid rgba(0,255,30,.18);border-radius:13px;padding:1.1rem;margin-bottom:.9rem;text-align:center;position:relative;overflow:hidden}
+.invite-card{background:linear-gradient(135deg,rgba(0,255,30,.06) 0%,rgba(0,255,30,.02) 100%);border:1px solid rgba(0,255,30,.18);border-radius:13px;padding:1.1rem 1.1rem 1.4rem;margin-bottom:1.5rem;text-align:center;position:relative;overflow:hidden}
 .invite-card::before{content:'';position:absolute;inset:0;background:radial-gradient(ellipse at 50% 110%,rgba(0,255,30,.08),transparent 60%);pointer-events:none}
 .invite-card::after{content:'';position:absolute;top:0;left:-50%;width:50%;height:1.5px;background:linear-gradient(90deg,transparent,rgba(0,255,30,.7),transparent);animation:borderRun 3.5s linear infinite}
 .invite-title{font-family:'Rajdhani',sans-serif;font-size:1rem;font-weight:700;margin-bottom:.3rem;color:var(--g)}
@@ -489,53 +490,6 @@ select option{background:var(--bg2)}
   #meteors{display:none}
 }
 .pane{}
-/* ── AI SUPPORT CHAT ── */
-#ai-chat-btn{position:fixed;bottom:82px;right:16px;z-index:200;will-change:transform,opacity;width:48px;height:48px;border-radius:50%;background:var(--g);border:none;cursor:pointer;display:none;align-items:center;justify-content:center;box-shadow:0 4px 20px rgba(0,255,30,.4);transition:bottom .2s,all .25s;animation:aiPulse 2.5s ease-in-out infinite}
-@keyframes aiPulse{0%,100%{box-shadow:0 4px 20px rgba(0,255,30,.35)}50%{box-shadow:0 4px 30px rgba(0,255,30,.7),0 0 0 8px rgba(0,255,30,.08)}}
-#ai-chat-btn:hover{transform:scale(1.1);background:var(--gm)}
-#ai-chat-btn svg{stroke:#000;flex-shrink:0}
-#ai-chat-btn .ai-notif{position:absolute;top:-2px;right:-2px;width:14px;height:14px;background:#ff4757;border-radius:50%;border:2px solid var(--bg);display:flex;align-items:center;justify-content:center;font-size:.55rem;font-weight:700;color:#fff}
-
-#ai-chat-box{position:fixed;bottom:140px;right:16px;z-index:201;will-change:transform,opacity;width:300px;max-height:60vh;background:var(--sur);border:1px solid var(--bdr);border-radius:16px;display:none;flex-direction:column;overflow:hidden;box-shadow:0 12px 48px rgba(0,0,0,.6);animation:aiBoxIn .32s cubic-bezier(.23,1,.32,1);transition:bottom .2s,max-height .2s}
-@keyframes aiBoxIn{from{opacity:0;transform:translateY(16px) scale(.96)}to{opacity:1;transform:translateY(0) scale(1)}}
-#ai-chat-box.open{display:flex}
-
-.ai-header{background:linear-gradient(135deg,rgba(0,255,30,.15),rgba(0,255,30,.05));border-bottom:1px solid var(--bdr);padding:.75rem 1rem;display:flex;align-items:center;gap:.6rem;flex-shrink:0}
-.ai-av{width:32px;height:32px;border-radius:50%;background:var(--gdim);border:1.5px solid var(--g);display:flex;align-items:center;justify-content:center;flex-shrink:0}
-.ai-hinfo{flex:1}
-.ai-hname{font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.9rem;color:var(--g)}
-.ai-hstatus{font-size:.65rem;color:var(--mut);display:flex;align-items:center;gap:.3rem}
-.ai-dot{width:5px;height:5px;border-radius:50%;background:#00FF1E;animation:bl 1.5s infinite;flex-shrink:0}
-.ai-close{background:none;border:none;color:var(--mut);cursor:pointer;padding:.2rem;display:flex;transition:color .2s;flex-shrink:0}
-.ai-close:hover{color:var(--txt)}
-
-#ai-msgs{flex:1;overflow-y:auto;padding:.75rem;display:flex;flex-direction:column;gap:.55rem;scrollbar-width:thin;scrollbar-color:var(--bdr) transparent}
-.ai-msg{display:flex;gap:.4rem;align-items:flex-end;animation:msgIn .28s cubic-bezier(.23,1,.32,1)}
-.ai-msg.user{flex-direction:row-reverse}
-.ai-bubble{max-width:82%;padding:.5rem .75rem;border-radius:14px 14px 14px 4px;font-size:.8rem;line-height:1.5;color:var(--txt)}
-.ai-msg.bot .ai-bubble{background:var(--bg3);border:1px solid var(--bdr)}
-.ai-msg.user .ai-bubble{background:rgba(0,255,30,.12);border:1px solid rgba(0,255,30,.22);border-radius:14px 14px 4px 14px}
-.ai-typing{display:flex;gap:4px;padding:.5rem .75rem;background:var(--bg3);border:1px solid var(--bdr);border-radius:14px 14px 14px 4px;width:fit-content}
-.ai-typing span{width:6px;height:6px;border-radius:50%;background:var(--g);animation:ld .7s ease-in-out infinite}
-.ai-typing span:nth-child(2){animation-delay:.15s}
-.ai-typing span:nth-child(3){animation-delay:.3s}
-
-.ai-footer{border-top:1px solid var(--bdr);padding:.6rem;display:flex;gap:.45rem;flex-shrink:0}
-.ai-footer input{flex:1;background:var(--bg2);border:1px solid var(--bdr);border-radius:9px;padding:.5rem .75rem;color:var(--txt);font-family:'Exo 2',sans-serif;font-size:16px;outline:none;transition:border-color .2s;touch-action:manipulation}
-.ai-footer input:focus{border-color:var(--g)}
-.ai-footer input::placeholder{color:var(--mut)}
-.ai-send{background:var(--g);border:none;border-radius:8px;width:32px;height:32px;cursor:pointer;display:flex;align-items:center;justify-content:center;flex-shrink:0;transition:all .2s}
-.ai-send:hover{background:var(--gm);box-shadow:var(--glow)}
-.ai-send:disabled{opacity:.4;cursor:not-allowed}
-.ai-chips{display:flex;flex-wrap:wrap;gap:.35rem;padding:.5rem .75rem 0}
-.ai-chip{background:var(--bg3);border:1px solid var(--bdr);border-radius:100px;padding:.22rem .65rem;font-size:.7rem;color:var(--mut);cursor:pointer;transition:all .2s;white-space:nowrap;touch-action:manipulation}
-.ai-chip:hover{border-color:var(--g);color:var(--g)}
-
-@media(min-width:768px){
-  #ai-chat-btn{bottom:22px}
-  #ai-chat-box{bottom:82px;width:320px;max-height:70vh}
-}
-
 /* ── Reduced motion: solo si el USUARIO lo activa en su SO ── */
   .card::after,.card::before,.sb::before,.esb::after,.limitbar-wrap::after,
   .plan-banner::after,.info-card::before,.invite-card::after,.uptime-row::after,
@@ -570,6 +524,25 @@ select option{background:var(--bg2)}
     <div class="sb"><div class="sv" id="st-usuarios">—</div><div class="sl">Usuarios</div></div>
     <div class="sb"><div class="sv" id="st-likes-total">—</div><div class="sl" id="sl-likes-lbl">Likes hoy</div></div>
     <div class="sb"><div class="sv" id="st-misLikes">—</div><div class="sl">Mis likes</div></div>
+  </div>
+
+  <!-- Sin plan → mostrar canjear código -->
+  <div id="inicio-no-plan-card" class="card" style="margin-bottom:.85rem;display:none">
+    <div class="ctit">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      Activar plan de acceso
+    </div>
+    <p style="color:var(--mut);font-size:.78rem;line-height:1.55;margin-bottom:.85rem">Ingresa el código que te dio el administrador para comenzar a enviar likes.</p>
+    <div class="msg" id="msg-can-inicio"></div>
+    <div style="display:flex;flex-direction:column;gap:.5rem" id="inicio-canje-form">
+      <input type="text" id="cod-inp-inicio" placeholder="Ej: XY4Z9A8B" style="text-transform:uppercase;font-size:16px;background:var(--bg);border:1px solid var(--bdr);border-radius:9px;padding:.7rem 1rem;color:var(--tx);width:100%;box-sizing:border-box"/>
+      <button class="btn bp" onclick="canjearInicio()" style="width:100%">Activar código</button>
+    </div>
+    <button class="btn bp bf" id="post-canje-btn" style="display:none;width:100%;gap:.55rem;justify-content:center;margin-top:.5rem" onclick="tab('likes')">
+      <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 0-7.78z"/></svg>
+      Enviar likes ahora
+      <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="animation:arrowBounce 1.2s ease-in-out infinite"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>
   </div>
 
   <!-- Card inicio: si tiene plan → botón ir a likes; si no → nada (canjear está en Acceso) -->
@@ -895,193 +868,57 @@ select option{background:var(--bg2)}
   </button>
 </nav>
 
-<script src="/js/api.js">// ── AI SOPORTE CHAT ──────────────────────────────────────────────
-let aiOpen = false;
+<script>
+// ── METEOROS ────────────────────────────────────────────────────
+const ANGLE = 25;
+const RAD = ANGLE * Math.PI / 180;
+let VW = window.innerWidth;
+window.addEventListener('resize', () => { VW = window.innerWidth; });
 
-const BOT_R = [
-  {p:/^(hola|buenas|hey|ey|hi|saludos)/i,r:'Hola, bienvenido al soporte de BoostSpeed. En que te puedo ayudar?'},
-  {p:/como funciona|que es boost|para que sirve|que hace/i,r:'BoostSpeed te permite enviar likes a perfiles de Free Fire de forma rápida y segura. Necesitas un plan activo, luego ve a la pestaña Likes, ingresa el UID y presiona Enviar. 🚀'},
-  {p:/enviar likes|como envio|mandar likes|como mando/i,r:'Para enviar likes: 1) Ve a la pestaña Likes 2) Ingresa el UID de Free Fire 3) Presiona Enviar ✅. Solo puedes enviar a un mismo UID una vez cada 24 horas.'},
-  {p:/que es.{0,10}uid|uid.{0,15}free|donde.{0,10}uid|como.{0,8}uid/i,r:'El UID es el número de identificación de tu cuenta en Free Fire. Lo encuentras en tu perfil del juego, debajo de tu nombre. 🎮'},
-  {p:/plan|codigo|acceso|canjear|activar/i,r:'Para activar tu plan necesitas un código de acceso que te da el administrador. Ve a la pestaña Acceso, ingrésalo y presiona Activar. Si no tienes código, contáctanos por Telegram o WhatsApp. 🔑'},
-  {p:/tipos de plan|que planes|cuantos planes|diferencia.*plan/i,r:'Hay 3 tipos de plan: Por días (X envíos/día durante N días), Por likes (total de likes para usar) e Ilimitado (sin límites). Pregúntale al admin cuál te conviene. 🚀'},
-  {p:/cada cuanto|limite|cuantas veces|cuando puedo|vence|renueva/i,r:'Puedes enviar likes a un mismo UID una vez cada 24 horas. Al día siguiente se renueva automáticamente. ⏰'},
-  {p:/seguro|ban|suspens|riesgo|peligro/i,r:'¡Totalmente seguro! 🛡️ Tenemos anti-ban activo. Sin riesgo de suspensión ni baneo de tu cuenta de Free Fire.'},
-  {p:/contacto|admin|telegram|whatsapp|hablar con|soporte/i,r:'Puedes contactar al administrador por: Telegram: @DuarteStoreX o WhatsApp: +57 316 437 7140. Te responderán pronto. 📲'},
-  {p:/historial|mis envios|registros|anteriores/i,r:'Tus envíos anteriores están en la pestaña Historial. Aparece la fecha, el UID y el resultado. 📋'},
-  {p:/contrase|olvide|recuperar|cambiar clave/i,r:'Si olvidaste tu contraseña, contacta al admin por Telegram (@DuarteStoreX) para un código de recuperación. También puedes cambiarla desde Perfil si tienes acceso. 🔐'},
-  {p:/precio|costo|cuanto cuesta|cobran|gratis|pago/i,r:'Los precios los maneja el administrador. Contáctalo por Telegram (@DuarteStoreX) o WhatsApp (+57 316 437 7140) para conocer los planes disponibles. 💬'},
-  {p:/gracias|thank|genial|perfecto|excelente|chevere/i,r:'¡De nada! 😊 Si tienes otra duda aquí estoy.'},
-  {p:/no funciona|error|fallo|problema|no envia|no puedo/i,r:'Posibles causas: el UID debe ser solo números, puede que ya enviaste hoy a ese UID (espera 24h), o verifica que tu plan esté activo en Inicio. Si persiste, contacta al admin por Telegram. ⚠️'},
-  {p:/chat|otros usuarios/i,r:'El Chat está en la pestaña del mismo nombre. Puedes hablar con otros usuarios en tiempo real. Los mensajes duran 60 segundos. 💬'},
-  {p:/que eres|que puedes|eres bot|eres ia/i,r:'Soy el asistente virtual de BoostSpeed 🤖. Te ayudo con dudas sobre la plataforma: enviar likes, activar planes, contactar al admin y más.'},
-];
-const BOT_DEF=['Hmm, no entendí bien tu pregunta. 🤔 Puedo ayudarte con: cómo enviar likes, activar tu plan, qué es el UID o contactar al admin.','No tengo información sobre eso. Intenta preguntarme sobre la plataforma, tu plan o cómo enviar likes. 😅','Esa pregunta está fuera de mi alcance. Soy especializado en BoostSpeed. ¿Tienes dudas sobre la plataforma? 🙏'];
-function botResp(txt){const t=txt.toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'');for(const e of BOT_R){if(e.p.test(t))return e.r;}return BOT_DEF[Math.floor(Math.random()*BOT_DEF.length)];}
-
-function toggleAiChat(){
-  aiOpen=!aiOpen;
-  const box=document.getElementById('ai-chat-box');
-  const notif=document.getElementById('ai-notif');
-  if(aiOpen){
-    box.classList.add('open');
-    if(notif)notif.style.display='none';
-    const msgs=document.getElementById('ai-msgs');
-    if(msgs&&!msgs.hasChildNodes()){setTimeout(()=>aiAddMsg('bot','Hola, bienvenido al soporte de BoostSpeed. En que te puedo ayudar?'),300);}
-  }else{
-    box.classList.remove('open');
-    document.getElementById('ai-input').blur();
-  }
+function spawnMeteor() {
+  const container = document.getElementById('meteors');
+  if (!container) return;
+  const m = document.createElement('div');
+  m.className = 'meteor';
+  const len = 60 + Math.random() * 50;
+  const startX = Math.random() * (VW + 100);
+  const totalDist = window.innerHeight + len + 100;
+  const moveX = -Math.tan(RAD) * totalDist;
+  m.style.cssText = `left:${startX}px;top:${-len - 20}px;width:2px;height:${len}px;` +
+    `transform:rotate(-${ANGLE}deg) translate3d(0,0,0);` +
+    `background:linear-gradient(to bottom,transparent 0%,rgba(180,255,190,.15) 30%,rgba(0,255,30,.9) 70%,#fff 100%);` +
+    `border-radius:2px;position:absolute;pointer-events:none;`;
+  const dur = 2800 + Math.random() * 1200;
+  m.animate([
+    { transform: `rotate(-${ANGLE}deg) translate3d(0,0,0)`, opacity: 0 },
+    { transform: `rotate(-${ANGLE}deg) translate3d(${moveX * 0.1}px,${totalDist * 0.1}px,0)`, opacity: 1, offset: 0.08 },
+    { transform: `rotate(-${ANGLE}deg) translate3d(${moveX}px,${totalDist}px,0)`, opacity: 0 }
+  ], { duration: dur, easing: 'cubic-bezier(0.25, 0.1, 0.25, 1)', fill: 'forwards' });
+  container.appendChild(m);
+  setTimeout(() => m.remove(), dur + 100);
+  const next = 1500 + Math.random() * 4500;
+  setTimeout(spawnMeteor, next);
 }
-function aiAddMsg(role,text){
-  const cont=document.getElementById('ai-msgs');
-  const chips=document.getElementById('ai-chips');
-  if(role==='user'&&chips)chips.style.display='none';
-  const div=document.createElement('div');
-  div.className='ai-msg '+(role==='user'?'user':'bot');
-  div.innerHTML='<div class="ai-bubble">'+text.replace(/\n/g,'<br>')+'</div>';
-  cont.appendChild(div);
-  cont.scrollTop=cont.scrollHeight;
-}
-function aiShowTyping(){
-  const cont=document.getElementById('ai-msgs');
-  const t=document.createElement('div');t.className='ai-msg bot';t.id='ai-typing-ind';
-  t.innerHTML='<div class="ai-typing"><span></span><span></span><span></span></div>';
-  cont.appendChild(t);cont.scrollTop=cont.scrollHeight;
-}
-function aiHideTyping(){const t=document.getElementById('ai-typing-ind');if(t)t.remove();}
-function aiAsk(text){
-  document.getElementById('ai-input').value='';
-  aiAddMsg('user',text);aiShowTyping();
-  document.getElementById('ai-send-btn').disabled=true;
-  setTimeout(()=>{aiHideTyping();aiAddMsg('bot',botResp(text));document.getElementById('ai-send-btn').disabled=false;},500+Math.random()*600);
-}
-function aiEnviar(){const inp=document.getElementById('ai-input');const text=inp.value.trim();if(!text)return;aiAsk(text);}
 </script>
+<script src="/js/api.js"></script>
 <script>
 let userData = null;
-let recUserId = null;
-
-(()=>{
-  const c=document.getElementById('meteors');
-  const ANGLE=25,RAD=ANGLE*Math.PI/180;
-  const VH=window.innerHeight||900,VW=window.innerWidth||800;
-  const totalDist=VH+200,moveY=totalDist,moveX=-Math.tan(RAD)*totalDist;
-
-  function spawnMeteor(){
-    const m=document.createElement('c');
-    const m2=document.createElement('div');m2.className='meteor';
-    const len=60+Math.random()*50;
-    const startX=Math.random()*(VW+100);
-    m2.style.cssText=`left:${startX}px;top:${-len-20}px;width:2px;height:${len}px;transform:rotate(-${ANGLE}deg) translate3d(0,0,0);background:linear-gradient(to bottom,transparent 0%,rgba(180,255,190,.15) 25%,rgba(0,255,30,.6) 60%,rgba(0,255,30,.95) 82%,#ffffff 100%);border-radius:0 0 2px 2px;position:absolute;opacity:0;will-change:transform,opacity`;
-    c.appendChild(m2);
-    // Animación: empieza despacio, luego acelera (ease-in)
-    const totalDur=2800+Math.random()*1200; // 2.8-4s total
-    m2.animate([
-      {opacity:0,    transform:`rotate(-${ANGLE}deg) translate(0px,0px)`,          easing:'ease-in'},
-      {opacity:.85,  transform:`rotate(-${ANGLE}deg) translate(${moveX*.12}px,${moveY*.12}px)`, offset:0.12, easing:'ease-in'},
-      {opacity:.7,   transform:`rotate(-${ANGLE}deg) translate(${moveX*.35}px,${moveY*.35}px)`, offset:0.35, easing:'cubic-bezier(.4,0,1,1)'},
-      {opacity:.3,   transform:`rotate(-${ANGLE}deg) translate(${moveX*.75}px,${moveY*.75}px)`, offset:0.75, easing:'cubic-bezier(.6,0,1,1)'},
-      {opacity:0,    transform:`rotate(-${ANGLE}deg) translate(${moveX}px,${moveY}px)`},
-    ],{duration:totalDur,fill:'forwards'}).onfinish=()=>m2.remove();
-
-    // Siguiente meteoro: entre 1.5s y 6s
-    const next=1500+Math.random()*4500;
-    setTimeout(spawnMeteor, next);
-  }
-
-  // Arrancar con 1-3 meteoros iniciales escalonados
-  spawnMeteor();
-  setTimeout(spawnMeteor, 800+Math.random()*1200);
-  setTimeout(spawnMeteor, 2200+Math.random()*1500);
-})();
-
-
-
-window.addEventListener('DOMContentLoaded', async () => {
-  if (!localStorage.getItem('bs_token')) { location.href='/'; return; }
-  await cargarPerfil();
-  cargarTop();
-  cargarPublicStats();
-  requestAnimationFrame(()=>document.querySelectorAll('.sb').forEach((el,i)=>setTimeout(()=>el.classList.add('vis'),i*50+80)));
-  // Auto-refresh top cada 30 segundos con fade
-  setInterval(() => {
-    if (document.getElementById('pane-inicio').classList.contains('active')) {
-      const list = document.getElementById('top-list');
-      list.style.transition = 'opacity .4s';
-      list.style.opacity = '0';
-      setTimeout(() => cargarTop().then(() => {
-        list.style.opacity = '1';
-      }), 400);
-    }
-  }, 30000);
-});
-
-async function cargarPerfil() {
-  const res = await API.get('/api/perfil');
-  if (!res.ok) { salir(); return; }
-  userData = res.user;
-  pintarUI(res.user, res.historial);
-}
-
-async function cargarPublicStats() {
-  try {
-    const res = await API.get('/api/public-stats');
-    if (res.ok) {
-      animCount('st-usuarios', res.usuarios);
-      animCount('st-likes-total', res.likes_hoy !== undefined ? res.likes_hoy : res.likes);
-    }
-  } catch(e) {}
-}
+let chatInterval = null;
 
 function pintarUI(u, hist) {
-  const ini = u.username.slice(0,2).toUpperCase();
-  document.getElementById('nav-av').textContent = ini;
-  document.getElementById('nav-un').textContent  = u.username;
+  if (!u) return;
+  userData = u;
+  const ini = u.username.slice(0, 2).toUpperCase();
 
-  // Mis likes enviados total
-  animCount('st-misLikes', u.total_likes_enviados || 0);
-
-  // ── Pestaña LIKES - plan banner ──
-  const badge  = document.getElementById('lp-badge');
-  const pnombre = document.getElementById('lp-nombre');
-  const psub    = document.getElementById('lp-sub');
-  if (u.plan_activo) {
-    badge.className = 'pbadge pon';
-    if (u.ilimitado) {
-      badge.textContent = '🚀 Ilimitado';
-      pnombre.textContent = 'Plan Ilimitado';
-      psub.textContent = 'Sin límites · Envíos ilimitados';
-    } else if (u.plan_tipo === 'likes') {
-      badge.textContent = 'Activo';
-      pnombre.textContent = u.plan_nombre;
-      const lenv = u.likes_enviados_plan || 0;
-      const ltot = u.likes_limite_plan   || 0;
-      const lres = u.likes_disponibles   || 0;
-      psub.textContent = ltot > 0
-        ? `${lenv.toLocaleString('es')} / ${ltot.toLocaleString('es')} likes · ${u.envios_por_dia} envíos/día`
-        : `${lres.toLocaleString('es')} likes restantes · ${u.envios_por_dia} envíos/día`;
-    } else {
-      // Plan por días
-      badge.textContent = 'Activo';
-      pnombre.textContent = u.plan_nombre;
-      const diasR = u.plan_vence ? Math.max(0, Math.ceil((new Date(u.plan_vence) - Date.now()) / 86400000)) : 0;
-      psub.textContent = `${diasR} día${diasR !== 1 ? 's' : ''} restante${diasR !== 1 ? 's' : ''} · ${u.envios_por_dia} envíos/día`;
-    }
-  } else {
-    badge.textContent = 'Sin plan';
-    badge.className = 'pbadge poff';
-    pnombre.textContent = 'Sin plan activo';
-    psub.textContent = 'Ve a Acceso para canjear tu código';
-  }
-
-  // ── Card inicio: mostrar solo si tiene plan activo ──
+  // ── Cards inicio: sin plan → canjear; con plan → botón likes ──
   const inicioCard = document.getElementById('inicio-plan-card');
-  if (inicioCard) {
-    if (u.plan_activo) {
+  const noPlanCard = document.getElementById('inicio-no-plan-card');
+  if (u.plan_activo) {
+    if (noPlanCard) noPlanCard.style.display = 'none';
+    if (inicioCard) {
       inicioCard.style.display = 'block';
       const nombre = document.getElementById('inicio-plan-nombre');
-      const sub = document.getElementById('inicio-plan-sub');
+      const sub    = document.getElementById('inicio-plan-sub');
       if (nombre) nombre.textContent = u.ilimitado ? 'Plan Ilimitado ∞' : (u.plan_nombre || 'Plan activo');
       if (sub) {
         if (u.ilimitado) {
@@ -1170,6 +1007,23 @@ function animCount(id, target) {
   })(performance.now());
 }
 
+async function cargarPerfil() {
+  try {
+    const res = await API.get('/api/perfil');
+    if (!res.ok) {
+      if (res.status === 401) { salir(); return; }
+      return;
+    }
+    pintarUI(res.perfil, res.historial);
+    animCount('stat-usuarios', res.stats?.usuarios);
+    animCount('stat-likes', res.stats?.likes);
+    animCount('stat-hoy', res.stats?.likes_hoy);
+  } catch(e) {
+    console.error('cargarPerfil error:', e);
+  }
+}
+
+
 function pintarHistorial(hist) {
   const list = document.getElementById('hist-list');
   if (!hist || !hist.length) {
@@ -1189,6 +1043,22 @@ function pintarHistorial(hist) {
       </div>
     </div>`).join('');
   setTimeout(() => document.querySelectorAll('.hist-item').forEach(el => el.classList.add('vis')), 50);
+}
+
+
+async function cargarPublicStats() {
+  try {
+    const r = await fetch('/api/public-stats');
+    const d = await r.json();
+    if (d.ok) {
+      const u = document.getElementById('stat-usuarios');
+      const l = document.getElementById('stat-likes');
+      const h = document.getElementById('stat-hoy');
+      if (u) animCount('stat-usuarios', d.usuarios);
+      if (l) animCount('stat-likes', d.likes);
+      if (h) animCount('stat-hoy', d.likes_hoy);
+    }
+  } catch(e) {}
 }
 
 async function cargarTop() {  const list = document.getElementById('top-list');
@@ -1246,14 +1116,6 @@ function tab(t) {
   if (t === 'inicio') { cargarTop(); cargarPublicStats(); }
   if (t === 'likes')  cargarPerfil();
 
-  // Bot IA solo en inicio
-  const aiBtn = document.getElementById('ai-chat-btn');
-  const aiBox = document.getElementById('ai-chat-box');
-  if (aiBtn) {
-    if (t === 'inicio') { aiBtn.style.display = 'flex'; }
-    else { aiBtn.style.display = 'none'; if (aiOpen) { aiOpen = false; aiBox && aiBox.classList.remove('open'); } }
-  }
-
   // Chat interval
   if (t === 'chat') {
     cargarChat(true);
@@ -1278,16 +1140,19 @@ async function canjear() {
 }
 
 async function canjearInicio() {
-  const cod = document.getElementById('cod-inp-inicio').value.trim().toUpperCase();
+  const inp = document.getElementById('cod-inp-inicio');
+  const cod = inp.value.trim().toUpperCase();
   if (!cod) return mostrarMsg('msg-can-inicio', 'Ingresa un código', 'err');
   const res = await API.post('/api/canjear', { codigo: cod });
-  if (!res.ok) return mostrarMsg('msg-can-inicio', res.error, 'err');
-  mostrarMsg('msg-can-inicio', res.message, 'ok');
-  document.getElementById('cod-inp-inicio').value = '';
-  // Mostrar botón de ir a likes
+  if (!res.ok) return mostrarMsg('msg-can-inicio', res.error || 'Código inválido', 'err');
+  mostrarMsg('msg-can-inicio', '¡Plan activado! ✓', 'ok');
+  inp.value = '';
+  // Ocultar form, mostrar botón de enviar likes
+  const form = document.getElementById('inicio-canje-form');
   const btn = document.getElementById('post-canje-btn');
-  if (btn) { btn.style.display = 'block'; btn.style.animation = 'tabIn .4s cubic-bezier(.23,1,.32,1) both'; }
-  setTimeout(cargarPerfil, 700);
+  if (form) form.style.display = 'none';
+  if (btn) { btn.style.display = 'flex'; btn.style.animation = 'tabIn .4s cubic-bezier(.23,1,.32,1) both'; }
+  setTimeout(cargarPerfil, 800); // refrescar datos del usuario
 }
 
 async function enviarLikes() {
@@ -1419,7 +1284,6 @@ function mostrarMsg(id, txt, tipo) {
 }
 
 // ── CHAT ─────────────────────────────────────────────────────────
-let chatInterval = null;
 let ultimoMsgId = 0;
 let chatCooldown = false;
 
@@ -1478,30 +1342,29 @@ async function enviarMensaje() {
   await API.post('/api/chat', { mensaje: msg });
   await cargarChat(true);
 }
+// ── INICIALIZACIÓN ──────────────────────────────────────────────
+window.addEventListener('load', async () => {
+  // Meteoros
+  spawnMeteor();
+  setTimeout(spawnMeteor, 800 + Math.random() * 1200);
+  setTimeout(spawnMeteor, 2200 + Math.random() * 1500);
+
+  // Verificar sesión
+  const chk = await API.get('/api/perfil');
+  if (!chk.ok) {
+    window.location.href = '/';
+    return;
+  }
+  pintarUI(chk.perfil, chk.historial);
+  animCount('stat-usuarios', chk.stats?.usuarios);
+  animCount('stat-likes', chk.stats?.likes);
+  animCount('stat-hoy', chk.stats?.likes_hoy);
+
+  // Cargar top
+  cargarTop();
+});
+
 </script>
-<!-- ── AI SOPORTE CHAT ── -->
-<button id="ai-chat-btn" onclick="toggleAiChat()" title="Soporte BoostSpeed">
-  <div class="ai-notif" id="ai-notif">1</div>
-  <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/><circle cx="9" cy="10" r="1" fill="#000"/><circle cx="12" cy="10" r="1" fill="#000"/><circle cx="15" cy="10" r="1" fill="#000"/></svg>
-</button>
-<div id="ai-chat-box">
-  <div class="ai-header">
-    <div class="ai-av"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><circle cx="12" cy="8" r="4"/><path d="M4 20c0-4 3.6-7 8-7s8 3 8 7"/></svg></div>
-    <div class="ai-hinfo"><div class="ai-hname">Asistente BoostSpeed</div><div class="ai-hstatus"><div class="ai-dot"></div>En línea · IA</div></div>
-    <button class="ai-close" onclick="toggleAiChat()"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg></button>
-  </div>
-  <div id="ai-msgs"></div>
-  <div class="ai-chips" id="ai-chips">
-    <span class="ai-chip" onclick="aiAsk('¿Cómo envío likes?')">¿Cómo envío likes?</span>
-    <span class="ai-chip" onclick="aiAsk('¿Qué es un plan?')">¿Qué es un plan?</span>
-    <span class="ai-chip" onclick="aiAsk('¿Cómo canjeo mi código?')">¿Cómo canjeo mi código?</span>
-    <span class="ai-chip" onclick="aiAsk('¿Cada cuánto puedo enviar?')">¿Cada cuánto puedo enviar?</span>
-  </div>
-  <div class="ai-footer">
-    <input type="text" id="ai-input" placeholder="Escribe tu pregunta..." maxlength="200" onkeydown="if(event.key==='Enter')aiEnviar()"/>
-    <button class="ai-send" id="ai-send-btn" onclick="aiEnviar()"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#000" stroke-width="2.5"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></button>
-  </div>
-</div>
 
 </body>
 </html>
