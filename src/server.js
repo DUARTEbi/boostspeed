@@ -261,6 +261,7 @@ async function llamarApiFF(uid, server = 'BR') {
 
 function ejecutarPeticion(baseUrl, uid, apiKey, server) {
   return new Promise((resolve, reject) => {
+    const start = Date.now();
     const separator = baseUrl.includes('?') ? '&' : '?';
     // Parámetros universales para cubrir ambos tipos de API (antigua y nueva)
     const params = `uid=${encodeURIComponent(uid)}&apikey=${encodeURIComponent(apiKey)}&server=${encodeURIComponent(server)}&id=${encodeURIComponent(uid)}&key=${encodeURIComponent(apiKey)}`;
@@ -282,6 +283,7 @@ function ejecutarPeticion(baseUrl, uid, apiKey, server) {
       let data = '';
       res.on('data', chunk => data += chunk);
       res.on('end', () => {
+        const duration = ((Date.now() - start) / 1000).toFixed(2);
         const trimmed = data.trim();
         // Detectar si es HTML (común en 404 o errores de hosting)
         if (trimmed.startsWith('<!doctype') || trimmed.startsWith('<html') || trimmed.toLowerCase().includes('<body')) {
@@ -290,6 +292,7 @@ function ejecutarPeticion(baseUrl, uid, apiKey, server) {
         try {
           const parsed = JSON.parse(trimmed);
           parsed._httpStatus = res.statusCode;
+          parsed._local_time = duration; 
           if (parsed.key_usage) lastKeyUsage = String(parsed.key_usage);
           resolve(parsed);
         } catch (e) {
@@ -550,7 +553,7 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
     const region = d.region || serverFinal;
     const before = parseInt(d.likes_before || d.likes_antes || 0, 10);
     const after  = parseInt(d.likes_after || d.likes_depois || 0, 10);
-    const tiempo = d.processing_time_seconds ? `${d.processing_time_seconds}s` : '—';
+    const tiempo = (d.processing_time_seconds || d._local_time || '—') + (d.processing_time_seconds || d._local_time ? 's' : '');
     const fromDiff       = (after > 0 && before >= 0 && after > before) ? (after - before) : 0;
     const sentMatch = String(d.sent || '').match(/\d+/);
     const fromSentStr = sentMatch ? parseInt(sentMatch[0], 10) : 0;
