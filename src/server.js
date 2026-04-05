@@ -868,6 +868,13 @@ app.put('/api/admin/usuarios/:id/ilimitado', adminMiddleware, async (req, res) =
 app.delete('/api/admin/usuarios/:id', adminMiddleware, async (req, res) => {
   try { await pool.query('DELETE FROM usuarios WHERE id=$1', [req.params.id]); res.json({ ok: true }); } catch (err) { res.status(500).json({ error: 'Error interno' }); }
 });
+app.post('/api/admin/usuarios/:id/quitar-plan', adminMiddleware, async (req, res) => {
+  try { 
+    await pool.query(`UPDATE usuarios SET plan_activo=false, plan_vence=NULL, plan_nombre='Sin plan activo', plan_tipo=NULL, likes_disponibles=0, likes_limite_plan=0, likes_enviados_plan=0, ilimitado=false WHERE id=$1`, [req.params.id]);
+    const updated = await pool.query(`SELECT id,uid,username,contact,plan_activo,plan_nombre,plan_tipo,likes_disponibles,likes_limite_plan,likes_enviados_plan,envios_por_dia,envios_hoy,plan_vence,ilimitado,creado_en FROM usuarios WHERE id=$1`, [req.params.id]);
+    res.json({ ok: true, usuario: updated.rows[0] });
+  } catch (err) { res.status(500).json({ error: 'Error interno' }); }
+});
 
 app.post('/api/admin/usuarios/extra-days', adminMiddleware, async (req, res) => {
   try {
@@ -877,12 +884,13 @@ app.post('/api/admin/usuarios/extra-days', adminMiddleware, async (req, res) => 
     if (isNaN(dias)) return res.status(400).json({ error: 'Cantidad inválida' });
     
     // Solo aplicar a usuarios con plan_vence no nulo y del tipo seleccionado
-    const r = await pool.query(`
-      UPDATE usuarios 
-      SET plan_vence = plan_vence + ($1 || ' days')::interval 
-      WHERE plan_tipo = $2 AND plan_vence IS NOT NULL AND plan_activo = true
-      RETURNING id
-    `, [dias, tipo]);
+    let sql = `UPDATE usuarios SET plan_vence = plan_vence + ($1 || ' days')::interval WHERE plan_vence IS NOT NULL AND plan_activo = true`;
+    let params = [dias];
+    if (tipo !== 'todos') {
+      sql += ` AND plan_tipo = $2`;
+      params.push(tipo);
+    }
+    const r = await pool.query(sql + ` RETURNING id`, params);
     
     res.json({ ok: true, modified: r.rows.length, message: `Se han ajustado ${dias} días a ${r.rows.length} usuarios.` });
   } catch (err) { res.status(500).json({ error: 'Error interno: ' + err.message }); }
