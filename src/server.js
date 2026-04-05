@@ -1,4 +1,4 @@
-﻿require('dotenv').config();
+require('dotenv').config();
 const express = require('express');
 const cors    = require('cors');
 const bcrypt  = require('bcryptjs');
@@ -215,12 +215,21 @@ function adminMiddleware(req, res, next) {
 
 function llamarApiFF(uid, server = 'BR') {
   return new Promise((resolve, reject) => {
-    const apiKey  = process.env.FF_API_KEY;
-    const apiBase = (process.env.FF_API_URL || 'https://rtpysistemsapi.squareweb.app').replace(/\/+$/, '');
+    const apiKey  = (process.env.FF_API_KEY || '').trim();
+    let apiBase = (process.env.FF_API_URL || 'https://rtpysistemsapi.squareweb.app').trim();
     if (!apiKey) return reject(new Error('FF_API_KEY no configurada en variables de entorno'));
-    const params  = `uid=${encodeURIComponent(uid)}&apikey=${encodeURIComponent(apiKey)}&server=${encodeURIComponent(server)}`;
-    const fullUrl = `${apiBase}/like?${params}`;
-    console.log(`[API FF] Llamando: ${apiBase}/like?uid=${uid}&server=${server}&apikey=***`);
+
+    if (!apiBase.includes('/like') && !apiBase.includes('/send_likes') && !apiBase.includes('?')) {
+        apiBase = apiBase.replace(/\/+$/, '') + '/like';
+    }
+
+    const separator = apiBase.includes('?') ? '&' : '?';
+    const params  = `uid=${encodeURIComponent(uid)}&apikey=${encodeURIComponent(apiKey)}&server=${encodeURIComponent(server)}&id=${encodeURIComponent(uid)}&key=${encodeURIComponent(apiKey)}`;
+    const fullUrl = `${apiBase}${separator}${params}`;
+
+    const safeLogUrl = fullUrl.replace(new RegExp(encodeURIComponent(apiKey), 'g'), '***');
+    console.log(`[API FF] Llamando: ${safeLogUrl}`);
+
     const req = https.get(fullUrl, { timeout: 30000 }, (res) => {
       let data = '';
       res.on('data', chunk => data += chunk);
@@ -249,20 +258,26 @@ function llamarApiFF(uid, server = 'BR') {
 }
 
 function interpretarRespuestaFF(apiData) {
-  const added  = parseInt(apiData.likes_added  || 0, 10);
-  const before = parseInt(apiData.likes_before || 0, 10);
-  const after  = parseInt(apiData.likes_after  || 0, 10);
-  const msgRaw = String((apiData.message || '') + (apiData.error || '')).toLowerCase();
+  const sentMatch = String(apiData.sent || '').match(/\d+/);
+  const fromSentStr = sentMatch ? parseInt(sentMatch[0], 10) : 0;
+  const added  = parseInt(apiData.likes_added || fromSentStr || 0, 10);
+  const before = parseInt(apiData.likes_before || apiData.likes_antes || 0, 10);
+  const after  = parseInt(apiData.likes_after || apiData.likes_depois || 0, 10);
+  const msgRaw = String((apiData.message || '') + (apiData.error || '') + (apiData.msg_sistema || '')).toLowerCase();
+
+  if (apiData.status_envio === 'SUCESSO') return { tipo: 'ok' };
+  if (apiData.res === 'LIMIT_EXCEEDED') return { tipo: 'limite' };
+  if (apiData.res === 'KEY_NOT_FOUND') return { tipo: 'auth_error' };
 
   if (apiData.status === 2) return { tipo: 'ya_recibio' };
   if (added === 0 && before > 0 && after === before) return { tipo: 'ya_recibio' };
 
   if (apiData._httpStatus === 429 || apiData._limit === true ||
-      ['limit','already','wait','espera','daily'].some(k => msgRaw.includes(k)))
+      ['limit','already','wait','espera','daily','limite'].some(k => msgRaw.includes(k)))
     return { tipo: 'limite' };
 
   if (apiData._httpStatus === 401 || msgRaw.includes('api key') || msgRaw.includes('apikey') ||
-      msgRaw.includes('unauthorized') || msgRaw.includes('access denied') || msgRaw.includes('denegado'))
+      msgRaw.includes('unauthorized') || msgRaw.includes('access denied') || msgRaw.includes('denegado') || msgRaw.includes('chave') || msgRaw.includes('inválida'))
     return { tipo: 'auth_error' };
 
   if (apiData.status === 1 || added > 0) return { tipo: 'ok' };
@@ -489,11 +504,13 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
     const player = d.player || d.nickname || ff_uid.trim();
     const level  = d.level  || '—';
     const region = d.region || serverFinal;
-    const before = parseInt(d.likes_before || 0, 10);
-    const after  = parseInt(d.likes_after  || 0, 10);
+    const before = parseInt(d.likes_before || d.likes_antes || 0, 10);
+    const after  = parseInt(d.likes_after || d.likes_depois || 0, 10);
     const tiempo = d.processing_time_seconds ? `${d.processing_time_seconds}s` : '—';
     const fromDiff       = (after > 0 && before >= 0 && after > before) ? (after - before) : 0;
-    const fromAdded      = parseInt(d.likes_added      || 0, 10);
+    const sentMatch = String(d.sent || '').match(/\d+/);
+    const fromSentStr = sentMatch ? parseInt(sentMatch[0], 10) : 0;
+    const fromAdded      = parseInt(d.likes_added || fromSentStr || 0, 10);
     const fromSuccessful = parseInt(d.successful_likes || 0, 10);
     let likesAdded = fromDiff > 0 ? fromDiff : Math.max(fromAdded, fromSuccessful);
 
@@ -591,10 +608,12 @@ async function procesarAutoID(autoId) {
   }
 
   if (interpretado.tipo === 'ok') {
-    const before = parseInt(apiData.likes_before || 0, 10);
-    const after  = parseInt(apiData.likes_after  || 0, 10);
+    const before = parseInt(apiData.likes_before || apiData.likes_antes || 0, 10);
+    const after  = parseInt(apiData.likes_after || apiData.likes_depois || 0, 10);
     const fromDiff   = (after > 0 && before >= 0 && after > before) ? (after - before) : 0;
-    const likesAdded = fromDiff > 0 ? fromDiff : Math.max(parseInt(apiData.likes_added || 0, 10), parseInt(apiData.successful_likes || 0, 10));
+    const sentMatch  = String(apiData.sent || '').match(/\d+/);
+    const fromSentStr= sentMatch ? parseInt(sentMatch[0], 10) : 0;
+    const likesAdded = fromDiff > 0 ? fromDiff : Math.max(parseInt(apiData.likes_added || fromSentStr || 0, 10), parseInt(apiData.successful_likes || 0, 10));
 
     if (likesAdded > 0) {
       if (!row.ilimitado && row.plan_tipo === 'likes') {
