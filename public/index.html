@@ -282,7 +282,7 @@ input[type=number] { -moz-appearance: textfield; }
       <p class="anim-fade delay-2">Plataforma dedicada a Free Fire: Servicios premium para impulsar tu cuenta. Seguro y rápido, diseñado para que seas superior a los demás.</p>
 
       <div class="hero-cta mt-4 anim-fade delay-2">
-        <button class="btn btn-primary" onclick="abrirModal('login')">Ingresar al Sistema</button>
+        <button class="btn btn-primary" onclick="abrirModal('login')">Iniciar Sesión</button>
         <button class="btn btn-outline" onclick="loginConGoogle()">
           <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" width="16" style="margin-right:8px;vertical-align:middle;">
           Empezar con Google
@@ -391,7 +391,7 @@ input[type=number] { -moz-appearance: textfield; }
            onkeydown="if(event.key==='Enter')login()">
     <button id="btn-login" class="submit-btn" onclick="login()">
       <div class="spin" id="spin-login"></div>
-      <span id="txt-login">Ingresar</span>
+      <span id="txt-login">Iniciar Sesión</span>
     </button>
     <div style="text-align:center;margin-top:22px;">
       <a href="#" onclick="cerrarModal('login');abrirModal('recuperar');return false"
@@ -441,10 +441,8 @@ input[type=number] { -moz-appearance: textfield; }
       <p style="font-size:13px;color:rgba(255,255,255,0.4);text-align:center;margin-bottom:14px;">
         Ingresa tu correo o teléfono registrado
       </p>
-      <div style="display:flex;gap:8px;margin-bottom:12px;">
-        <input type="text"   id="rec-prefix"  class="input-field" value="+57" placeholder="+XX"
-               style="width:85px;text-align:center;padding:16px 10px;margin-bottom:0;">
-        <input type="number" id="rec-contact" class="input-field" placeholder="Número o correo"
+      <div style="margin-bottom:12px;">
+        <input type="text" id="rec-contact" class="input-field" placeholder="Correo electrónico o Teléfono"
                style="margin-bottom:0;">
       </div>
       <button class="submit-btn" onclick="recuperarP1()">Verificar cuenta →</button>
@@ -606,10 +604,8 @@ function recReset() {
   recUserId = null;
 }
 async function recuperarP1() {
-  const prefix  = document.getElementById('rec-prefix').value.trim();
-  const num     = document.getElementById('rec-contact').value.trim();
-  const contact = prefix + num;
-  if (!num) return mostrarMsg('msg-recuperar', 'Ingresa tu número o correo', 'err');
+  const contact = document.getElementById('rec-contact').value.trim();
+  if (!contact) return mostrarMsg('msg-recuperar', 'Ingresa tu número o correo', 'err');
   const res = await API.post('/api/recuperar-check', { contact });
   if (!res.ok) return mostrarMsg('msg-recuperar', res.error, 'err');
   recUserId = res.userId;
@@ -704,6 +700,7 @@ document.addEventListener('DOMContentLoaded', async () => {
 <!-- ── FIREBASE ── -->
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
   import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
   const firebaseConfig = {
@@ -717,6 +714,7 @@ document.addEventListener('DOMContentLoaded', async () => {
   };
 
   const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
 

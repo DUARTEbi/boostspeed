@@ -928,6 +928,7 @@ window.checkGoogleLink = function(u) {
 
 <script type="module">
   import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { getAnalytics } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-analytics.js";
   import { getAuth, signInWithPopup, GoogleAuthProvider } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-auth.js";
 
   const firebaseConfig = {
@@ -941,16 +942,20 @@ window.checkGoogleLink = function(u) {
   };
 
   const app = initializeApp(firebaseConfig);
+  const analytics = getAnalytics(app);
   const auth = getAuth(app);
   const provider = new GoogleAuthProvider();
 
   window.vincularConGoogle = async function() {
     const msg = document.getElementById('msg-g-link');
+    if(!msg) return;
+    
     try {
       const result = await signInWithPopup(auth, provider);
       const gUser = result.user;
       
-      if(msg) { msg.textContent = 'Vinculando...'; msg.className = 'msg ok'; msg.style.display = 'block'; }
+      msg.textContent = '⚡ Vinculando cuenta con Google...';
+      msg.className = 'msg ok'; msg.style.display = 'block';
       
       const res = await API.post('/api/auth/google/link', {
         googleId: gUser.uid,
@@ -958,15 +963,22 @@ window.checkGoogleLink = function(u) {
       });
       
       if(res.ok) {
-        if(msg) { msg.textContent = '✓ Vinculación exitosa. Cargando...'; msg.className = 'msg ok'; msg.style.display = 'block'; }
+        msg.textContent = '✅ ¡Vinculación Exitosa! Recargando...';
+        msg.className = 'msg ok';
         localStorage.setItem('bs_user', JSON.stringify(res.user));
-        setTimeout(() => { location.reload(); }, 1500);
+        setTimeout(() => location.reload(), 2000);
       } else {
-        if(msg) { msg.textContent = res.error; msg.className = 'msg err'; msg.style.display = 'block'; }
+        msg.textContent = '❌ Error del Servidor: ' + res.error;
+        msg.className = 'msg err';
       }
     } catch (e) {
-      console.error(e);
-      if(msg) { msg.textContent = 'Error al vincular con Google'; msg.className = 'msg err'; msg.style.display = 'block'; }
+      console.error('Firebase Auth Error:', e);
+      let errorMsj = 'Ocurrió un error al intentar vincular.';
+      if(e.code === 'auth/popup-closed-by-user') errorMsj = 'Cerraste la ventana de Google antes de terminar.';
+      if(e.code === 'auth/unauthorized-domain') errorMsj = 'Dominio no autorizado en Firebase. Contacta al soporte.';
+      
+      msg.textContent = '❌ ' + errorMsj;
+      msg.className = 'msg err'; msg.style.display = 'block';
     }
   };
 </script>
