@@ -49,41 +49,71 @@ body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-he
 
 .abadge{background:rgba(255,71,87,.12);border:1px solid rgba(255,71,87,.28);color:var(--red);font-size:.67rem;font-weight:700;padding:.17rem .52rem;border-radius:100px;text-transform:uppercase;letter-spacing:.7px}
 .card{
-  background:var(--sur); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
-  border:none; border-radius:14px; padding:1.2rem; margin-bottom:1.2rem;
-  box-shadow:0 8px 32px rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.03);
+  background:var(--sur); backdrop-filter:blur(25px); -webkit-backdrop-filter:blur(25px);
+  border-radius:18px; padding:1.4rem; margin-bottom:1.5rem;
+  box-shadow:0 12px 40px rgba(0,0,0,0.4); border:1px solid rgba(255,255,255,0.03); position:relative;
 }
 .ctit{
-  font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700;
-  margin-bottom:1.2rem; display:flex; align-items:center; gap:.6rem;
+  font-family:'Rajdhani',sans-serif; font-size:1.15rem; font-weight:700;
+  margin-bottom:1.5rem; display:flex; align-items:center; gap:.7rem;
 }
 
-/* Navegación Glass Pestañas */
+/* Navegación Original Simplificada */
 .tnav{
-  display:flex; gap:.35rem; background:rgba(255,255,255,.03); backdrop-filter:blur(10px);
-  -webkit-backdrop-filter:blur(10px); padding:.45rem; border-radius:14px; 
-  margin-bottom:1.5rem; border:1px solid rgba(255,255,255,.05);
+  display:flex; gap:.6rem; background:rgba(255,255,255,.02); padding:.4rem; 
+  border-radius:100px; margin-bottom:2rem; border:1px solid rgba(255,255,255,.04);
+  max-width: fit-content; margin-left: auto; margin-right: auto;
 }
 .tn-btn{
-  flex:1; display:flex; align-items:center; justify-content:center; gap:.45rem;
-  padding:.65rem .9rem; border-radius:10px; border:none; background:transparent;
-  color:var(--mut); font-family:'Exo 2',sans-serif; font-weight:700; font-size:.8rem;
-  text-transform:uppercase; transition:all .25s; white-space:nowrap;
+  display:flex; align-items:center; justify-content:center; padding:.55rem 1.4rem; 
+  border-radius:100px; border:none; background:transparent;
+  color:var(--mut); font-family:'Exo 2',sans-serif; font-weight:700; font-size:.82rem;
+  transition:all .3s cubic-bezier(.23,1,.32,1);
 }
-.tn-btn.active{background:var(--gdim); color:var(--g); box-shadow:0 0 15px rgba(0,255,30,.1); border:1px solid rgba(0,255,30,0.2);}
-.tn-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2;}
+.tn-btn.active{background:var(--g); color:#000; box-shadow:0 0 20px rgba(0,255,30,.3);}
+.tn-btn svg{width:16px;height:16px;stroke:currentColor;fill:none;stroke-width:2.5;margin-right:.4rem}
+.tn-btn.active svg{stroke:#000}
 
-/* Stats Grid Premium */
-.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem;margin-bottom:1.5rem;}
-@media(min-width:650px){.stats-grid{grid-template-columns:repeat(4,1fr);gap:1rem;}}
+/* Stats Grid con Brillo Inferior (5 columnas) */
+.stats-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(140px,1fr));gap:1rem;margin-bottom:2rem;}
 .stat-box{
-  background:var(--sur); backdrop-filter:blur(10px); padding:1rem;
-  border-radius:12px; text-align:center; transition:transform .3s;
-  border:1px solid rgba(255,255,255,0.02);
+  background:rgba(20,20,20,.6); backdrop-filter:blur(10px); padding:1.4rem 1rem;
+  border-radius:14px; text-align:center; position:relative; overflow:hidden;
+  border:1px solid rgba(255,255,255,0.03); transition:all .3s;
 }
-.stat-box:hover{transform:translateY(-3px); border-color:rgba(0,255,30,0.15);}
-.stat-val{font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;color:var(--g);line-height:1.1;}
-.stat-lbl{color:var(--mut);font-size:.62rem;text-transform:uppercase;letter-spacing:1px;margin-top:.2rem;}
+.stat-box::after{
+  content:''; position:absolute; bottom:0; left:20%; right:20%; height:2px;
+  background:var(--g); border-radius:100px 100px 0 0; opacity:.4; transition:all .3s;
+}
+.stat-box:nth-child(5)::after{background:var(--blue)}
+.stat-box:hover{transform:translateY(-4px); background:rgba(30,30,30,.7);}
+.stat-box:hover::after{left:10%; right:10%; opacity:1; box-shadow:0 0 15px var(--g)}
+.stat-val{font-family:'Rajdhani',sans-serif;font-size:1.85rem;font-weight:700;color:var(--g);line-height:1;}
+.stat-lbl{color:var(--mut);font-size:.68rem;text-transform:uppercase;letter-spacing:1.5px;margin-top:.5rem;font-weight:700}
+
+/* Widgets Horizontales Dashboard */
+.pbn{
+  display:flex; align-items:center; gap:1.2rem; background:rgba(20,20,20,.5); 
+  backdrop-filter:blur(10px); border-radius:18px; padding:1.4rem; margin-bottom:1.2rem;
+  border:1px solid rgba(255,255,255,0.03); transition:all .3s;
+}
+.pbn:hover{background:rgba(30,30,30,.6); border-color:rgba(0,255,30,0.1)}
+.pbn-ico{
+  width:48px; height:48px; border-radius:12px; display:flex; align-items:center; 
+  justify-content:center; flex-shrink:0; position:relative;
+}
+.pbn-ico::after{content:''; position:absolute; inset:0; opacity:.15; border-radius:inherit;}
+.ico-api .pbn-ico{background:rgba(255,193,7,.1); color:var(--warn);}
+.ico-api .pbn-ico::after{background:var(--warn)}
+.ico-ids .pbn-ico{background:rgba(0,136,255,.1); color:var(--blue);}
+.ico-ids .pbn-ico::after{background:var(--blue)}
+
+.pbn-main{flex:1; min-width:0}
+.pbn-sub{color:var(--mut); font-size:.78rem; font-weight:600; margin-bottom:.2rem}
+.pbn-title{font-family:'Rajdhani',sans-serif; font-size:1.15rem; font-weight:700; color:#fff}
+.pbn-val-wrap{text-align:right}
+.pbn-val{font-family:'Rajdhani',sans-serif; font-size:1.6rem; font-weight:700; color:var(--g); line-height:1}
+.pbn-val-lbl{font-size:.6rem; color:var(--mut); text-transform:uppercase; letter-spacing:1px; margin-top:.2rem}
 
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.7rem 1.3rem;border-radius:10px;font-family:'Exo 2',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;border:none;transition:all .25s;}
 .bp{background:var(--g);color:#000;box-shadow:0 4px 15px rgba(0,255,30,0.2);}
@@ -228,37 +258,60 @@ tr:hover td{background:rgba(0,255,30,.02)}
   <!-- DASHBOARD -->
   <div class="pane active" id="pane-dash">
 
-    <div class="pbn">
+    <!-- API WIDGET HORIZONTAL -->
+    <div class="pbn ico-api" id="card-api-usage" style="display:none">
       <div class="pbn-ico">
-        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
       </div>
       <div class="pbn-main">
-        <div class="pbn-sub">IDs que recibieron likes hoy</div>
-        <div class="pbn-big" id="lh-ids-count">0</div>
-        <div class="pbn-pills" id="lh-pills"></div>
+        <div class="pbn-title">Uso de la API key hoy</div>
+        <div class="pbn-sub" id="api-usage-txt">Sin envíos aún hoy</div>
+        <div style="height:6px; background:rgba(255,255,255,0.05); border-radius:100px; margin-top:1rem; overflow:hidden; max-width: 300px;">
+          <div id="api-usage-fill" style="height:100%; width:0%; background:var(--warn); transition:width .8s ease; box-shadow:0 0 10px var(--warn)"></div>
+        </div>
       </div>
-      <div class="pbn-right" style="text-align:right">
-        <div class="stat-lbl">Likes totales hoy</div>
-        <div class="stat-val" style="font-size:1.4rem" id="lh-total-lk">0</div>
+      <div class="pbn-val-wrap">
+        <div class="pbn-val" id="api-usage-val">0 / 0</div>
+        <div class="pbn-val-lbl">Usos hoy</div>
+      </div>
+    </div>
+
+    <!-- IDS HOY WIDGET HORIZONTAL -->
+    <div class="pbn ico-ids" id="card-ids-hoy">
+      <div class="pbn-ico">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+      </div>
+      <div class="pbn-main">
+        <div class="pbn-title">IDs que recibieron likes hoy</div>
+        <div class="pbn-sub" id="lh-fecha-tag">—</div>
+        <div id="lh-pills" style="margin-top:.4rem; display:flex; gap:.4rem"></div>
+      </div>
+      <div class="pbn-val-wrap">
+        <div class="pbn-val" id="lh-ids-count" style="color:var(--blue)">0</div>
+        <div class="pbn-val-lbl">IDs únicos</div>
       </div>
     </div>
 
     <div class="stats-grid">
       <div class="stat-box">
-        <span class="stat-val" id="a-tu">0</span>
-        <span class="stat-lbl">Usuarios</span>
+        <div class="stat-val" id="a-tu">0</div>
+        <div class="stat-lbl">Usuarios</div>
       </div>
       <div class="stat-box">
-        <span class="stat-val" id="a-tc">0</span>
-        <span class="stat-lbl">Códigos</span>
+        <div class="stat-val" id="a-tc">0</div>
+        <div class="stat-lbl">Códigos</div>
       </div>
       <div class="stat-box">
-        <span class="stat-val" id="a-uc">0</span>
-        <span class="stat-lbl">Usados</span>
+        <div class="stat-val" id="a-uc">0</div>
+        <div class="stat-lbl">Usados</div>
       </div>
       <div class="stat-box">
-        <span class="stat-val" id="a-ap">0</span>
-        <span class="stat-lbl">Planes Activos</span>
+        <div class="stat-val" id="a-ap">0</div>
+        <div class="stat-lbl">Planes Activos</div>
+      </div>
+      <div class="stat-box">
+        <div class="stat-val" id="a-ih" style="color:var(--blue)">0</div>
+        <div class="stat-lbl">IDs Hoy</div>
       </div>
     </div>
 
@@ -751,31 +804,6 @@ async function loadDash() {
   document.getElementById('a-tu').textContent = (r.totalUsuarios || 0).toLocaleString();
   document.getElementById('a-tc').textContent = (r.totalCodigos || 0).toLocaleString();
   document.getElementById('a-uc').textContent = (r.codigosUsados || 0).toLocaleString();
-  document.getElementById('a-ap').textContent = (r.planesActivos || 0).toLocaleString();
-
-  // API Key Usage Widget
-  if (r.keyUsage) {
-    const card = document.getElementById('card-api-usage');
-    const valEl = document.getElementById('api-usage-val');
-    const fillEl = document.getElementById('api-usage-fill');
-    card.style.display = 'block';
-    
-    // Parsear usage/limit del string (ej: "123 / 500")
-    const parts = r.keyUsage.split('/');
-    if (parts.length === 2) {
-      const uses = parseInt(parts[0].trim());
-      const limit = parseInt(parts[1].trim());
-      valEl.textContent = r.keyUsage;
-      const pct = Math.min((uses / limit) * 100, 100);
-      fillEl.style.width = pct + '%';
-      if (pct > 90) fillEl.style.background = 'var(--red)';
-      else if (pct > 70) fillEl.style.background = 'var(--warn)';
-      else fillEl.style.background = 'linear-gradient(90deg, var(--g), #00d2ff)';
-    } else {
-      valEl.textContent = r.keyUsage;
-    }
-  }
-
   // Cargar IDs con likes hoy
   loadLikesHoy();
 
@@ -786,7 +814,9 @@ async function loadDash() {
         <tr>
           <td><code style="color:var(--g)">${u.uid}</code></td>
           <td>${u.username}</td>
-          <td><span class="badge ${u.plan_activo ? (u.ilimitado ? 'bilim' : 'bok') : 'boff'}">${u.plan_activo ? (u.ilimitado ? '🚀 Ilimitado' : u.plan_nombre) : 'Sin plan'}</span></td>
+          <td><span class="badge ${u.plan_activo ? (u.ilimitado ? 'bilim' : 'bok') : 'boff'}">
+            ${u.plan_activo ? (u.ilimitado ? '<svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-right:3px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Ilimitado' : u.plan_nombre) : 'Sin plan'}
+          </span></td>
           <td style="color:var(--mut)">${new Date(u.creado_en).toLocaleDateString()}</td>
         </tr>`).join('')
     : '<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--mut)">No hay usuarios recientes</td></tr>';
@@ -797,11 +827,15 @@ async function loadLikesHoy() {
   if (!r.ok) return;
 
   document.getElementById('lh-ids-count').textContent = r.total_ids || 0;
-  document.getElementById('lh-total-lk').textContent = (r.total_likes || 0).toLocaleString();
+  document.getElementById('a-ih').textContent = r.total_ids || 0;
+  document.getElementById('lh-fecha-tag').textContent = new Date().toLocaleDateString('es-ES', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' });
   
   const pills = document.getElementById('lh-pills');
   pills.innerHTML = '';
-  if (r.automaticos > 0) pills.innerHTML += `<span class="badge bok">🤖 Auto: ${r.automaticos}</span>`;
+  if (r.automaticos > 0) pills.innerHTML += `<span class="badge bok" style="background:rgba(0,136,255,.1); color:var(--blue); border-color:rgba(0,136,255,.2)">
+    <svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-right:4px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    Auto: ${r.automaticos}
+  </span>`;
   
   _likesHoyData = r.registros || [];
   renderLikesHoyTabla(_likesHoyData);

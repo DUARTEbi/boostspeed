@@ -785,6 +785,8 @@ function tab(t){
   const mob=document.getElementById('bn-'+t);if(mob)mob.classList.add('active');
   document.querySelectorAll('.pc-nav-btn').forEach(b=>b.classList.remove('active'));
   const pc=document.getElementById('pc-'+t);if(pc)pc.classList.add('active');
+  const labels={inicio:'Panel',likes:'Likes',auto:'Auto',hist:'Historial',acceso:'Tienda',perfil:'Perfil'};
+  document.querySelectorAll('.bn').forEach(bn=>{const id=bn.id.replace('bn-',''); if(bn.lastChild.nodeType===3) bn.lastChild.textContent=labels[id]||id;});
   requestAnimationFrame(initNeonLines);detenerAutoRefresh();
   if(t==='hist') cargarHistFull();if(t==='inicio'){cargarTop();cargarPublicStats();}if(t==='likes') { cargarPerfil(); cargarAutoIDs(); }
   if(t==='auto'){pintarAutoStats(userData);cargarAutoIDs();actualizarResumen();arrancarAutoRefresh();}
