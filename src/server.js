@@ -213,19 +213,22 @@ function adminMiddleware(req, res, next) {
   }
 }
 
-function llamarApiFF(uid, server = 'BR') {
+function llamarApiFF(uid, server = 'BR', useAlternateEndpoint = false) {
   return new Promise((resolve, reject) => {
     const apiKey  = (process.env.FF_API_KEY || '').trim();
-    let apiBase = (process.env.FF_API_URL || 'https://rtpysistemsapi.squareweb.app').trim();
+    let apiBase = (process.env.FF_API_URL || 'https://rtpysistemsapi.squareweb.app').trim().replace(/\/+$/, '');
     if (!apiKey) return reject(new Error('FF_API_KEY no configurada en variables de entorno'));
 
+    let finalEndpoint = apiBase;
+
+    // Si no incluye '?' ni rutas específicas, adivinamos el endpoint
     if (!apiBase.includes('/like') && !apiBase.includes('/send_likes') && !apiBase.includes('?')) {
-        apiBase = apiBase.replace(/\/+$/, '') + '/like';
+        finalEndpoint = useAlternateEndpoint ? apiBase + '/send_likes' : apiBase + '/like';
     }
 
-    const separator = apiBase.includes('?') ? '&' : '?';
+    const separator = finalEndpoint.includes('?') ? '&' : '?';
     const params  = `uid=${encodeURIComponent(uid)}&apikey=${encodeURIComponent(apiKey)}&server=${encodeURIComponent(server)}&id=${encodeURIComponent(uid)}&key=${encodeURIComponent(apiKey)}`;
-    const fullUrl = `${apiBase}${separator}${params}`;
+    const fullUrl = `${finalEndpoint}${separator}${params}`;
 
     const safeLogUrl = fullUrl.replace(new RegExp(encodeURIComponent(apiKey), 'g'), '***');
     console.log(`[API FF] Llamando: ${safeLogUrl}`);
@@ -242,12 +245,18 @@ function llamarApiFF(uid, server = 'BR') {
           const errMsg = String(parsed.error || '').toLowerCase();
           if (res.statusCode === 500 && errMsg.includes('server_unavailable') && server !== 'BR') {
             console.log(`[API FF] Servidor ${server} no disponible, reintentando con BR...`);
-            llamarApiFF(uid, 'BR').then(resolve).catch(reject);
+            llamarApiFF(uid, 'BR', useAlternateEndpoint).then(resolve).catch(reject);
             return;
           }
 
           resolve(parsed);
-        } catch {
+        } catch (e) {
+          // Si falló el parseo (HTML) y nunca iteramos, intentamos el alternativo
+          if (!useAlternateEndpoint && !apiBase.includes('/like') && !apiBase.includes('/send_likes') && !apiBase.includes('?')) {
+             console.log(`[API FF] Respuesta HTML inválida en endpoint primario, reintentando con /send_likes...`);
+             llamarApiFF(uid, server, true).then(resolve).catch(reject);
+             return;
+          }
           reject(new Error(`Respuesta inválida de la API: ${data.slice(0, 100)}`));
         }
       });

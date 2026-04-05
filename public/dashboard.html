@@ -456,8 +456,9 @@ window.addEventListener('DOMContentLoaded',async()=>{
     const pc=document.getElementById('pc-'+savedTab);if(pc)pc.classList.add('active');
   }
   await cargarPerfil();cargarTop();cargarPublicStats();
+  cargarAutoIDs();
   document.querySelectorAll('.sb').forEach((el,i)=>setTimeout(()=>el.classList.add('vis'),i*50+80));
-  if(_ct==='auto'){pintarAutoStats(userData);cargarAutoIDs();actualizarResumen();arrancarAutoRefresh();}
+  if(_ct==='auto'){pintarAutoStats(userData);actualizarResumen();arrancarAutoRefresh();}
   if(_ct==='hist') cargarHistFull();
   setInterval(()=>{if(document.getElementById('pane-inicio').classList.contains('active')){cargarTop();}},30000);
   setInterval(actualizarCountdowns,60000);
@@ -724,7 +725,7 @@ function tab(t){
   document.querySelectorAll('.pc-nav-btn').forEach(b=>b.classList.remove('active'));
   const pc=document.getElementById('pc-'+t);if(pc)pc.classList.add('active');
   requestAnimationFrame(initNeonLines);detenerAutoRefresh();
-  if(t==='hist') cargarHistFull();if(t==='inicio'){cargarTop();cargarPublicStats();}if(t==='likes') cargarPerfil();
+  if(t==='hist') cargarHistFull();if(t==='inicio'){cargarTop();cargarPublicStats();}if(t==='likes') { cargarPerfil(); cargarAutoIDs(); }
   if(t==='auto'){pintarAutoStats(userData);cargarAutoIDs();actualizarResumen();arrancarAutoRefresh();}
 }
 
