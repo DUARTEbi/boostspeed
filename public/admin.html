@@ -839,9 +839,13 @@ async function loadLikesHoy() {
   /* pills resumen tipo */
   pillsEl.innerHTML = '';
   if (total > 0) {
-    if (autos    > 0) pillsEl.innerHTML += `<span class="badge bauto">🤖 Auto: ${autos}</span>`;
-    if (manuales > 0) pillsEl.innerHTML += `<span class="badge bmanual">✋ Manual: ${manuales}</span>`;
-    if (ambos    > 0) pillsEl.innerHTML += `<span class="badge bambos">🔀 Ambos: ${ambos}</span>`;
+    const iconAuto = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:2px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
+    const iconMan  = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:2px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>`;
+    const iconMix  = `<svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:2px"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/><polyline points="21 16 21 21 16 21"/><line x1="15" y1="15" x2="21" y2="21"/><line x1="4" y1="4" x2="9" y2="9"/></svg>`;
+
+    if (autos    > 0) pillsEl.innerHTML += `<span class="badge bok">${iconAuto} Auto: ${autos}</span>`;
+    if (manuales > 0) pillsEl.innerHTML += `<span class="badge bmanual">${iconMan} Manual: ${manuales}</span>`;
+    if (ambos    > 0) pillsEl.innerHTML += `<span class="badge bambos">${iconMix} Ambos: ${ambos}</span>`;
   }
 
   /* encabezado tarjeta */
@@ -876,11 +880,15 @@ function renderLikesHoyTabla(registros) {
 
   tbody.innerHTML = registros.map((reg, i) => {
     /* badge de tipo */
+    const iconAuto = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="vertical-align:-1px;margin-right:3px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>`;
+    const iconMan  = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="vertical-align:-1px;margin-right:3px"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>`;
+    const iconMix  = `<svg width="11" height="11" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="vertical-align:-1px;margin-right:3px"><polyline points="16 3 21 3 21 8"/><line x1="4" y1="20" x2="21" y2="3"/></svg>`;
+
     const tipoBadge = reg.tipo === 'auto'
-      ? '<span class="badge bauto">🤖 Auto</span>'
+      ? `<span class="badge bok">${iconAuto} Auto</span>`
       : reg.tipo === 'manual'
-        ? '<span class="badge bmanual">✋ Manual</span>'
-        : '<span class="badge bambos">🔀 Ambos</span>';
+        ? `<span class="badge bmanual">${iconMan} Manual</span>`
+        : `<span class="badge bambos">${iconMix} Ambos</span>`;
 
     /* hora del último envío (solo hora local) */
     const horaUltimo = reg.ultimo_envio
@@ -938,13 +946,13 @@ async function crearCod() {
   }
   const r = await API.postAdmin('/api/admin/codigos', body, admTok);
   if (!r.ok) return showMsg('msg-cod', r.error, 'err');
-  showMsg('msg-cod', '✓ Código creado exitosamente', 'ok');
+  showMsg('msg-cod', 'Código creado exitosamente', 'ok');
 
   const c    = r.codigo;
   const cbox = document.getElementById('ncbox');
   if (c.ilimitado) {
     cbox.className = 'cbox ilim-box';
-    document.getElementById('nc-tipo-lbl').textContent = '🚀 Código ILIMITADO generado';
+    document.getElementById('nc-tipo-lbl').textContent = 'Código ILIMITADO generado';
     document.getElementById('nc-det').textContent = 'Sin límite de likes · Sin límite de días · Envíos ilimitados';
   } else {
     cbox.className = 'cbox';
@@ -972,7 +980,7 @@ async function loadCods() {
     ? r.codigos.map(c => {
         const tipo = c.ilimitado ? 'ilimitado' : (c.tipo || 'dias');
         const tipoBadge = c.ilimitado
-          ? '<span class="badge bilim">🚀 Ilimitado</span>'
+          ? '<span class="badge bilim"><svg width="10" height="10" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" style="margin-right:3px"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg> Ilimitado</span>'
           : tipo === 'likes'
             ? '<span class="badge blikes">Likes</span>'
             : '<span class="badge bdias">Días</span>';
