@@ -255,7 +255,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
     <button class="pc-nav-btn" id="pc-likes" onclick="tab('likes')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linejoin="round" stroke-linecap="round" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 0-7.78z"/></svg>Likes</button>
     <button class="pc-nav-btn" id="pc-auto" onclick="tab('auto')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Auto</button>
     <button class="pc-nav-btn" id="pc-hist" onclick="tab('hist')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Historial</button>
-    <button class="pc-nav-btn" id="pc-acceso" onclick="tab('acceso')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Acceso</button>
+    <button class="pc-nav-btn" id="pc-acceso" onclick="tab('acceso')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Tienda</button>
     <button class="pc-nav-btn" id="pc-perfil" onclick="tab('perfil')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</button>
   </nav>
   <div class="uchip"><span id="nav-un">...</span></div>
@@ -293,7 +293,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
         <input type="text" id="cod-inp-inicio" placeholder="Código de acceso" style="flex:1;background:var(--bg2);border:1px solid var(--bdr);border-radius:9px;padding:.62rem .9rem;color:var(--txt);font-family:'Exo 2',sans-serif;font-size:16px;outline:none;text-transform:uppercase" autocomplete="off" onkeydown="if(event.key==='Enter')canjearDesdeInicio()"/>
         <button class="btn bp" onclick="canjearDesdeInicio()" style="flex-shrink:0">Activar</button>
       </div>
-      <button class="btn bo bf" onclick="tab('acceso')" style="font-size:.8rem"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Ver opciones de plan</button>
+      <button class="btn bo bf" onclick="tab('acceso')" style="font-size:.8rem"><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Ver tienda</button>
     </div>
   </div>
   <div class="card">
@@ -306,7 +306,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
       <div class="info-card"><div class="info-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div><div class="info-title">1 ID cada 24h</div><div class="info-desc">Puedes enviar likes a un mismo UID una vez cada 24 horas.</div></div>
       <div class="info-card"><div class="info-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z"/></svg></div><div class="info-title">Sin riesgos</div><div class="info-desc">Sistema 100% seguro. Sin riesgo de ban.</div></div>
       <div class="info-card"><div class="info-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div><div class="info-title">Entrega rápida</div><div class="info-desc">Los likes se reflejan en tu perfil en minutos.</div></div>
-      <div class="info-card"><div class="info-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><div class="info-title">Plan de acceso</div><div class="info-desc">Obtén un código del administrador y canjealo desde Acceso.</div></div>
+      <div class="info-card"><div class="info-ico"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div><div class="info-title">Plan de acceso</div><div class="info-desc">Obtén un código del administrador y canjealo desde la Tienda.</div></div>
     </div>
     <div class="invite-card">
       <div class="invite-title">¿Quieres un plan?</div>
@@ -359,20 +359,60 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 <div class="pane" id="pane-hist">
   <div class="card"><div class="shdr"><h3><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg>Historial de envíos</h3></div><div id="historial-list"><div class="ldg"><div class="ld"></div><div class="ld"></div><div class="ld"></div></div></div></div>
 </div>
-<!-- ACCESO -->
+<!-- TIENDA (ex-Acceso) -->
 <div class="pane" id="pane-acceso">
   <div class="card">
-    <div class="ctit"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>Canjear código de acceso</div>
+    <div class="ctit"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>Canjear código de acceso</div>
     <p style="color:var(--mut);font-size:.8rem;line-height:1.55;margin-bottom:.9rem">Ingresa el código que te compartió el administrador para activar tu plan.</p>
     <div class="msg" id="msg-can"></div>
     <div class="crow2"><div class="fg"><input type="text" id="cod-inp" placeholder="Ej: XY4Z9A8B" style="text-transform:uppercase" autocomplete="off"/></div><button class="btn bp" onclick="canjear()" style="margin-bottom:.8rem">Activar</button></div>
   </div>
+  
   <div class="card">
-    <div class="ctit"><svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Adquirir plan</div>
-    <p style="color:var(--mut);font-size:.81rem;margin-bottom:.9rem;line-height:1.55">Contáctame para adquirir un plan.</p>
-    <div style="background:var(--bg3);border:1px solid var(--bdr);border-radius:10px;padding:.85rem;margin-bottom:.85rem"><p style="font-size:.76rem;font-weight:700;color:var(--g);text-transform:uppercase;letter-spacing:.5px;margin-bottom:.5rem">📋 Qué decirle al administrador:</p><p style="font-size:.78rem;color:var(--mut);line-height:1.65">Tu <strong style="color:var(--txt)">nombre de usuario</strong> y elige:<br><br>• <strong style="color:var(--txt)">Plan por días:</strong> 7, 15, 30 días.<br>• <strong style="color:var(--txt)">Plan por likes:</strong> 500, 1000, 2000 likes.</p></div>
-    <a class="copt" href="https://t.me/DuarteStoreX" target="_blank" rel="noopener"><div class="cico tgico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#0088CC" stroke-width="2"><line x1="22" y1="2" x2="11" y2="13"/><polygon points="22 2 15 22 11 13 2 9 22 2"/></svg></div><div><div class="ctit2">Telegram</div><div class="csub">@DuarteStoreX · Respuesta rápida</div></div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--mut)" stroke-width="2" style="margin-left:auto;flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg></a>
-    <a class="copt" href="https://wa.me/573164377140" target="_blank" rel="noopener"><div class="cico waico"><svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="#25D366" stroke-width="2"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg></div><div><div class="ctit2">WhatsApp</div><div class="csub">+57 316 437 7140</div></div><svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="var(--mut)" stroke-width="2" style="margin-left:auto;flex-shrink:0"><polyline points="9 18 15 12 9 6"/></svg></a>
+    <div class="shdr" style="margin-bottom:1rem"><h3><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2.5"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>Tienda BoostSpeed</h3></div>
+    
+    <!-- PRODUCTO 1 -->
+    <div class="copt" style="padding:1rem;cursor:default">
+      <div class="cico" style="background:rgba(0,255,30,.1);border:1px solid rgba(0,255,30,.3)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><path stroke-linejoin="round" stroke-linecap="round" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 0-7.78z"/></svg></div>
+      <div style="flex:1">
+        <div class="ctit2">Plan de +200 likes</div>
+        <div class="csub">Compra ahora mismo tu plan de likes aquí</div>
+      </div>
+      <a class="btn bwa bsm" href="https://wa.me/573164377140?text=Hola,%20quiero%20comprar%20el%20Plan%20de%20+200%20likes" target="_blank" rel="noopener"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>Comprar</a>
+    </div>
+
+    <!-- PRODUCTO 2 -->
+    <div class="copt" style="padding:1rem;cursor:default;position:relative;overflow:hidden">
+      <div style="position:absolute;top:5px;right:5px;background:var(--red);color:#fff;font-size:.55rem;font-weight:900;padding:.1rem .4rem;border-radius:4px;letter-spacing:.5px;z-index:2">FLASH ⚡</div>
+      <div class="cico" style="background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.3)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
+      <div style="flex:1">
+        <div class="ctit2">+1500 likes instantáneos</div>
+        <div class="csub">Recibe +1500 likes en menos de 15 minutos</div>
+      </div>
+      <a class="btn bwa bsm" href="https://wa.me/573164377140?text=Hola,%20quiero%20comprar%20+1500%20likes%20instantáneos" target="_blank" rel="noopener"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>Comprar</a>
+    </div>
+
+    <!-- PRODUCTO 3 -->
+    <div class="copt" style="padding:1rem;cursor:default">
+      <div class="cico" style="background:rgba(0,200,255,.1);border:1px solid rgba(0,200,255,.3)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#00c8ff" stroke-width="2"><path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/></svg></div>
+      <div style="flex:1">
+        <div class="ctit2">Fragmentos Universales</div>
+        <div class="csub">Compra fragmentos para tus evolutivas aquí</div>
+      </div>
+      <a class="btn bwa bsm" href="https://wa.me/573164377140?text=Hola,%20quiero%20comprar%20Fragmentos%20Universales" target="_blank" rel="noopener"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>Comprar</a>
+    </div>
+
+    <!-- PRODUCTO 4 -->
+    <div class="copt" style="padding:1rem;cursor:default">
+      <div class="cico" style="background:rgba(255,193,7,.1);border:1px solid rgba(255,193,7,.3)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="#ffc107" stroke-width="2"><rect x="2" y="7" width="20" height="14" rx="2"/><path d="M16 21V5a2 2 0 0 0-2-2h-4a2 2 0 0 0-2 2v16"/></svg></div>
+      <div style="flex:1">
+        <div class="ctit2">Pases Booyah</div>
+        <div class="csub">Compra tu pase o compra pases Booyah aquí</div>
+      </div>
+      <a class="btn bwa bsm" href="https://wa.me/573164377140?text=Hola,%20quiero%20comprar%20el%20Pase%20Booyah" target="_blank" rel="noopener"><svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"/></svg>Comprar</a>
+    </div>
+
+    <p style="text-align:center;color:var(--mut);font-size:.72rem;margin-top:1rem;font-style:italic">Toca en comprar para contactar directamente al administrador.</p>
   </div>
 </div>
 <!-- PERFIL -->
@@ -400,7 +440,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
   <button class="bn" id="bn-likes" onclick="tab('likes')"><div class="bnI"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path stroke-linejoin="round" stroke-linecap="round" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 0-7.78z"/></svg></div>Likes</button>
   <button class="bn" id="bn-auto" onclick="tab('auto')"><div class="bnI"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>Auto</button>
   <button class="bn" id="bn-hist" onclick="tab('hist')"><div class="bnI"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="12 6 12 12 16 14"/></svg></div>Historial</button>
-  <button class="bn" id="bn-acceso" onclick="tab('acceso')"><div class="bnI"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg></div>Acceso</button>
+  <button class="bn" id="bn-acceso" onclick="tab('acceso')"><div class="bnI"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg></div>Tienda</button>
   <button class="bn" id="bn-perfil" onclick="tab('perfil')"><div class="bnI"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg></div>Perfil</button>
 </nav>
 <script src="/js/api.js"></script>
