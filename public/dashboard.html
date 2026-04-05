@@ -26,6 +26,8 @@ body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-he
 .neon-pingpong-container{width:100%;height:2px;background:rgba(255,255,255,.02);position:absolute;bottom:0;left:0;overflow:hidden;box-shadow:0 0 5px rgba(0,0,0,.5);z-index:101}
 .neon-pingpong-line{position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(to right,transparent,var(--g) 50%,transparent);box-shadow:0 0 10px rgba(0,255,30,.7),0 0 20px rgba(0,255,30,.4);animation:neon-swipe-pingpong 4s ease-in-out infinite}
 @keyframes neon-swipe-pingpong{0%{left:-100%}50%{left:100%}100%{left:-100%}}
+svg{overflow:visible}
+#r-nombre{max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .logo{display:flex;align-items:center;text-decoration:none;white-space:nowrap;flex-shrink:0;}
 .dot-pulse-wrapper{position:relative;width:12px;height:12px;display:flex;align-items:center;justify-content:center}
 .dot-center{width:6px;height:6px;background-color:var(--g);border-radius:50%;position:relative;z-index:2;box-shadow:0 0 8px rgba(0,255,30,.8)}
@@ -256,7 +258,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
     <button class="pc-nav-btn" id="pc-acceso" onclick="tab('acceso')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"/></svg>Acceso</button>
     <button class="pc-nav-btn" id="pc-perfil" onclick="tab('perfil')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20 21v-2a4 4 0 0 0-4-4H8a4 4 0 0 0-4 4v2"/><circle cx="12" cy="7" r="4"/></svg>Perfil</button>
   </nav>
-  <div class="uchip"><div class="uav" id="nav-av">?</div><span id="nav-un">...</span></div>
+  <div class="uchip"><span id="nav-un">...</span></div>
 </div>
 
 <main>
@@ -469,17 +471,33 @@ async function cargarPublicStats(){try{const res=await API.get('/api/public-stat
 
 function pintarUI(u,hist){
   const ini=u.username.slice(0,2).toUpperCase();
-  document.getElementById('nav-av').textContent=ini;document.getElementById('nav-un').textContent=u.username;
+  document.getElementById('nav-un').textContent=u.username;
   animCount('st-misLikes',u.total_likes_enviados||0);
   const badge=document.getElementById('lp-badge'),pn=document.getElementById('lp-nombre'),ps=document.getElementById('lp-sub');
+  
+  // Actualizar stats en pestaña LIKES y AUTO (nuevo)
+  const env=u.envios_hoy||0,lim=u.ilimitado?999:(u.envios_por_dia||0),pct=lim>0?Math.min((env/lim)*100,100):0;
+  const statsUpdate = (pfx) => {
+    const val = document.getElementById(pfx + 'limit-val'), fill = document.getElementById(pfx + 'limit-fill');
+    if(val) val.textContent = u.ilimitado ? `${env}/∞` : `${env}/${lim}`;
+    if(fill) fill.style.width = u.ilimitado ? '15%' : pct+'%';
+    const esL = document.getElementById(pfx + 'es-likes'), esEnv = document.getElementById(pfx + 'es-enviados');
+    if(esEnv) esEnv.textContent = (u.total_likes_enviados||0).toLocaleString('es');
+    if(esL) {
+       if(u.plan_activo && !u.ilimitado && u.plan_tipo==='dias'){
+         const d=u.plan_vence?Math.max(0,Math.ceil((new Date(u.plan_vence)-Date.now())/86400000)):0;
+         esL.textContent=d+'d';
+       } else {
+         esL.textContent=u.ilimitado?'∞':(u.likes_disponibles||0).toLocaleString('es');
+       }
+    }
+  };
+  statsUpdate(''); statsUpdate('auto-');
+
   if(u.plan_activo){badge.className='pbadge pon';if(u.ilimitado){badge.textContent='🚀 Ilimitado';pn.textContent='Plan Ilimitado';ps.textContent='Sin límites · Envíos ilimitados';}else if(u.plan_tipo==='likes'){badge.textContent='Activo';pn.textContent=u.plan_nombre;const lenv=u.likes_enviados_plan||0,ltot=u.likes_limite_plan||0;ps.textContent=ltot>0?`${lenv.toLocaleString('es')} / ${ltot.toLocaleString('es')} likes · ${u.envios_por_dia} envíos/día`:`${(u.likes_disponibles||0).toLocaleString('es')} likes · ${u.envios_por_dia} envíos/día`;}else{badge.textContent='Activo';pn.textContent=u.plan_nombre;const d=u.plan_vence?Math.max(0,Math.ceil((new Date(u.plan_vence)-Date.now())/86400000)):0;ps.textContent=`${d} día${d!==1?'s':''} restante${d!==1?'s':''} · ${u.envios_por_dia} envíos/día`;}}else{badge.textContent='Sin plan';badge.className='pbadge poff';pn.textContent='Sin plan activo';ps.textContent='Canjea un código en Acceso';}
   document.getElementById('inicio-cargando').style.display='none';
   if(u.plan_activo){document.getElementById('inicio-con-plan').style.display='block';document.getElementById('inicio-sin-plan').style.display='none';document.getElementById('inicio-plan-nombre').textContent=u.ilimitado?'Plan Ilimitado ∞':(u.plan_nombre||'Plan activo');const sub=document.getElementById('inicio-plan-sub');if(u.ilimitado) sub.textContent='Sin límites · Envíos ilimitados';else if(u.plan_tipo==='dias'){const d=u.plan_vence?Math.max(0,Math.ceil((new Date(u.plan_vence)-Date.now())/86400000)):0;sub.textContent=`${d} día${d!==1?'s':''} restante${d!==1?'s':''} · ${u.envios_por_dia} envíos/día`;}else sub.textContent=`${(u.likes_disponibles||0).toLocaleString('es')} likes restantes`;}else{document.getElementById('inicio-con-plan').style.display='none';document.getElementById('inicio-sin-plan').style.display='block';}
-  const env=u.envios_hoy||0,lim=u.ilimitado?999:(u.envios_por_dia||0),pct=lim>0?Math.min((env/lim)*100,100):0;
-  document.getElementById('limit-val').textContent=u.ilimitado?`${env}/∞`:`${env}/${lim}`;
-  document.getElementById('limit-fill').style.width=u.ilimitado?'15%':pct+'%';
-  if(u.plan_activo&&!u.ilimitado&&u.plan_tipo==='dias'){const d=u.plan_vence?Math.max(0,Math.ceil((new Date(u.plan_vence)-Date.now())/86400000)):0;document.getElementById('es-likes').textContent=d+'d';document.getElementById('es-likes-lbl').textContent='Días restantes';}else if(u.plan_activo&&!u.ilimitado&&u.plan_tipo==='likes'){const lenv=u.likes_enviados_plan||0,ltot=u.likes_limite_plan||0;document.getElementById('es-likes').textContent=ltot>0?`${lenv.toLocaleString('es')}/${ltot.toLocaleString('es')}`:(u.likes_disponibles||0).toLocaleString('es');document.getElementById('es-likes-lbl').textContent=ltot>0?'Likes usados':'Likes restantes';}else{document.getElementById('es-likes').textContent=u.ilimitado?'∞':(u.likes_disponibles||0).toLocaleString('es');document.getElementById('es-likes-lbl').textContent='Likes disponibles';}
-  document.getElementById('es-enviados').textContent=(u.total_likes_enviados||0).toLocaleString('es');
+  
   const autoWrap=document.getElementById('auto-btn-likes-wrap');if(autoWrap) autoWrap.style.display=u.plan_activo?'block':'none';
   document.getElementById('p-av').textContent=ini;document.getElementById('p-name').textContent=u.username;document.getElementById('p-contact').textContent=u.contact;document.getElementById('p-uid').textContent=u.uid;
   document.getElementById('p-plan').textContent=u.plan_activo?(u.ilimitado?'🚀 Ilimitado':u.plan_nombre):'Sin plan';
@@ -532,7 +550,7 @@ async function cargarAutoIDs(manual=false){
     let likesManualDisp = document.getElementById('likes-manual-disponibles');
     if(likesManualDisp){
         let manualDisp = Math.max(0, maxSlots - used);
-        likesManualDisp.textContent = `Disponibles manualmente: ${maxSlots>=999?'∞':manualDisp}`;
+        likesManualDisp.textContent = `Disponibles: ${maxSlots>=999?'∞':manualDisp}`;
     }
     const addBtn=document.getElementById('auto-add-btn');const toggleBtn=document.getElementById('btn-toggle-add-form');const slotMsg=document.getElementById('auto-slots-msg');
     if(used>=maxSlots){
@@ -709,7 +727,7 @@ async function cargarTop(){
       const crownHtml=i===0?'<svg style="position:absolute;top:-13px;left:50%;transform:translateX(-50%)" width="15" height="15" viewBox="0 0 24 24" fill="#FFD700" stroke="#b8940a" stroke-width="1.5"><path d="M3 20h18M5 20V10l2-2 5 5 5-5 2 2v10"/></svg>':'';
       const numBadge=i>0?'<span style="position:absolute;top:-6px;right:-5px;font-size:.55rem;font-weight:700;font-family:Rajdhani;width:13px;height:13px;border-radius:50%;background:var(--bg3);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;color:'+['','#C0C0C0','#CD7F32','var(--mut)','var(--mut)'][i]+'">'+(i+1)+'</span>':'';
       const avStyle=i===0?'border-color:#FFD700;box-shadow:0 0 8px rgba(255,215,0,.3)':'';
-      return `<div class="top-item" style="animation-delay:${i*55}ms;opacity:1;transform:none"><div style="position:relative;flex-shrink:0">${crownHtml}<div class="top-av" style="${avStyle}">${u.username.slice(0,2).toUpperCase()}</div>${numBadge}</div><div class="top-name">${u.username}</div><div style="text-align:right"><div class="top-lks">${parseInt(u.total_likes||0).toLocaleString('es')}</div><div class="top-ll">likes enviados</div></div></div>`;
+      return `<div class="top-item" style="animation-delay:${i*55}ms;opacity:1;transform:none"><div style="position:relative;flex-shrink:0">${crownHtml}</div><div class="top-name" style="margin-left: 10px;">${(i+1)}. ${u.username}</div><div style="text-align:right"><div class="top-lks">${parseInt(u.total_likes||0).toLocaleString('es')}</div><div class="top-ll">likes enviados</div></div></div>`;
     }).join('');list.setAttribute('data-loaded','true');
   }catch(e){if(!list.hasAttribute('data-loaded'))list.innerHTML='<div class="empty"><p>Error cargando top</p></div>';}
 }
