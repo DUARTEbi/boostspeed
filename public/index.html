@@ -390,49 +390,15 @@ input[type=number] { -moz-appearance: textfield; }
       <div class="spin" id="spin-login"></div>
       <span id="txt-login">Ingresar</span>
     </button>
-      <div style="text-align:center;margin-top:22px;">
-        <a href="#" onclick="cerrarModal('login');abrirModal('recuperar');return false"
-           style="color:rgba(255,255,255,0.35);font-size:13px;">¿Olvidaste tu contraseña?</a>
-      </div>
-      <div class="divider">NUEVA CUENTA O RECUERDA SESSION</div>
-      <button class="btn-google" onclick="loginConGoogle()">
-        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="google-icon">
-        Continuar con Google
-      </button>
+    <div style="text-align:center;margin-top:22px;">
+      <a href="#" onclick="cerrarModal('login');abrirModal('recuperar');return false"
+         style="color:rgba(255,255,255,0.35);font-size:13px;">¿Olvidaste tu contraseña?</a>
     </div>
-  </div>
-</div>
-
-<!-- MODAL REGISTRO (DESACTIVADO DE LA INTERFAZ) -->
-<div class="ov" id="ov-registro" style="display:none"></div>
-
-<!-- MODAL REGISTRO -->
-<div class="ov" id="ov-registro">
-  <div class="glass-card">
-    <button class="btn-close" onclick="cerrarModal('registro')">✕</button>
-    <div style="font-size:1.3rem;font-weight:700;margin-bottom:22px;text-align:center;">Crear Cuenta</div>
-    <div id="msg-registro" class="msg"></div>
-    <input type="text" id="r-user" class="input-field" placeholder="Nuevo usuario" autocomplete="username">
-    <div style="display:flex;gap:8px;margin-bottom:12px;">
-      <input type="text"   id="r-prefix"  class="input-field" value="+57" placeholder="+XX"
-             style="width:85px;text-align:center;padding:16px 10px;margin-bottom:0;">
-      <input type="number" id="r-contact" class="input-field" placeholder="WhatsApp / Teléfono"
-             style="margin-bottom:0;">
-    </div>
-    <input type="password" id="r-pass" class="input-field" placeholder="Contraseña (mín. 6 caracteres)"
-           autocomplete="new-password" onkeydown="if(event.key==='Enter')registro()">
-    <button id="btn-registro" class="submit-btn" onclick="registro()">
-      <div class="spin" id="spin-registro"></div>
-      <span id="txt-registro">Registrarse</span>
+    <div class="divider">NUEVA CUENTA O RECUERDA SESSION</div>
+    <button class="btn-google" onclick="loginConGoogle()">
+      <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="google-icon">
+      Continuar con Google
     </button>
-    <div style="text-align:center;margin-top:20px;">
-      <a href="#" onclick="cerrarModal('registro');abrirModal('login');return false"
-         style="color:rgba(255,255,255,0.35);font-size:13px;">Ya tengo cuenta</a>
-    </div>
-  </div>
-</div>
-
-    </div>
   </div>
 </div>
 
@@ -455,7 +421,6 @@ input[type=number] { -moz-appearance: textfield; }
     </button>
     <p style="margin-top:20px;font-size:12px;text-align:center;color:rgba(255,255,255,0.25);">Podrás cambiar estos datos luego en tu Perfil.</p>
   </div>
-</div>
 
 <!-- MODAL RECUPERAR — 3 pasos -->
 <div class="ov" id="ov-recuperar">
@@ -770,9 +735,7 @@ document.addEventListener('DOMContentLoaded', async () => {
       } else if (res.ok) {
         localStorage.setItem('bs_token', res.token);
         localStorage.setItem('bs_user', JSON.stringify(res.user));
-        // Si estaba en recuperar, mandamos al perfil directamente
-        const isRec = document.getElementById('ov-recuperar').classList.contains('open') || document.getElementById('ov-recuperar').style.display === 'flex';
-        location.href = '/dashboard.html' + (isRec ? '#perfil' : '');
+        location.href = '/dashboard.html';
       } else {
         const msgId = (document.getElementById('ov-recuperar').style.display === 'flex') ? 'msg-recuperar' : 'msg-login';
         mostrarMsg(msgId, res.error, 'err');

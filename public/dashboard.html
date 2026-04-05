@@ -909,14 +909,6 @@ function mostrarMsg(id,txt,tipo){const el=document.getElementById(id);if(!el)ret
 
 window.addEventListener('DOMContentLoaded',()=>{
   if(typeof API!=='undefined'&&!API.delete){API.delete=(url)=>fetch(url,{method:'DELETE',headers:{Authorization:`Bearer ${localStorage.getItem('bs_token')}`}}).then(r=>r.json()).catch(()=>({ok:false,error:'Error de conexión'}));}
-  
-  // Detección de recuperación o hash para cambiar de pestaña
-  if(location.hash === '#perfil') {
-    setTimeout(() => {
-      tab('perfil');
-      if(typeof mostrarMsg === 'function') mostrarMsg('msg-perfil-up', '⚡ Ya puedes actualizar tu contraseña aquí.', 'ok');
-    }, 600);
-  }
 });
 
 
