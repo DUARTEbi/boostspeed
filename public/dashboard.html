@@ -26,13 +26,16 @@ body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-he
 .neon-pingpong-container{width:100%;height:2px;background:rgba(255,255,255,.02);position:absolute;bottom:0;left:0;overflow:hidden;box-shadow:0 0 5px rgba(0,0,0,.5);z-index:101}
 .neon-pingpong-line{position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(to right,transparent,var(--g) 50%,transparent);box-shadow:0 0 10px rgba(0,255,30,.7),0 0 20px rgba(0,255,30,.4);animation:neon-swipe-pingpong 4s ease-in-out infinite}
 @keyframes neon-swipe-pingpong{0%{left:-100%}50%{left:100%}100%{left:-100%}}
-.logo{font-family:'Yellowtail',cursive;font-size:1.6rem;font-weight:400;color:var(--g);letter-spacing:1px;display:flex;align-items:center;gap:.4rem;text-decoration:none;white-space:nowrap;flex-shrink:0;animation:logoGlow 3s ease-in-out infinite;}
-@keyframes logoGlow{0%,100%{text-shadow:0 0 8px rgba(0,255,30,.3)}50%{text-shadow:0 0 18px rgba(0,255,30,.8),0 0 40px rgba(0,255,30,.3)}}
-.logo span{color:var(--txt);font-weight:400;font-family:'Yellowtail',cursive}
-.logo-bolt{display:inline-block;font-style:normal;margin-left:.1rem;font-size:1.15rem;transform-origin:center center;animation:thunderStrike 2.6s ease-in-out infinite;filter:drop-shadow(0 0 3px rgba(0,255,30,.4));}
-@keyframes thunderStrike{0%{opacity:.25;transform:scale(.88) rotate(-4deg)}38%{opacity:1;transform:scale(1.35) rotate(4deg) skewX(-8deg);filter:drop-shadow(0 0 8px #ffe600) drop-shadow(0 0 18px rgba(255,230,0,.9));color:#ffe600}54%{opacity:.15;transform:scale(.85) rotate(-2deg);filter:none;color:var(--g)}100%{opacity:.25;transform:scale(.88) rotate(-4deg)}}
-.pulse{width:7px;height:7px;border-radius:50%;background:var(--g);box-shadow:0 0 8px rgba(0,255,30,.6);position:relative;flex-shrink:0;animation:bl 1.6s infinite;}
-.pulse::after{content:'';position:absolute;inset:-4px;border-radius:50%;border:1px solid rgba(0,255,30,.3);animation:rp 1.6s ease-out infinite;}
+.logo{display:flex;align-items:center;text-decoration:none;white-space:nowrap;flex-shrink:0;}
+.dot-pulse-wrapper{position:relative;width:12px;height:12px;display:flex;align-items:center;justify-content:center}
+.dot-center{width:6px;height:6px;background-color:var(--g);border-radius:50%;position:relative;z-index:2;box-shadow:0 0 8px rgba(0,255,30,.8)}
+.dot-ring{position:absolute;width:100%;height:100%;border:1.5px solid rgba(0,255,30,.4);border-radius:50%;animation:dotPulse 1.5s cubic-bezier(.16,1,.3,1) infinite;z-index:1}
+@keyframes dotPulse{0%{transform:scale(.8);opacity:1}100%{transform:scale(2.5);opacity:0}}
+.logo-container{display:flex;align-items:center}
+.logo-boost{font-family:'Yellowtail',cursive;font-weight:400;font-size:1.6rem;color:#f0f0f0}
+.logo-speed{font-family:'Yellowtail',cursive;font-weight:400;font-size:1.6rem;color:var(--g);text-shadow:0 0 15px rgba(0,255,30,.4)}
+.rayo-impacto{color:var(--g);filter:drop-shadow(0 0 10px rgba(0,255,30,.5));animation:rayoFlota 3s ease-in-out infinite}
+@keyframes rayoFlota{0%,100%{transform:translateY(0) scale(1)}50%{transform:translateY(-2px) scale(1.05)}}
 @keyframes bl{0%,100%{opacity:1;transform:scale(1)}50%{opacity:.2;transform:scale(.6)}}
 @keyframes rp{0%{transform:scale(.4);opacity:.8}100%{transform:scale(2.6);opacity:0}}
 .uchip{display:flex;align-items:center;gap:.45rem;background:var(--sur);border:1px solid var(--bdr);border-radius:100px;padding:.22rem .65rem .22rem .28rem;font-size:.8rem;font-weight:600;flex-shrink:0;}
@@ -219,7 +222,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .log-icon{width:28px;height:28px;border-radius:7px;background:var(--gdim);border:1px solid rgba(0,255,30,.18);display:flex;align-items:center;justify-content:center;flex-shrink:0;}
 .log-info{flex:1;min-width:0}.log-name{font-size:.8rem;font-weight:700;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.log-uid{color:var(--mut);font-size:.65rem;font-family:monospace}
 .log-right{text-align:right;flex-shrink:0}.log-likes{font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;color:var(--g)}.log-time{color:var(--mut);font-size:.62rem;margin-top:.06rem}
-.bnav{position:fixed;bottom:0;left:0;right:0;z-index:100;background:rgba(4,4,4,.97);backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px);border-top:1px solid rgba(0,255,30,.1);display:flex;justify-content:space-between;padding:.1rem .2rem calc(.1rem + env(safe-area-inset-bottom));animation:sU .5s cubic-bezier(.23,1,.32,1);}
+.bnav{position:fixed;bottom:15px;left:15px;right:15px;margin:0 auto;max-width:500px;z-index:100;background:rgba(255,255,255,.03);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);border:1px solid rgba(255,255,255,.05);border-radius:20px;display:flex;justify-content:space-between;padding:.3rem .5rem;animation:sU .5s cubic-bezier(.23,1,.32,1);}
 @keyframes sU{from{transform:translateY(100%)}to{transform:translateY(0)}}
 .bn{display:flex;flex-direction:column;align-items:center;gap:.04rem;padding:.22rem .1rem;border-radius:10px;background:transparent;border:none;color:var(--mut);font-family:'Exo 2',sans-serif;font-size:.48rem;font-weight:700;text-transform:uppercase;letter-spacing:.2px;flex:1;position:relative;touch-action:manipulation;transition:color .2s;min-width:0;}
 .bn::before{content:'';position:absolute;bottom:0;left:50%;transform:translateX(-50%) scaleX(0);width:22px;height:2px;background:linear-gradient(90deg,transparent,var(--g),transparent);border-radius:2px;transition:transform .28s cubic-bezier(.23,1,.32,1);}
@@ -238,7 +241,13 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 <div class="bggl"></div>
 <div class="tb">
   <div class="neon-pingpong-container"><div class="neon-pingpong-line"></div></div>
-  <a class="logo" href="/"><div class="pulse"></div>Boost<span>Speed</span><i class="logo-bolt">⚡</i></a>
+  <a class="logo" href="/">
+    <div class="dot-pulse-wrapper" style="margin-right: 6px;"><div class="dot-center"></div><div class="dot-ring"></div></div>
+    <div class="logo-container">
+      <span class="logo-boost">Boost</span><span class="logo-speed">Speed</span>
+      <svg class="rayo-impacto" style="width:24px;height:24px;margin-left:6px;" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    </div>
+  </a>
   <nav class="pc-nav" id="pc-nav">
     <button class="pc-nav-btn active" id="pc-inicio" onclick="tab('inicio')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"/><polyline points="9 22 9 12 15 12 15 22"/></svg>Inicio</button>
     <button class="pc-nav-btn" id="pc-likes" onclick="tab('likes')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 0-7.78z"/></svg>Likes</button>
@@ -466,40 +475,9 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 <script>
 
 /* ─── NEON LINES ─── */
-let _neonCanvases=[], _neonStart=null, _neonRAF=null;
 function initNeonLines(){
-  _neonCanvases.forEach(c=>c.remove());_neonCanvases=[];
-  const selectores=_ct==='auto'?'.add-id-section,.auto-log':_ct==='hist'?'.card':'.card,.plan-banner,.limitbar-wrap,.invite-card';
-  document.querySelectorAll(selectores).forEach(el=>{
-    const rect=el.getBoundingClientRect();
-    if(rect.bottom<-100||rect.top>window.innerHeight+100) return;
-    const canvas=document.createElement('canvas');
-    canvas.className='nl-canvas';el.style.position='relative';el.appendChild(canvas);_neonCanvases.push(canvas);
-  });
-  if(!_neonRAF) _neonRAF=requestAnimationFrame(neonFrame);
+  /* Disabled per user request */
 }
-function neonFrame(ts){
-  _neonRAF=requestAnimationFrame(neonFrame);if(document.hidden) return;
-  if(!_neonStart) _neonStart=ts;
-  const elapsed=(ts-_neonStart)/1000,speed=5,segs=_ct==='auto'?15:25;
-  for(let ci=0;ci<_neonCanvases.length;ci++){
-    const canvas=_neonCanvases[ci],par=canvas.parentElement;if(!par) continue;
-    const w=par.offsetWidth,h=par.offsetHeight;if(!w||!h) continue;
-    if(canvas.width!==w||canvas.height!==h){canvas.width=w;canvas.height=h;}
-    const ctx=canvas.getContext('2d',{alpha:true,desynchronized:true});ctx.clearRect(0,0,w,h);
-    const P=2*(w+h),lineLen=P*.22,progress=(elapsed/speed)%1,head=progress*P,tail=head-lineLen;
-    ctx.lineCap='round';ctx.lineWidth=1.5;
-    for(let s=0;s<segs;s++){
-      const t0=tail+(s/segs)*lineLen,t1=tail+((s+1)/segs)*lineLen;
-      const p0=((t0%P)+P)%P,p1=((t1%P)+P)%P;
-      if(getEdge(w,h,p0)!==getEdge(w,h,p1)) continue;
-      const [x0,y0]=getPoint(w,h,p0),[x1,y1]=getPoint(w,h,p1);
-      ctx.strokeStyle=`rgba(0,255,30,${(s/segs)*.8})`;ctx.beginPath();ctx.moveTo(x0,y0);ctx.lineTo(x1,y1);ctx.stroke();
-    }
-  }
-}
-function getEdge(w,h,p){if(p<w)return 0;p-=w;if(p<h)return 1;p-=h;if(p<w)return 2;return 3;}
-function getPoint(w,h,p){if(p<w)return[p,0];p-=w;if(p<h)return[w,p];p-=h;if(p<w)return[w-p,h];p-=w;return[0,h-p];}
 
 /* ─── METEOROS ─── */
 (function(){
