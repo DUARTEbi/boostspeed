@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="es">
 <head>
 <meta charset="UTF-8"/>
@@ -9,45 +9,27 @@
 <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent"/>
 <title>Admin – BoostSpeed</title>
 <link rel="preconnect" href="https://fonts.googleapis.com"/>
-<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Exo+2:wght@300;400;500;600;700;800&display=swap" rel="stylesheet"/>
+<link href="https://fonts.googleapis.com/css2?family=Rajdhani:wght@500;600;700&family=Exo+2:wght@300;400;500;600;700;800&family=Yellowtail&display=swap" rel="stylesheet"/>
 <style>
 :root{
-  --g:#00FF1E;--gm:#00e61a;--gdim:rgba(0,255,30,.10);--glow:0 0 20px rgba(0,255,30,.4);
-  --bg:#070707;--bg2:#0d0d0d;--bg3:#131313;--sur:#171717;
-  --bdr:rgba(0,255,30,.13);--txt:#eef2ee;--mut:#6b806b;
-  --red:#ff4757;--warn:#ffc107;--blue:#4dabff;
+  --g:#00FF1E;--gm:#00e61a;--gdim:rgba(0,255,30,.08);
+  --bg:#070707;--bg2:#0d0d0d;--bg3:#131313;--sur:rgba(23,23,23,0.7);
+  --bdr:rgba(0,255,30,.15);--txt:#eef2ee;--mut:#6b806b;
+  --red:#ff4757;--warn:#ffc107;--blue: #0088cc;
 }
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-*{-webkit-tap-highlight-color:transparent;tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
+*{-webkit-tap-highlight-color:transparent;-webkit-font-smoothing:antialiased}
 button,a,[onclick]{outline:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 button:focus,a:focus,[onclick]:focus{outline:none}
 button:focus-visible,a:focus-visible{outline:2px solid var(--g);outline-offset:2px}
 
 body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
 
-#meteors{position:fixed;inset:0;pointer-events:none;z-index:0;overflow:hidden}
-.bggl{position:fixed;top:-20%;left:50%;transform:translateX(-50%);width:700px;height:700px;border-radius:50%;background:radial-gradient(circle,rgba(0,255,30,.04) 0%,transparent 65%);pointer-events:none;z-index:0;animation:bgp 6s ease-in-out infinite}
-@keyframes bgp{0%,100%{opacity:.6}50%{opacity:1}}
+/* Animación Rayo ThunderStrike */
+.thunderStrike{color:#FFEA00;display:inline-block;vertical-align:middle;animation:strike 3.5s infinite linear;}
+@keyframes strike{0%,80%,85%,92%,100%{opacity:.2;transform:scale(.9) rotate(0deg)}82%{opacity:1;transform:scale(1.1) rotate(-5deg);filter:drop-shadow(0 0 10px #FFEA00)}88%{opacity:1;transform:scale(1.3) rotate(6deg);filter:drop-shadow(0 0 15px #FFEA00) drop-shadow(0 0 5px #fff)}}
 
-.logo-bolt{
-  display:inline-block;font-style:normal;margin-left:.08rem;
-  transform-origin:center center;
-  animation:thunderStrike 2.6s ease-in-out infinite;
-  filter:drop-shadow(0 0 3px rgba(0,255,30,.4));
-}
-@keyframes thunderStrike{
-  0%   {opacity:.25;transform:scale(.88) rotate(-4deg);filter:drop-shadow(0 0 1px rgba(0,255,30,.2))}
-  30%  {opacity:.3;transform:scale(.9) rotate(-6deg);filter:drop-shadow(0 0 2px rgba(255,230,0,.3))}
-  38%  {opacity:1;transform:scale(1.35) rotate(4deg) skewX(-8deg);
-        filter:drop-shadow(0 0 8px #ffe600) drop-shadow(0 0 18px rgba(255,230,0,.9)) drop-shadow(0 0 30px rgba(0,255,30,.7));
-        color:#ffe600}
-  42%  {opacity:.6;transform:scale(1.1) rotate(-3deg);filter:drop-shadow(0 0 4px #ffe600);color:#ffe600}
-  46%  {opacity:1;transform:scale(1.22) rotate(2deg) skewX(-4deg);
-        filter:drop-shadow(0 0 6px #ffe600) drop-shadow(0 0 14px rgba(0,255,30,.8));
-        color:#fff}
-  54%  {opacity:.15;transform:scale(.85) rotate(-2deg);filter:none;color:var(--g)}
-  100% {opacity:.25;transform:scale(.88) rotate(-4deg);filter:drop-shadow(0 0 1px rgba(0,255,30,.2));color:var(--g)}
-}
+.bggl{position:fixed;top:-20%;left:50%;transform:translateX(-50%);width:900px;height:900px;border-radius:50%;pointer-events:none;z-index:0;background:radial-gradient(circle,rgba(0,255,30,.032) 0%,transparent 65%);}
 
 #login-scr{position:fixed;inset:0;background:var(--bg);z-index:500;display:flex;align-items:center;justify-content:center;padding:1rem}
 .lbox{background:var(--sur);border:1px solid var(--bdr);border-radius:16px;padding:2.3rem;width:100%;max-width:360px;position:relative;overflow:hidden;animation:lIn .5s cubic-bezier(.23,1,.32,1)}
@@ -66,53 +48,67 @@ body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-he
 @keyframes rp{0%{transform:scale(.4);opacity:.8}100%{transform:scale(2.6);opacity:0}}
 
 .abadge{background:rgba(255,71,87,.12);border:1px solid rgba(255,71,87,.28);color:var(--red);font-size:.67rem;font-weight:700;padding:.17rem .52rem;border-radius:100px;text-transform:uppercase;letter-spacing:.7px}
-.tnav{display:flex;gap:.35rem}
-.tn{background:transparent;border:1px solid transparent;color:var(--mut);font-family:'Exo 2',sans-serif;font-size:.82rem;font-weight:700;padding:.38rem .8rem;border-radius:7px;cursor:pointer;transition:all .2s}
-.tn.active,.tn:hover{color:var(--g);border-color:var(--bdr);background:var(--gdim)}
-.bout{background:transparent;border:1px solid rgba(255,71,87,.26);color:var(--red);font-family:'Exo 2',sans-serif;font-size:.76rem;font-weight:700;padding:.32rem .72rem;border-radius:6px;cursor:pointer;transition:all .2s}
-.bout:hover{background:rgba(255,71,87,.09)}
+.card{
+  background:var(--sur); backdrop-filter:blur(20px); -webkit-backdrop-filter:blur(20px);
+  border:none; border-radius:14px; padding:1.2rem; margin-bottom:1.2rem;
+  box-shadow:0 8px 32px rgba(0,0,0,0.3); border:1px solid rgba(255,255,255,0.03);
+}
+.ctit{
+  font-family:'Rajdhani',sans-serif; font-size:1.1rem; font-weight:700;
+  margin-bottom:1.2rem; display:flex; align-items:center; gap:.6rem;
+}
 
-main{position:relative;z-index:1;flex:1;padding:1.4rem;max-width:1060px;margin:0 auto;width:100%;display:none}
-.pane{display:none}
-.pane.active{display:block;animation:pIn .38s cubic-bezier(.23,1,.32,1)}
-@keyframes pIn{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:translateY(0)}}
+/* Navegación Glass Pestañas */
+.tnav{
+  display:flex; gap:.35rem; background:rgba(255,255,255,.03); backdrop-filter:blur(10px);
+  -webkit-backdrop-filter:blur(10px); padding:.45rem; border-radius:14px; 
+  margin-bottom:1.5rem; border:1px solid rgba(255,255,255,.05);
+}
+.tn-btn{
+  flex:1; display:flex; align-items:center; justify-content:center; gap:.45rem;
+  padding:.65rem .9rem; border-radius:10px; border:none; background:transparent;
+  color:var(--mut); font-family:'Exo 2',sans-serif; font-weight:700; font-size:.8rem;
+  text-transform:uppercase; transition:all .25s; white-space:nowrap;
+}
+.tn-btn.active{background:var(--gdim); color:var(--g); box-shadow:0 0 15px rgba(0,255,30,.1); border:1px solid rgba(0,255,30,0.2);}
+.tn-btn svg{width:18px;height:18px;stroke:currentColor;fill:none;stroke-width:2.2;}
 
-.card{background:var(--sur);border:1px solid var(--bdr);border-radius:13px;padding:1.3rem;margin-bottom:1.1rem;position:relative;overflow:hidden;transition:border-color .3s,box-shadow .3s}
-.card:hover{border-color:rgba(0,255,30,.2);box-shadow:0 6px 26px rgba(0,0,0,.45)}
-.ct{font-family:'Rajdhani',sans-serif;font-size:1.08rem;font-weight:700;margin-bottom:.95rem;display:flex;align-items:center;gap:.45rem}
+/* Stats Grid Premium */
+.stats-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem;margin-bottom:1.5rem;}
+@media(min-width:650px){.stats-grid{grid-template-columns:repeat(4,1fr);gap:1rem;}}
+.stat-box{
+  background:var(--sur); backdrop-filter:blur(10px); padding:1rem;
+  border-radius:12px; text-align:center; transition:transform .3s;
+  border:1px solid rgba(255,255,255,0.02);
+}
+.stat-box:hover{transform:translateY(-3px); border-color:rgba(0,255,30,0.15);}
+.stat-val{font-family:'Rajdhani',sans-serif;font-size:1.5rem;font-weight:700;color:var(--g);line-height:1.1;}
+.stat-lbl{color:var(--mut);font-size:.62rem;text-transform:uppercase;letter-spacing:1px;margin-top:.2rem;}
 
-.sg{display:grid;grid-template-columns:repeat(auto-fit,minmax(115px,1fr));gap:.85rem;margin-bottom:1.1rem}
-.sb{background:var(--sur);border:1px solid var(--bdr);border-radius:11px;padding:.95rem;text-align:center;position:relative;overflow:hidden;opacity:0;transform:translateY(10px);transition:transform .3s,border-color .3s}
-.sb.vis{animation:cIn .4s cubic-bezier(.23,1,.32,1) forwards}
-@keyframes cIn{to{opacity:1;transform:translateY(0)}}
-.sb:hover{transform:translateY(-3px);border-color:rgba(0,255,30,.28)}
-.sb::after{content:'';position:absolute;bottom:0;left:0;right:0;height:2px;background:linear-gradient(90deg,transparent,var(--g),transparent)}
-.sb.warn-sb::after{background:linear-gradient(90deg,transparent,var(--warn),transparent)}
-.sb.warn-sb .sv{color:var(--warn)}
-.sb.blue-sb::after{background:linear-gradient(90deg,transparent,var(--blue),transparent)}
-.sb.blue-sb .sv{color:var(--blue)}
-.sb.blue-sb:hover{border-color:rgba(77,171,255,.3)}
-.sv{font-family:'Rajdhani',sans-serif;font-size:1.7rem;font-weight:700;color:var(--g)}
-.sl{color:var(--mut);font-size:.7rem;text-transform:uppercase;letter-spacing:.5px;margin-top:.1rem}
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.5rem;padding:.7rem 1.3rem;border-radius:10px;font-family:'Exo 2',sans-serif;font-weight:700;font-size:.88rem;cursor:pointer;border:none;transition:all .25s;}
+.bp{background:var(--g);color:#000;box-shadow:0 4px 15px rgba(0,255,30,0.2);}
+.bp:hover{transform:translateY(-2px);box-shadow:0 6px 20px rgba(0,255,30,0.35);}
+.bo{background:transparent;border:1px solid var(--bdr);color:var(--txt);}
+.bo:hover{border-color:var(--g);color:var(--g);}
+.bsm{padding:.35rem .75rem;font-size:.78rem;border-radius:8px;}
 
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:.4rem;padding:.52rem 1.05rem;border-radius:8px;font-family:'Exo 2',sans-serif;font-weight:700;font-size:.84rem;cursor:pointer;border:none;transition:all .2s;touch-action:manipulation}
-.bp{background:var(--g);color:#000}.bp:hover{background:var(--gm);box-shadow:var(--glow);transform:translateY(-1px)}
-.bp:active{transform:scale(.96)}
-.br{background:var(--red);color:#fff}.br:hover{opacity:.85;transform:translateY(-1px)}
-.bo{background:transparent;border:1px solid var(--bdr);color:var(--txt)}.bo:hover{border-color:var(--g);color:var(--g)}
-.bpur{background:rgba(167,139,250,.12);border:1px solid rgba(167,139,250,.28);color:#a78bfa}.bpur:hover{background:rgba(167,139,250,.22)}
-.bsm{padding:.3rem .65rem;font-size:.75rem;border-radius:6px}
-.bf{width:100%}
-
-.tipo-grid{display:grid;grid-template-columns:1fr 1fr 1fr;gap:.6rem;margin-bottom:.85rem}
-.topt{border:2px solid var(--bdr);border-radius:10px;padding:.7rem .5rem;cursor:pointer;transition:all .2s;text-align:center;background:var(--bg2);touch-action:manipulation}
-.topt.sel{border-color:var(--g);background:var(--gdim)}
-.topt h4{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:.12rem}
-.topt p{color:var(--mut);font-size:.68rem;line-height:1.3}
-.topt.sel h4{color:var(--g)}
+/* Tipos de plan grid (Codes) */
+.tipo-grid{display:grid;grid-template-columns:repeat(2,1fr);gap:.8rem;margin-bottom:1.5rem;}
+@media(min-width:500px){.tipo-grid{grid-template-columns:repeat(4,1fr);}}
+.topt{
+  background:rgba(255,255,255,.03); border:1px solid rgba(255,255,255,.06);
+  border-radius:14px; padding:1.1rem; text-align:center; transition:all .25s;
+}
+.topt.sel{border-color:var(--g); background:var(--gdim); box-shadow:0 0 20px rgba(0,255,30,0.1);}
+.topt:hover:not(.sel){border-color:rgba(255,255,255,.2);}
+.topt h4{font-family:'Rajdhani',sans-serif;font-size:.9rem;font-weight:700;margin-bottom:.4rem;}
+.topt p{color:var(--mut);font-size:.72rem;line-height:1.4;}
+.topt.sel h4{color:var(--g);}
 .topt.ilim-opt{border-color:rgba(167,139,250,.25);background:rgba(167,139,250,.04)}
 .topt.ilim-opt.sel{border-color:#a78bfa;background:rgba(167,139,250,.12)}
 .topt.ilim-opt.sel h4{color:#a78bfa}
+.t-icon-svg{width:28px;height:28px;margin:0 auto .6rem;display:block;opacity:.8;}
+.sel .t-icon-svg{opacity:1;filter:drop-shadow(0 0 5px var(--g));}
 
 .fr{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:.65rem;margin-bottom:.65rem}
 .fg{margin-bottom:.72rem}
@@ -145,96 +141,34 @@ thead tr{background:var(--bg3)}
 th{padding:.58rem .85rem;text-align:left;color:var(--mut);font-size:.68rem;text-transform:uppercase;letter-spacing:.5px;font-weight:700;white-space:nowrap}
 td{padding:.65rem .85rem;border-top:1px solid var(--bdr);vertical-align:middle}
 tr:hover td{background:rgba(0,255,30,.02)}
-.badge{display:inline-flex;align-items:center;padding:.15rem .5rem;border-radius:100px;font-size:.67rem;font-weight:700;text-transform:uppercase;white-space:nowrap}
-.bok{background:rgba(0,255,30,.09);color:var(--g);border:1px solid rgba(0,255,30,.18)}
-.boff{background:rgba(255,71,87,.08);color:var(--red);border:1px solid rgba(255,71,87,.18)}
-.bnone{background:rgba(255,255,255,.04);color:var(--mut);border:1px solid rgba(255,255,255,.07)}
-.bdias{background:rgba(77,171,255,.1);color:var(--blue);border:1px solid rgba(77,171,255,.2)}
-.blikes{background:rgba(255,71,87,.1);color:#ff8a93;border:1px solid rgba(255,71,87,.2)}
-.bilim{background:rgba(167,139,250,.1);color:#a78bfa;border:1px solid rgba(167,139,250,.2)}
+.badge{display:inline-flex;align-items:center;padding:.2rem .6rem;border-radius:100px;font-size:.68rem;font-weight:700;text-transform:uppercase;white-space:nowrap;border:1px solid transparent;}
+.bok{background:rgba(0,255,30,.1);color:var(--g);border-color:rgba(0,255,30,.25);}
+.boff{background:rgba(255,71,87,.1);color:var(--red);border-color:rgba(255,71,87,.25);}
+.bilim{background:rgba(167,139,250,.1);color:#a78bfa;border-color:rgba(167,139,250,.25);}
+.brev{background:var(--gdim); color:var(--g); border-color:var(--g);}
 
-.bmanual{background:rgba(77,171,255,.1);color:var(--blue);border:1px solid rgba(77,171,255,.2)}
-.bauto{background:rgba(0,255,30,.09);color:var(--g);border:1px solid rgba(0,255,30,.18)}
-.bambos{background:rgba(255,193,7,.1);color:var(--warn);border:1px solid rgba(255,193,7,.2)}
+/* Tab Switcher Style Dashboard */
+.pane{display:none;}
+.pane.active{display:block; animation:pIn .4s cubic-bezier(.23,1,.32,1);}
+@keyframes pIn{from{opacity:0;transform:translateY(12px)}to{opacity:1;transform:translateY(0)}}
 
-.api-stats{background:var(--bg3);border:1px solid rgba(255,193,7,.15);border-radius:11px;padding:1rem 1.2rem;margin-bottom:1.1rem;display:flex;align-items:center;gap:1rem;flex-wrap:wrap}
-.api-ico{width:38px;height:38px;border-radius:9px;background:rgba(255,193,7,.1);border:1px solid rgba(255,193,7,.2);display:flex;align-items:center;justify-content:center;flex-shrink:0;font-size:1.1rem}
-.api-info{flex:1}
-.api-title{font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;color:var(--warn);margin-bottom:.1rem}
-.api-sub{color:var(--mut);font-size:.76rem;line-height:1.5}
-.api-right{display:flex;flex-direction:column;align-items:flex-end;gap:.18rem}
-.api-val{font-family:'Rajdhani',sans-serif;font-size:1.55rem;font-weight:700;color:var(--warn);line-height:1}
-.api-bar-wrap{width:120px;height:5px;background:rgba(255,193,7,.12);border-radius:3px;overflow:hidden}
-.api-bar-fill{height:100%;border-radius:3px;background:var(--warn);transition:width .5s ease}
-.api-pct{font-size:.68rem;color:var(--mut);text-align:right}
-
-.likes-hoy-banner{
-  background:var(--bg3);
-  border:1px solid rgba(77,171,255,.18);
-  border-radius:11px;
-  padding:1rem 1.2rem;
-  margin-bottom:1.1rem;
-  display:flex;align-items:center;gap:1rem;flex-wrap:wrap;
+/* Mobile Bar Glass */
+.mobn{
+  display:none; position:fixed; bottom:15px; left:15px; right:15px;
+  background:rgba(255,255,255,.03); backdrop-filter:blur(25px); -webkit-backdrop-filter:blur(25px);
+  border:1px solid rgba(255,255,255,.05); border-radius:20px; padding:.4rem;
+  z-index:100; justify-content:space-around; align-items:center;
 }
-.lh-ico{
-  width:38px;height:38px;border-radius:9px;
-  background:rgba(77,171,255,.1);border:1px solid rgba(77,171,255,.2);
-  display:flex;align-items:center;justify-content:center;
-  flex-shrink:0;font-size:1.1rem;
+.mb{
+  display:flex; flex-direction:column; align-items:center; background:transparent;
+  border:none; color:var(--mut); font-family:'Exo 2',sans-serif; font-size:.55rem;
+  font-weight:700; text-transform:uppercase; transition:all .2s; flex:1;
 }
-.lh-info{flex:1;min-width:0}
-.lh-title{font-family:'Rajdhani',sans-serif;font-size:.95rem;font-weight:700;color:var(--blue);margin-bottom:.1rem}
-.lh-sub{color:var(--mut);font-size:.76rem;line-height:1.5}
-.lh-right{display:flex;flex-direction:column;align-items:flex-end;gap:.14rem}
-.lh-val{font-family:'Rajdhani',sans-serif;font-size:1.55rem;font-weight:700;color:var(--blue);line-height:1}
-.lh-val-sub{font-size:.68rem;color:var(--mut);text-align:right}
-.lh-pills{display:flex;gap:.35rem;flex-wrap:wrap;margin-top:.25rem}
+.mb.active, .mb:hover{color:var(--g);}
+.mico{width:30px; height:30px; border-radius:8px; display:flex; align-items:center; justify-content:center; margin-bottom:2px; transition:all .2s;}
+.mb.active .mico{background:var(--gdim); border:1px solid rgba(0,255,30,.2);}
 
-.spin-wrap{display:flex;align-items:center;justify-content:center;padding:2rem;gap:.6rem;color:var(--mut);font-size:.82rem}
-.spin{width:16px;height:16px;border:2px solid var(--bdr);border-top-color:var(--g);border-radius:50%;animation:sp .7s linear infinite}
-@keyframes sp{to{transform:rotate(360deg)}}
-
-.ov{
-  position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:400;
-  display:flex;align-items:center;justify-content:center;padding:1rem;
-  opacity:0;pointer-events:none;transition:opacity .15s;
-}
-.ov.open{opacity:1;pointer-events:all}
-.modal{
-  background:var(--bg2);border:1px solid rgba(255,71,87,.22);border-radius:16px;
-  padding:1.9rem;width:100%;max-width:385px;position:relative;
-  transform:translateY(10px);transition:transform .15s,opacity .15s;opacity:0;
-}
-.ov.open .modal{transform:translateY(0);opacity:1}
-.mc{position:absolute;top:.75rem;right:.75rem;background:none;border:none;color:var(--mut);cursor:pointer;padding:.2rem;display:flex;transition:color .2s,transform .2s;touch-action:manipulation}
-.mc:hover{color:var(--txt);transform:rotate(90deg)}
-.modal h2{font-family:'Rajdhani',sans-serif;font-size:1.35rem;font-weight:700;margin-bottom:.25rem;text-align:center;color:var(--red)}
-.modal p{color:var(--mut);font-size:.85rem;text-align:center;margin-bottom:1.2rem;line-height:1.55}
-.dbtns{display:flex;gap:.65rem;margin-top:.8rem}
-
-#ov-confirm .modal{border-color:rgba(0,255,30,.22)}
-#ov-confirm .modal h2{color:var(--g)}
-.confirm-detail{background:var(--bg3);border:1px solid var(--bdr);border-radius:9px;padding:.85rem 1rem;margin:.5rem 0 1rem;font-size:.83rem;line-height:1.7;text-align:left}
-.confirm-detail strong{color:var(--g)}
-
-.udet{background:var(--bg3);border:1px solid var(--bdr);border-radius:10px;padding:1rem}
-.ir{display:flex;justify-content:space-between;align-items:center;padding:.54rem 0;border-bottom:1px solid var(--bdr)}
-.ir:last-child{border-bottom:none}
-.ir .ik{color:var(--mut);font-size:.82rem}
-.ir .iv{font-weight:700;font-size:.86rem}
-
-.mobn{display:none;position:fixed;bottom:0;left:0;right:0;background:rgba(7,7,7,.97);backdrop-filter:blur(18px);-webkit-backdrop-filter:blur(18px);border-top:1px solid var(--bdr);padding:.38rem .38rem calc(.38rem + env(safe-area-inset-bottom));z-index:100;justify-content:space-around}
-.mb{display:flex;flex-direction:column;align-items:center;gap:.14rem;padding:.34rem .55rem;border-radius:8px;background:transparent;border:none;color:var(--mut);font-family:'Exo 2',sans-serif;font-size:.6rem;font-weight:700;cursor:pointer;transition:color .2s;text-transform:uppercase;letter-spacing:.3px;touch-action:manipulation;min-width:44px}
-.mb.active,.mb:hover{color:var(--g)}
-.mb .mico{width:28px;height:28px;border-radius:7px;display:flex;align-items:center;justify-content:center;border:1px solid transparent;transition:all .2s}
-.mb.active .mico{background:var(--gdim);border-color:rgba(0,255,30,.25)}
-.mb.active .mico svg,.mb:hover .mico svg{stroke:var(--g)}
-
-@media(max-width:620px){
-  .tnav{display:none!important}
-  .mobn{display:flex}
-  main{padding:1rem 1rem 5.5rem}
-}
+@media(max-width:620px){ .tnav{display:none!important;} .mobn{display:flex;} main{padding-bottom:5rem;} }
 </style>
 
 </head>
@@ -255,58 +189,99 @@ tr:hover td{background:rgba(0,255,30,.02)}
 </div>
 
 <!-- TOPBAR -->
-<div class="topb" id="topb">
-  <div class="logo"><div class="pulse"></div>Boost<span style="color:var(--txt);font-weight:500">Speed</span><i class="logo-bolt">⚡</i><span class="abadge" style="margin-left:.5rem">Admin</span></div>
-  <div class="tnav" id="tnav">
-    <button class="tn active" id="at-dash" onclick="aTab('dash')">Dashboard</button>
-    <button class="tn" id="at-cod"  onclick="aTab('cod')">Códigos</button>
-    <button class="tn" id="at-usr"  onclick="aTab('usr')">Usuarios</button>
-    <button class="tn" id="at-rec"  onclick="aTab('rec')">Recuperación</button>
+<div class="main-container" style="padding-top: 2rem;">
+  <div style="display:flex; align-items:center; justify-content:space-between; margin-bottom: 2rem;">
+    <div class="logo" style="font-family:'Rajdhani',sans-serif; font-size:1.6rem; font-weight:700; color:var(--g); letter-spacing:1px; display:flex; align-items:center; gap:.5rem;">
+      <div style="width:8px; height:8px; border-radius:50%; background:var(--g); box-shadow:0 0 10px var(--g);"></div>
+      Boost<span style="color:#fff; font-weight:500;">Speed</span>
+      <svg class="thunderStrike" width="20" height="20" viewBox="0 0 24 24" fill="currentColor" style="vertical-align:middle;margin-left:2px"><path d="M13 2L3 14h9l-1 8 10-12h-9l1-8z"/></svg>
+      <span class="badge brev" style="font-size:.65rem; margin-left:.5rem; padding:.1rem .5rem;">ADMIN</span>
+    </div>
+    <button class="btn bo bsm" onclick="aSalir()">Salir</button>
   </div>
-  <button class="bout" onclick="aSalir()">Salir</button>
-</div>
+
+  <div class="tnav" id="tnav">
+    <button class="tn-btn active" id="at-dash" onclick="aTab('dash')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg>
+      Dashboard
+    </button>
+    <button class="tn-btn" id="at-cod" onclick="aTab('cod')">
+      <svg viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg>
+      Códigos
+    </button>
+    <button class="tn-btn" id="at-usr" onclick="aTab('usr')">
+      <svg viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg>
+      Usuarios
+    </button>
+    <button class="tn-btn" id="at-extra" onclick="aTab('extra')">
+      <svg viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg>
+      Extra
+    </button>
+    <button class="tn-btn" id="at-rec" onclick="aTab('rec')">
+      <svg viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>
+      Rec.
+    </button>
+  </div>
 
 <main id="amain">
 
   <!-- DASHBOARD -->
   <div class="pane active" id="pane-dash">
 
-    <!-- Widget uso de API key -->
-    <div class="api-stats">
-      <div class="api-ico">⚡</div>
-      <div class="api-info">
-        <div class="api-title">Uso de la API key hoy</div>
-        <div class="api-sub" id="api-sub-txt">Cargando datos…</div>
+    <div class="pbn">
+      <div class="pbn-ico">
+        <svg width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z"/></svg>
       </div>
-      <div class="api-right">
-        <div class="api-val" id="api-hoy">—</div>
-        <div class="api-bar-wrap"><div class="api-bar-fill" id="api-bar" style="width:0%"></div></div>
-        <div class="api-pct" id="api-pct"></div>
+      <div class="pbn-main">
+        <div class="pbn-sub">IDs que recibieron likes hoy</div>
+        <div class="pbn-big" id="lh-ids-count">0</div>
+        <div class="pbn-pills" id="lh-pills"></div>
+      </div>
+      <div class="pbn-right" style="text-align:right">
+        <div class="stat-lbl">Likes totales hoy</div>
+        <div class="stat-val" style="font-size:1.4rem" id="lh-total-lk">0</div>
       </div>
     </div>
 
-    <!-- ── NUEVO: Widget IDs con likes hoy ── -->
-    <div class="likes-hoy-banner" id="likes-hoy-banner">
-      <div class="lh-ico">❤️</div>
-      <div class="lh-info">
-        <div class="lh-title">IDs que recibieron likes hoy</div>
-        <div class="lh-sub" id="lh-sub-txt">Cargando…</div>
-        <div class="lh-pills" id="lh-pills"></div>
+    <div class="stats-grid">
+      <div class="stat-box">
+        <span class="stat-val" id="a-tu">0</span>
+        <span class="stat-lbl">Usuarios</span>
       </div>
-      <div class="lh-right">
-        <div class="lh-val" id="lh-ids-count">—</div>
-        <div class="lh-val-sub" id="lh-val-sub">IDs únicos</div>
+      <div class="stat-box">
+        <span class="stat-val" id="a-tc">0</span>
+        <span class="stat-lbl">Códigos</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-val" id="a-uc">0</span>
+        <span class="stat-lbl">Usados</span>
+      </div>
+      <div class="stat-box">
+        <span class="stat-val" id="a-ap">0</span>
+        <span class="stat-lbl">Planes Activos</span>
       </div>
     </div>
-    <!-- ── FIN widget ── -->
 
-    <div class="sg">
-      <div class="sb"><div class="sv" id="a-tu">0</div><div class="sl">Usuarios</div></div>
-      <div class="sb"><div class="sv" id="a-tc">0</div><div class="sl">Códigos</div></div>
-      <div class="sb"><div class="sv" id="a-uc">0</div><div class="sl">Usados</div></div>
-      <div class="sb"><div class="sv" id="a-ap">0</div><div class="sl">Planes activos</div></div>
-      <!-- ── NUEVO stat box ── -->
-      <div class="sb blue-sb"><div class="sv" id="a-ids-hoy">0</div><div class="sl">IDs hoy</div></div>
+    <!-- API KEY USAGE WIDGET -->
+    <div class="card" id="card-api-usage" style="display:none; margin-bottom:1.5rem; background:linear-gradient(135deg, rgba(0,255,30,0.05) 0%, rgba(0,0,0,0.2) 100%);">
+      <div style="display:flex; align-items:center; justify-content:space-between;">
+        <div style="display:flex; align-items:center; gap:.8rem;">
+          <div style="width:42px; height:42px; border-radius:10px; background:var(--gdim); display:flex; align-items:center; justify-content:center;">
+             <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><path d="M21 2l-2 2m-7.61 7.61a5.5 5.5 0 1 1-7.778 7.778 5.5 5.5 0 0 1 7.777-7.777zm0 0L22 22"/></svg>
+          </div>
+          <div>
+            <div style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:1.1rem;">API Key Usage</div>
+            <div style="color:var(--mut); font-size:.75rem;">Consumo de la API de likes en tiempo real</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:'Rajdhani',sans-serif; font-size:1.3rem; font-weight:700; color:var(--g);" id="api-usage-val">0 / 0</div>
+          <div style="color:var(--mut); font-size:.65rem; text-transform:uppercase; letter-spacing:1px;">Usos hoy</div>
+        </div>
+      </div>
+      <div style="height:6px; background:rgba(0,255,30,0.1); border-radius:100px; margin-top:1rem; overflow:hidden;">
+        <div id="api-usage-fill" style="height:100%; width:0%; background:linear-gradient(90deg, var(--g), #00d2ff); transition:width .8s ease;"></div>
+      </div>
     </div>
 
     <div class="card">
@@ -373,43 +348,37 @@ tr:hover td{background:rgba(0,255,30,.02)}
       <div class="ct">Crear código de acceso</div>
       <div class="msg" id="msg-cod"></div>
       <div class="fg"><label>Tipo de plan</label></div>
-      <div class="tipo-grid">
-        <div class="topt sel" id="topt-dias" onclick="selTipo('dias')">
-          <h4>📅 Por días</h4>
-          <p>El plan dura X días desde que se canjea</p>
-        </div>
-        <div class="topt" id="topt-likes" onclick="selTipo('likes')">
-          <h4>❤️ Por likes</h4>
-          <p>El plan dura hasta agotar los likes</p>
-        </div>
-        <div class="topt ilim-opt" id="topt-ilimitado" onclick="selTipo('ilimitado')">
-          <h4>🚀 Ilimitado</h4>
-          <p>Sin límite de likes, días ni envíos</p>
-        </div>
+    <div class="tipo-grid">
+      <div class="topt sel" id="topt-dias" onclick="selTipo('dias')">
+        <svg class="t-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+        <div class="t-lbl">Por días</div>
+        <p>El plan dura X días desde canje</p>
       </div>
-      <div id="campos-dias">
-        <div class="fr">
-          <div class="fg"><label>Días del plan</label><input type="number" id="c-dias" min="1" value="30"/></div>
-          <div class="fg"><label>Envíos por día</label><input type="number" id="c-env-dias" min="1" value="3"/></div>
-          <div class="fg"><label>Código personalizado</label><input type="text" id="c-cust-dias" placeholder="Vacío = aleatorio" style="text-transform:uppercase" maxlength="12"/></div>
-        </div>
+      <div class="topt" id="topt-likes" onclick="selTipo('likes')">
+        <svg class="t-icon-svg" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+        <div class="t-lbl">Por likes</div>
+        <p>Dura hasta agotar los likes</p>
       </div>
-      <div id="campos-likes" style="display:none">
-        <div class="fr">
-          <div class="fg"><label>Cantidad de likes</label><input type="number" id="c-lktotal" min="1" value="500"/></div>
-          <div class="fg"><label>Envíos por día</label><input type="number" id="c-env-likes" min="1" value="3"/></div>
-          <div class="fg"><label>Código personalizado</label><input type="text" id="c-cust-likes" placeholder="Vacío = aleatorio" style="text-transform:uppercase" maxlength="12"/></div>
-        </div>
+      <div class="topt" id="topt-revendedor" onclick="selTipo('revendedor')">
+        <svg class="t-icon-svg" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2L3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4z"/><line x1="3" y1="6" x2="21" y2="6"/><path d="M16 10a4 4 0 0 1-8 0"/></svg>
+        <div class="t-lbl">Revendedor</div>
+        <p>Plan especial por días p/ reventa</p>
       </div>
-      <div id="campos-ilimitado" style="display:none">
-        <div style="background:rgba(167,139,250,.06);border:1px solid rgba(167,139,250,.2);border-radius:10px;padding:.9rem 1rem;margin-bottom:.75rem">
-          <p style="color:#a78bfa;font-size:.82rem;font-weight:700;margin-bottom:.3rem">⚠️ Plan Ilimitado</p>
-          <p style="color:var(--mut);font-size:.78rem;line-height:1.55">Sin límite de likes, días ni envíos. Los usuarios ilimitados NO aparecen en el top.</p>
-        </div>
-        <div class="fr">
-          <div class="fg"><label>Código personalizado</label><input type="text" id="c-cust-ilim" placeholder="Vacío = aleatorio" style="text-transform:uppercase" maxlength="12"/></div>
-        </div>
+      <div class="topt" id="topt-ilimitado" onclick="selTipo('ilimitado')" style="border-color:rgba(167,139,250,0.2)">
+        <svg class="t-icon-svg" style="stroke:#a78bfa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+        <div class="t-lbl">Ilimitado</div>
+        <p>Sin límites de ningún tipo</p>
       </div>
+    </div>
+
+    <div id="campos-dias">
+      <div class="stats-grid">
+        <div class="fg"><label>Días del plan</label><input type="number" id="c-dias" min="1" value="30"/></div>
+        <div class="fg"><label>Envíos por día</label><input type="number" id="c-env-dias" min="1" value="3"/></div>
+        <div class="fg"><label>Código personalizado</label><input type="text" id="c-cust-dias" placeholder="Opcional" style="text-transform:uppercase" maxlength="12"/></div>
+      </div>
+    </div>
+
       <button class="btn bp" id="btn-crear-cod" onclick="crearCod()">
         <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
         Generar código
@@ -466,9 +435,18 @@ tr:hover td{background:rgba(0,255,30,.02)}
         </div>
 
         <div class="tipo-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:.8rem">
-          <div class="topt sel" id="etopt-dias"      onclick="selEditTipo('dias')"><h4>📅 Por días</h4><p>Asignar días de plan</p></div>
-          <div class="topt" id="etopt-likes"          onclick="selEditTipo('likes')"><h4>❤️ Por likes</h4><p>Asignar cantidad de likes</p></div>
-          <div class="topt ilim-opt" id="etopt-ilimitado" onclick="selEditTipo('ilimitado')"><h4>🚀 Ilimitado</h4><p>Sin límites</p></div>
+          <div class="topt sel" id="etopt-dias" onclick="selEditTipo('dias')">
+            <svg class="t-icon-svg" style="width:20px;height:20px" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"/><line x1="16" y1="2" x2="16" y2="6"/><line x1="8" y1="2" x2="8" y2="6"/><line x1="3" y1="10" x2="21" y2="10"/></svg>
+            <h4>Por días</h4><p>Asignar días de plan</p>
+          </div>
+          <div class="topt" id="etopt-likes" onclick="selEditTipo('likes')">
+            <svg class="t-icon-svg" style="width:20px;height:20px" viewBox="0 0 24 24" fill="currentColor"><path d="M12 21.35l-1.45-1.32C5.4 15.36 2 12.28 2 8.5 2 5.42 4.42 3 7.5 3c1.74 0 3.41.81 4.5 2.09C13.09 3.81 14.76 3 16.5 3 19.58 3 22 5.42 22 8.5c0 3.78-3.4 6.86-8.55 11.54L12 21.35z"/></svg>
+            <h4>Por likes</h4><p>Asignar cantidad de likes</p>
+          </div>
+          <div class="topt ilim-opt" id="etopt-ilimitado" onclick="selEditTipo('ilimitado')">
+            <svg class="t-icon-svg" style="width:20px;height:20px;stroke:#a78bfa" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            <h4>Ilimitado</h4><p>Sin límites</p>
+          </div>
         </div>
 
         <div id="edit-campos-dias">
@@ -517,7 +495,44 @@ tr:hover td{background:rgba(0,255,30,.02)}
     </div>
   </div>
 
-  <!-- RECUPERACIÓN -->
+  <!-- EXTRA -->
+  <div class="pane" id="pane-extra">
+    <div class="card">
+      <div class="ct">Gestión Masiva de Planes</div>
+      <p style="color:var(--mut); font-size:.85rem; line-height:1.5; margin-bottom:1.5rem;">
+        Esta herramienta permite sumar o restar días de vigencia a <strong>todos</strong> los usuarios activos de un tipo de plan específico.
+      </p>
+      
+      <div class="msg" id="msg-extra"></div>
+
+      <div class="fg">
+        <label>Tipo de plan a afectar</label>
+        <select id="extra-plan-tipo">
+          <option value="dias">Plan por Días (Normal)</option>
+          <option value="revendedor">Plan Revendedor</option>
+        </select>
+      </div>
+
+      <div style="display:grid; grid-template-columns: repeat(auto-fit, minmax(130px, 1fr)); gap:.8rem;">
+        <button class="btn bo" onclick="ajustarDiasMasivo(30)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><polyline points="13 17 18 12 13 7"/><polyline points="6 17 11 12 6 7"/></svg>
+          +30 días
+        </button>
+        <button class="btn bo" onclick="ajustarDiasMasivo(7)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          +7 días
+        </button>
+        <button class="btn bo" onclick="ajustarDiasMasivo(1)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          +1 día
+        </button>
+        <button class="btn br bsm" style="color:#fff; background:var(--red);" onclick="ajustarDiasMasivo(-1)">
+          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="5" y1="12" x2="19" y2="12"/></svg>
+          -1 día
+        </button>
+      </div>
+    </div>
+  </div>
   <div class="pane" id="pane-rec">
     <div class="card">
       <div class="ct">Generar código de recuperación</div>
@@ -589,19 +604,19 @@ tr:hover td{background:rgba(0,255,30,.02)}
 
 <nav class="mobn" id="mobn">
   <button class="mb active" id="mb-dash" onclick="aTab('dash');mAct(this)">
-    <div class="mico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>Panel
+    <div class="mico"><svg width="16" height="16" viewBox="0 0 24 24"><rect x="3" y="3" width="7" height="7"/><rect x="14" y="3" width="7" height="7"/><rect x="14" y="14" width="7" height="7"/><rect x="3" y="14" width="7" height="7"/></svg></div>Panel
   </button>
   <button class="mb" id="mb-cod" onclick="aTab('cod');mAct(this)">
-    <div class="mico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>Códigos
+    <div class="mico"><svg width="16" height="16" viewBox="0 0 24 24"><rect x="1" y="4" width="22" height="16" rx="2"/><line x1="1" y1="10" x2="23" y2="10"/></svg></div>Cods
   </button>
   <button class="mb" id="mb-usr" onclick="aTab('usr');mAct(this)">
-    <div class="mico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div>Usuarios
+    <div class="mico"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/></svg></div>Usrs
+  </button>
+  <button class="mb" id="mb-extra" onclick="aTab('extra');mAct(this)">
+    <div class="mico"><svg width="16" height="16" viewBox="0 0 24 24"><path d="M12 2v20M2 12h20"/><circle cx="12" cy="12" r="10"/></svg></div>Extra
   </button>
   <button class="mb" id="mb-rec" onclick="aTab('rec');mAct(this)">
-    <div class="mico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>Rec.
-  </button>
-  <button class="mb" onclick="aSalir()">
-    <div class="mico"><svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"/><polyline points="16 17 21 12 16 7"/><line x1="21" y1="12" x2="9" y2="12"/></svg></div>Salir
+    <div class="mico"><svg width="16" height="16" viewBox="0 0 24 24"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg></div>Rec
   </button>
 </nav>
 
@@ -650,8 +665,6 @@ tr:hover td{background:rgba(0,255,30,.02)}
 let admTok = null, editUID = null, recUID = null;
 let tipoPlan = 'dias', editTipo = 'dias';
 let admUser = 'admin';
-
-/* cache interno para filtrado de likes hoy sin volver a llamar al servidor */
 let _likesHoyData = [];
 
 window.addEventListener('DOMContentLoaded', () => {
@@ -672,12 +685,8 @@ async function aLogin() {
 
 function mostrarPanel() {
   document.getElementById('login-scr').style.display = 'none';
-  document.getElementById('topb').style.display      = 'flex';
   document.getElementById('amain').style.display     = 'block';
   document.getElementById('mobn').style.display      = 'flex';
-  document.querySelectorAll('.sb').forEach((el, i) =>
-    setTimeout(() => el.classList.add('vis'), i * 80)
-  );
   loadDash();
 }
 
@@ -689,35 +698,49 @@ function aSalir() {
 
 function aTab(t) {
   document.querySelectorAll('#amain .pane').forEach(p => p.classList.remove('active'));
-  document.querySelectorAll('#tnav .tn').forEach(b => b.classList.remove('active'));
-  document.getElementById('pane-' + t).classList.add('active');
-  const tn = document.getElementById('at-' + t);
-  if (tn) tn.classList.add('active');
+  document.querySelectorAll('.tnav .tn-btn').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.mobn .mb').forEach(b => b.classList.remove('active'));
+  
+  const p = document.getElementById('pane-' + t);
+  if(p) p.classList.add('active');
+  const btn = document.getElementById('at-' + t);
+  if(btn) btn.classList.add('active');
+  const mbtn = document.getElementById('mb-' + t);
+  if(mbtn) mbtn.classList.add('active');
+
   if (t === 'dash') loadDash();
   if (t === 'cod')  loadCods();
   if (t === 'usr')  loadUsrs();
 }
 
 function mAct(el) {
-  document.querySelectorAll('#mobn .mb').forEach(b => b.classList.remove('active'));
+  document.querySelectorAll('.mobn .mb').forEach(b => b.classList.remove('active'));
   el.classList.add('active');
 }
 
 function cerrarDetUsr() {
   document.getElementById('usr-det-card').style.display = 'none';
   editUID = null;
-  document.getElementById('msg-edit').style.display = 'none';
 }
 
 function selTipo(tipo) {
   tipoPlan = tipo;
-  ['dias','likes','ilimitado'].forEach(t => {
-    document.getElementById('topt-' + t).classList.toggle('sel', t === tipo);
-    document.getElementById('campos-' + t).style.display = t === tipo ? 'block' : 'none';
+  ['dias','likes','revendedor','ilimitado'].forEach(t => {
+    const el = document.getElementById('topt-' + t);
+    if(el) el.classList.toggle('sel', t === tipo);
+    const campos = document.getElementById('campos-' + t);
+    if(campos) campos.style.display = t === tipo ? 'block' : 'none';
   });
-  const btn = document.getElementById('btn-crear-cod');
-  btn.style.background = tipo === 'ilimitado' ? '#a78bfa' : '';
-  btn.style.color      = tipo === 'ilimitado' ? '#fff'    : '';
+}
+
+function selEditTipo(tipo) {
+  editTipo = tipo;
+  ['dias','likes','ilimitado'].forEach(t => {
+    const btn = document.getElementById('etopt-' + t);
+    if(btn) btn.classList.toggle('sel', t === tipo);
+    const grp = document.getElementById('edit-campos-' + t);
+    if(grp) grp.style.display = t === tipo ? 'block' : 'none';
+  });
 }
 
 /* ── DASHBOARD ── */
@@ -725,474 +748,227 @@ async function loadDash() {
   const r = await API.getAdmin('/api/admin/stats', admTok);
   if (!r.ok) return;
 
-  document.getElementById('a-tu').textContent = r.totalUsuarios || 0;
-  document.getElementById('a-tc').textContent = r.totalCodigos  || 0;
-  document.getElementById('a-uc').textContent = r.codigosUsados || 0;
-  document.getElementById('a-ap').textContent = r.planesActivos || 0;
+  document.getElementById('a-tu').textContent = (r.totalUsuarios || 0).toLocaleString();
+  document.getElementById('a-tc').textContent = (r.totalCodigos || 0).toLocaleString();
+  document.getElementById('a-uc').textContent = (r.codigosUsados || 0).toLocaleString();
+  document.getElementById('a-ap').textContent = (r.planesActivos || 0).toLocaleString();
 
-  /* ── Widget uso API key ── */
-  const valEl  = document.getElementById('api-hoy');
-  const subEl  = document.getElementById('api-sub-txt');
-  const barEl  = document.getElementById('api-bar');
-  const pctEl  = document.getElementById('api-pct');
-
+  // API Key Usage Widget
   if (r.keyUsage) {
-    const parts = String(r.keyUsage).split('/');
-    const used  = parseInt(parts[0], 10) || 0;
-    const max   = parseInt(parts[1], 10) || 0;
-    const pct   = max > 0 ? Math.min(100, Math.round(used / max * 100)) : 0;
-    valEl.textContent = r.keyUsage;
-    barEl.style.width = pct + '%';
-    barEl.style.background = pct >= 90 ? 'var(--red)' : 'var(--warn)';
-    pctEl.textContent = max > 0 ? pct + '% usado' : '';
-    subEl.textContent = max > 0
-      ? `Quedan ${(max - used).toLocaleString('es')} llamadas · Se reinicia según el proveedor`
-      : 'Usos reportados por la API key del proveedor';
-  } else {
-    const envHoy = r.enviosHoy || 0;
-    valEl.textContent = envHoy > 0 ? envHoy.toLocaleString('es') : '—';
-    barEl.style.width = '0%';
-    pctEl.textContent = '';
-    subEl.textContent = envHoy > 0
-      ? `${envHoy.toLocaleString('es')} envíos registrados hoy · Límite visible tras el primer envío`
-      : 'Sin envíos aún hoy · El límite se muestra tras el primer envío';
+    const card = document.getElementById('card-api-usage');
+    const valEl = document.getElementById('api-usage-val');
+    const fillEl = document.getElementById('api-usage-fill');
+    card.style.display = 'block';
+    
+    // Parsear usage/limit del string (ej: "123 / 500")
+    const parts = r.keyUsage.split('/');
+    if (parts.length === 2) {
+      const uses = parseInt(parts[0].trim());
+      const limit = parseInt(parts[1].trim());
+      valEl.textContent = r.keyUsage;
+      const pct = Math.min((uses / limit) * 100, 100);
+      fillEl.style.width = pct + '%';
+      if (pct > 90) fillEl.style.background = 'var(--red)';
+      else if (pct > 70) fillEl.style.background = 'var(--warn)';
+      else fillEl.style.background = 'linear-gradient(90deg, var(--g), #00d2ff)';
+    } else {
+      valEl.textContent = r.keyUsage;
+    }
   }
 
-  /* ── Usuarios recientes ── */
-  document.getElementById('dash-rec').innerHTML = r.usuariosRecientes.length
+  // Cargar IDs con likes hoy
+  loadLikesHoy();
+
+  // Usuarios recientes
+  const tbody = document.getElementById('dash-rec');
+  tbody.innerHTML = r.usuariosRecientes.length
     ? r.usuariosRecientes.map(u => `
         <tr>
-          <td><code style="color:var(--g);font-size:.75rem">${u.uid}</code></td>
+          <td><code style="color:var(--g)">${u.uid}</code></td>
           <td>${u.username}</td>
-          <td><span class="badge ${u.plan_activo ? (u.ilimitado ? 'bilim' : 'bok') : 'bnone'}">${u.plan_activo ? (u.ilimitado ? '🚀 Ilimitado' : u.plan_nombre) : 'Sin plan'}</span></td>
-          <td style="color:var(--mut);font-size:.78rem">${new Date(u.creado_en).toLocaleDateString('es')}</td>
+          <td><span class="badge ${u.plan_activo ? (u.ilimitado ? 'bilim' : 'bok') : 'boff'}">${u.plan_activo ? (u.ilimitado ? '🚀 Ilimitado' : u.plan_nombre) : 'Sin plan'}</span></td>
+          <td style="color:var(--mut)">${new Date(u.creado_en).toLocaleDateString()}</td>
         </tr>`).join('')
-    : '<tr><td colspan="4" style="text-align:center;color:var(--mut);padding:1.8rem">Sin usuarios</td></tr>';
-
-  /* ── Cargar tabla de likes hoy ── */
-  loadLikesHoy();
+    : '<tr><td colspan="4" style="text-align:center;padding:2rem;color:var(--mut)">No hay usuarios recientes</td></tr>';
 }
 
-/* ══════════════════════════════════════════════════════
-   NUEVA FUNCIÓN: cargar IDs con likes hoy
-   Endpoint esperado: GET /api/admin/likes-hoy
-   Respuesta esperada del servidor:
-   {
-     ok: true,
-     fecha: "2025-08-15",           // fecha local del servidor (YYYY-MM-DD)
-     total_ids: 12,                 // cantidad de IDs únicos que recibieron likes
-     total_likes: 3450,             // suma de todos los likes enviados hoy
-     manuales: 5,                   // IDs que solo recibieron envíos manuales
-     automaticos: 4,                // IDs que solo recibieron envíos automáticos
-     ambos: 3,                      // IDs con ambos tipos
-     registros: [
-       {
-         target_id: "123456789",    // ID de Instagram/TikTok u otra red
-         usuario: "username",       // usuario de BoostSpeed que realizó el envío
-         likes_hoy: 450,            // total de likes enviados a este ID hoy
-         tipo: "auto",              // "auto" | "manual" | "ambos"
-         ultimo_envio: "2025-08-15T14:32:00Z"  // ISO timestamp del último envío
-       }
-     ]
-   }
-   ══════════════════════════════════════════════════════ */
 async function loadLikesHoy() {
-  /* mostrar spinner en la tabla */
-  document.getElementById('tb-likes-hoy').innerHTML =
-    '<tr><td colspan="6" style="border:none"><div class="spin-wrap"><div class="spin"></div> Cargando…</div></td></tr>';
-
   const r = await API.getAdmin('/api/admin/likes-hoy', admTok);
+  if (!r.ok) return;
 
-  /* banner superior */
-  const idsCountEl = document.getElementById('lh-ids-count');
-  const subTxtEl   = document.getElementById('lh-sub-txt');
-  const pillsEl    = document.getElementById('lh-pills');
-  const statEl     = document.getElementById('a-ids-hoy');
-
-  if (!r.ok) {
-    idsCountEl.textContent = '—';
-    subTxtEl.textContent   = 'No se pudo cargar · Revisa el servidor';
-    document.getElementById('tb-likes-hoy').innerHTML =
-      '<tr><td colspan="6" style="text-align:center;color:var(--mut);padding:1.8rem">Error al cargar datos</td></tr>';
-    return;
-  }
-
-  /* cachear para filtrado local */
+  document.getElementById('lh-ids-count').textContent = r.total_ids || 0;
+  document.getElementById('lh-total-lk').textContent = (r.total_likes || 0).toLocaleString();
+  
+  const pills = document.getElementById('lh-pills');
+  pills.innerHTML = '';
+  if (r.automaticos > 0) pills.innerHTML += `<span class="badge bok">🤖 Auto: ${r.automaticos}</span>`;
+  
   _likesHoyData = r.registros || [];
-
-  const total     = r.total_ids    || 0;
-  const totalLk   = r.total_likes  || 0;
-  const manuales  = r.manuales     || 0;
-  const autos     = r.automaticos  || 0;
-  const ambos     = r.ambos        || 0;
-  const fecha     = r.fecha        || new Date().toLocaleDateString('es');
-
-  /* stat box */
-  statEl.textContent = total;
-
-  /* banner */
-  idsCountEl.textContent = total;
-  subTxtEl.textContent = total > 0
-    ? `${totalLk.toLocaleString('es')} likes enviados · ${fecha}`
-    : `Ningún ID ha recibido likes hoy · ${fecha}`;
-
-  /* pills resumen tipo */
-  pillsEl.innerHTML = '';
-  if (total > 0) {
-    if (autos    > 0) pillsEl.innerHTML += `<span class="badge bauto">🤖 Auto: ${autos}</span>`;
-    if (manuales > 0) pillsEl.innerHTML += `<span class="badge bmanual">✋ Manual: ${manuales}</span>`;
-    if (ambos    > 0) pillsEl.innerHTML += `<span class="badge bambos">🔀 Ambos: ${ambos}</span>`;
-  }
-
-  /* encabezado tarjeta */
-  document.getElementById('lh-fecha-tag').textContent = fecha;
-  const totalTag = document.getElementById('lh-total-tag');
-  if (total > 0) {
-    document.getElementById('lh-total-lk').textContent = totalLk.toLocaleString('es');
-    totalTag.style.display = 'flex';
-  } else {
-    totalTag.style.display = 'none';
-  }
-
-  /* mostrar filtros solo si hay datos */
-  document.getElementById('lh-filter-wrap').style.display = total > 0 ? 'flex' : 'none';
-
-  /* resetear filtro activo */
-  document.querySelectorAll('.lh-filter-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('lhf-todos').classList.add('active');
-
-  /* renderizar tabla con todos los registros */
   renderLikesHoyTabla(_likesHoyData);
 }
 
-/* ── Renderiza la tabla de likes hoy con el array recibido ── */
-function renderLikesHoyTabla(registros) {
+function renderLikesHoyTabla(regs) {
   const tbody = document.getElementById('tb-likes-hoy');
-  if (!registros || registros.length === 0) {
-    tbody.innerHTML =
-      '<tr><td colspan="6" style="text-align:center;color:var(--mut);padding:1.8rem">Sin actividad de likes hoy</td></tr>';
+  if (!regs.length) {
+    tbody.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--mut)">No hay envíos registrados hoy</td></tr>';
     return;
   }
-
-  tbody.innerHTML = registros.map((reg, i) => {
-    /* badge de tipo */
-    const tipoBadge = reg.tipo === 'auto'
-      ? '<span class="badge bauto">🤖 Auto</span>'
-      : reg.tipo === 'manual'
-        ? '<span class="badge bmanual">✋ Manual</span>'
-        : '<span class="badge bambos">🔀 Ambos</span>';
-
-    /* hora del último envío (solo hora local) */
-    const horaUltimo = reg.ultimo_envio
-      ? new Date(reg.ultimo_envio).toLocaleTimeString('es', { hour:'2-digit', minute:'2-digit' })
-      : '—';
-    const fechaUltimo = reg.ultimo_envio
-      ? new Date(reg.ultimo_envio).toLocaleDateString('es')
-      : '—';
-
-    return `<tr>
-      <td style="color:var(--mut);font-size:.76rem">${i + 1}</td>
-      <td>
-        <code style="color:var(--blue);font-weight:700;letter-spacing:1px;font-size:.82rem">${reg.target_id}</code>
-      </td>
-      <td style="font-size:.8rem">${reg.usuario || '—'}</td>
-      <td>
-        <span style="font-family:'Rajdhani',sans-serif;font-size:1.05rem;font-weight:700;color:var(--g)">
-          ${(reg.likes_hoy || 0).toLocaleString('es')}
-        </span>
-        <span style="color:var(--mut);font-size:.7rem;margin-left:.2rem">lk</span>
-      </td>
-      <td>${tipoBadge}</td>
-      <td style="color:var(--mut);font-size:.76rem" title="${fechaUltimo}">${horaUltimo}</td>
-    </tr>`;
-  }).join('');
+  tbody.innerHTML = regs.map((reg, i) => `
+    <tr>
+      <td style="color:var(--mut)">${i+1}</td>
+      <td><code style="color:var(--g)">${reg.target_id}</code></td>
+      <td>${reg.usuario || '—'}</td>
+      <td style="font-family:'Rajdhani'; font-weight:700; color:var(--g)">${(reg.likes_hoy || 0).toLocaleString()}</td>
+      <td><span class="badge ${reg.tipo==='auto'?'bok':'bok'}" style="border-radius:6px; background:rgba(0,255,30,0.05); border-color:rgba(0,255,30,0.15)">
+        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" style="vertical-align:-2px;margin-right:.3rem">
+          ${reg.tipo==='auto' ? '<polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/>' : '<path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/>'}
+        </svg>
+        ${reg.tipo==='auto'?'Auto':'Manual'}
+      </span></td>
+      <td style="color:var(--mut)">${new Date(reg.ultimo_envio).toLocaleTimeString([], {hour:'2-digit', minute:'2-digit'})}</td>
+    </tr>
+  `).join('');
 }
 
-/* ── Filtrado local (sin llamada extra al servidor) ── */
-function filtrarLikesHoy(tipo) {
-  document.querySelectorAll('.lh-filter-btn').forEach(b => b.classList.remove('active'));
-  document.getElementById('lhf-' + tipo).classList.add('active');
-
-  const filtrado = tipo === 'todos'
-    ? _likesHoyData
-    : _likesHoyData.filter(r => r.tipo === tipo || (tipo !== 'todos' && r.tipo === 'ambos'));
-
-  renderLikesHoyTabla(filtrado);
-}
-
-/* ─────────────── Resto de funciones sin cambios ─────────────── */
-
+/* ── CÓDIGOS ── */
 async function crearCod() {
-  let body = { tipo: tipoPlan };
-  if (tipoPlan === 'ilimitado') {
-    body.ilimitado = true;
-    body.custom = document.getElementById('c-cust-ilim').value.trim();
-  } else if (tipoPlan === 'dias') {
-    body.dias      = parseInt(document.getElementById('c-dias').value);
-    body.envios_dia = parseInt(document.getElementById('c-env-dias').value);
-    body.custom    = document.getElementById('c-cust-dias').value.trim();
+  const btn = document.getElementById('btn-crear-cod');
+  btn.disabled = true;
+  
+  let data = { tipo: tipoPlan };
+  if (tipoPlan === 'dias') {
+    data.dias = parseInt(document.getElementById('c-dias').value);
+    data.env_por_dia = parseInt(document.getElementById('c-env-dias').value);
+    data.custom = document.getElementById('c-cust-dias').value.trim();
+  } else if (tipoPlan === 'likes') {
+    data.likes = parseInt(document.getElementById('c-lktotal').value);
+    data.env_por_dia = parseInt(document.getElementById('c-env-likes').value);
+    data.custom = document.getElementById('c-cust-likes').value.trim();
+  } else if (tipoPlan === 'revendedor') {
+    data.dias = parseInt(document.getElementById('c-dias-rev').value);
+    data.env_por_dia = parseInt(document.getElementById('c-env-rev').value);
+    data.custom = document.getElementById('c-cust-rev').value.trim();
   } else {
-    body.likes      = parseInt(document.getElementById('c-lktotal').value);
-    body.envios_dia = parseInt(document.getElementById('c-env-likes').value);
-    body.custom     = document.getElementById('c-cust-likes').value.trim();
+    data.custom = document.getElementById('c-cust-ilim').value.trim();
   }
-  const r = await API.postAdmin('/api/admin/codigos', body, admTok);
-  if (!r.ok) return showMsg('msg-cod', r.error, 'err');
-  showMsg('msg-cod', '✓ Código creado exitosamente', 'ok');
 
-  const c    = r.codigo;
-  const cbox = document.getElementById('ncbox');
-  if (c.ilimitado) {
-    cbox.className = 'cbox ilim-box';
-    document.getElementById('nc-tipo-lbl').textContent = '🚀 Código ILIMITADO generado';
-    document.getElementById('nc-det').textContent = 'Sin límite de likes · Sin límite de días · Envíos ilimitados';
-  } else {
-    cbox.className = 'cbox';
-    document.getElementById('nc-tipo-lbl').textContent = 'Código generado';
-    document.getElementById('nc-det').textContent = c.tipo === 'likes'
-      ? `${(c.likes||0).toLocaleString('es')} likes · ${c.envios_dia} envíos/día`
-      : `${c.dias} días · ${c.envios_dia} envíos/día`;
-  }
-  document.getElementById('nc-val').textContent = c.codigo;
-  cbox.style.display = 'block';
-  ['c-cust-dias','c-cust-likes','c-cust-ilim'].forEach(id => {
-    const el = document.getElementById(id); if (el) el.value = '';
-  });
+  const res = await API.postAdmin('/api/admin/codigos', data, admTok);
+  btn.disabled = false;
+  if (!res.ok) return showMsg('msg-cod', res.error, 'err');
+
+  showMsg('msg-cod', 'Código creado con éxito', 'ok');
+  document.getElementById('ncbox').style.display = 'block';
+  document.getElementById('nc-val').textContent = res.codigo;
+  document.getElementById('nc-det').textContent = `Tipo: ${tipoPlan.toUpperCase()} · ${res.detalle}`;
   loadCods();
-}
-
-function copiarCod() {
-  navigator.clipboard.writeText(document.getElementById('nc-val').textContent);
 }
 
 async function loadCods() {
   const r = await API.getAdmin('/api/admin/codigos', admTok);
   if (!r.ok) return;
-  document.getElementById('tb-cod').innerHTML = r.codigos.length
-    ? r.codigos.map(c => {
-        const tipo = c.ilimitado ? 'ilimitado' : (c.tipo || 'dias');
-        const tipoBadge = c.ilimitado
-          ? '<span class="badge bilim">🚀 Ilimitado</span>'
-          : tipo === 'likes'
-            ? '<span class="badge blikes">Likes</span>'
-            : '<span class="badge bdias">Días</span>';
-        const detalle = c.ilimitado ? '∞'
-          : tipo === 'likes' ? `${(c.likes||0).toLocaleString('es')} lk`
-          : `${c.dias||0}d`;
-        const envDia = c.ilimitado ? '∞' : c.envios_dia;
-        return `<tr>
-          <td><code style="color:var(--g);font-weight:700;letter-spacing:2px;font-size:.82rem">${c.codigo}</code></td>
-          <td>${tipoBadge}</td>
-          <td style="font-size:.78rem">${detalle}</td>
-          <td>${envDia}</td>
-          <td><span class="badge ${c.usado ? 'boff' : 'bok'}">${c.usado ? 'Usado' : 'Disponible'}</span></td>
-          <td style="color:var(--mut);font-size:.76rem">${c.usado_por || '—'}</td>
-          <td style="color:var(--mut);font-size:.76rem">${new Date(c.creado_en).toLocaleDateString('es')}</td>
-          <td><button style="background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.2);color:var(--red);font-weight:700;font-family:'Exo 2',sans-serif;border-radius:5px;cursor:pointer;padding:.24rem .5rem;font-size:.72rem" onclick="delCod('${c.codigo}')">Eliminar</button></td>
-        </tr>`;
-      }).join('')
-    : '<tr><td colspan="8" style="text-align:center;color:var(--mut);padding:1.8rem">Sin códigos</td></tr>';
+  const tbody = document.getElementById('tb-cod');
+  tbody.innerHTML = r.codigos.map(c => `
+    <tr>
+      <td><code style="color:var(--g)">${c.codigo}</code></td>
+      <td><span class="badge ${c.ilimitado?'bilim':(c.tipo==='revendedor'?'brev':'bdias')}">${c.ilimitado?'🚀 Ilim':c.tipo}</span></td>
+      <td style="font-size:.8rem">${c.ilimitado?'∞':(c.tipo==='likes'?c.likes+' lk':c.dias+'d')}</td>
+      <td>${c.ilimitado?'∞':c.envios_dia}</td>
+      <td><span class="badge ${c.usado?'boff':'bok'}">${c.usado?'Usado':'Libre'}</span></td>
+      <td style="font-size:.75rem; color:var(--mut)">${c.usado_por || '—'}</td>
+      <td style="font-size:.75rem; color:var(--mut)">${new Date(c.creado_en).toLocaleDateString()}</td>
+      <td><button class="btn bo bsm" onclick="delCod('${c.codigo}')">X</button></td>
+    </tr>
+  `).join('');
 }
 
 async function delCod(cod) {
-  if (!confirm(`¿Eliminar código ${cod}?`)) return;
-  await API.deleteAdmin('/api/admin/codigos/' + cod, admTok);
+  if(!confirm('¿Eliminar código '+cod+'?')) return;
+  await API.deleteAdmin('/api/admin/codigos/'+cod, admTok);
   loadCods();
+}
+
+/* ── USUARIOS ── */
+async function loadUsrs() {
+  const r = await API.getAdmin('/api/admin/usuarios', admTok);
+  if (!r.ok) return;
+  const tbody = document.getElementById('tb-usr');
+  tbody.innerHTML = r.usuarios.map(u => `
+    <tr>
+      <td><code style="color:var(--g)">${u.uid}</code></td>
+      <td>${u.username}</td>
+      <td style="font-size:.75rem; color:var(--mut); max-width:80px; overflow:hidden">${u.contact}</td>
+      <td><span class="badge ${u.plan_activo?'bok':'boff'}">${u.plan_activo?'Activo':'—'}</span></td>
+      <td><span class="badge ${u.ilimitado?'bilim':(u.plan_tipo==='revendedor'?'brev':'bdias')}">${u.ilimitado?'🚀 Ilim':u.plan_tipo}</span></td>
+      <td style="font-size:.78rem">${u.ilimitado?'∞':(u.plan_tipo==='likes'? u.likes_disponibles : '—')}</td>
+      <td style="font-size:.75rem; color:var(--mut)">${new Date(u.creado_en).toLocaleDateString()}</td>
+      <td><button class="btn bo bsm" onclick='mostrarDetUsr(${JSON.stringify(u)})'>Ver</button></td>
+    </tr>
+  `).join('');
 }
 
 async function buscarUsr() {
   const q = document.getElementById('q-usr').value.trim();
-  if (!q) return;
-  const r = await API.getAdmin('/api/admin/usuarios/buscar?q=' + encodeURIComponent(q), admTok);
-  if (!r.ok || !r.usuarios.length) {
-    showMsg('msg-edit', 'Usuario no encontrado', 'err');
-    document.getElementById('usr-det-card').style.display = 'none';
-    return;
-  }
+  if(!q) return;
+  const r = await API.getAdmin('/api/admin/usuarios/buscar?q='+encodeURIComponent(q), admTok);
+  if(!r.ok || !r.usuarios.length) return showMsg('msg-usr', 'No se encontró', 'err');
   mostrarDetUsr(r.usuarios[0]);
-}
-
-function selEditTipo(tipo) {
-  editTipo = tipo;
-  ['dias','likes','ilimitado'].forEach(t => {
-    document.getElementById('etopt-' + t).classList.toggle('sel', t === tipo);
-    document.getElementById('edit-campos-' + t).style.display = t === tipo ? 'block' : 'none';
-  });
 }
 
 function mostrarDetUsr(u) {
   editUID = u.id;
   document.getElementById('usr-det-card').style.display = 'block';
-
-  const diasR = (u.plan_vence && !u.ilimitado)
-    ? Math.max(0, Math.ceil((new Date(u.plan_vence) - Date.now()) / 86400000))
-    : 0;
-  const vence = u.ilimitado
-    ? '∞ (Ilimitado)'
-    : (u.plan_vence
-        ? new Date(u.plan_vence).toLocaleDateString('es')
-        : (u.plan_tipo === 'likes' ? '(por likes)' : '—'));
-
-  let planInfo = '';
-  if (u.ilimitado) {
-    planInfo = `<div class="ir"><span class="ik">Plan</span><span class="iv" style="color:#a78bfa">🚀 Ilimitado</span></div>`;
-  } else if (u.plan_tipo === 'likes') {
-    const lenv = u.likes_enviados_plan || 0;
-    const ltot = u.likes_limite_plan   || 0;
-    planInfo = `
-      <div class="ir"><span class="ik">Likes enviados</span><span class="iv">${lenv.toLocaleString('es')} / ${ltot.toLocaleString('es')}</span></div>
-      <div class="ir"><span class="ik">Likes restantes</span><span class="iv" style="color:var(--g)">${(u.likes_disponibles||0).toLocaleString('es')}</span></div>`;
-  } else {
-    planInfo = `
-      <div class="ir"><span class="ik">Días restantes</span><span class="iv" style="color:var(--g)">${diasR}</span></div>
-      <div class="ir"><span class="ik">Likes enviados</span><span class="iv">${(u.likes_enviados_plan||0).toLocaleString('es')}</span></div>`;
+  
+  let revStats = '';
+  if(u.plan_tipo === 'revendedor') {
+    revStats = `
+      <div class="card" style="background:rgba(0,255,30,0.05); margin-top:1rem;">
+        <div class="ctit" style="font-size:0.9rem; margin-bottom:0.5rem">📊 Datos de Revendedor</div>
+        <div class="ir"><span class="ik">IDs en Automático</span><span class="iv" style="color:var(--g)">${u.auto_ids?.length || 0} / ${u.envios_por_dia}</span></div>
+        <div class="ir"><span class="ik">Likes enviados hoy</span><span class="iv">${u.historial_hoy_total || 0}</span></div>
+      </div>
+    `;
   }
 
   document.getElementById('usr-det').innerHTML = `
-    <div class="ir"><span class="ik">ID único</span><span class="iv"><code style="color:var(--g)">${u.uid}</code></span></div>
+    <div class="ir"><span class="ik">ID</span><span class="iv"><code style="color:var(--g)">${u.uid}</code></span></div>
     <div class="ir"><span class="ik">Usuario</span><span class="iv">${u.username}</span></div>
-    <div class="ir"><span class="ik">Contacto</span><span class="iv">${u.contact}</span></div>
-    <div class="ir"><span class="ik">Plan</span><span class="iv"><span class="badge ${u.plan_activo?'bok':'bnone'}">${u.plan_activo?u.plan_nombre:'Sin plan'}</span></span></div>
-    <div class="ir"><span class="ik">Tipo</span><span class="iv"><span class="badge ${u.ilimitado?'bilim':u.plan_tipo==='likes'?'blikes':'bdias'}">${u.ilimitado?'🚀 Ilimitado':u.plan_tipo||'días'}</span></span></div>
-    ${planInfo}
-    <div class="ir"><span class="ik">Envíos por día</span><span class="iv">${u.ilimitado?'∞':u.envios_por_dia}</span></div>
-    <div class="ir"><span class="ik">Envíos hoy</span><span class="iv">${u.envios_hoy}</span></div>
-    <div class="ir"><span class="ik">Vence</span><span class="iv">${vence}</span></div>
-    <div class="ir"><span class="ik">Registrado</span><span class="iv">${new Date(u.creado_en).toLocaleDateString('es')}</span></div>
+    <div class="ir"><span class="ik">Plan</span><span class="iv">${u.plan_nombre}</span></div>
+    <div class="ir"><span class="ik">Vence</span><span class="iv">${u.plan_vence ? new Date(u.plan_vence).toLocaleDateString() : '—'}</span></div>
+    ${revStats}
   `;
-
-  const tipo = u.ilimitado ? 'ilimitado' : (u.plan_tipo || 'dias');
-  selEditTipo(tipo);
-
-  if (tipo === 'dias') {
-    document.getElementById('e-dias').value     = diasR || '';
-    document.getElementById('e-env-dias').value = u.envios_por_dia || 3;
-    document.getElementById('e-stat-dias').value = u.plan_activo ? 'true' : 'false';
-  } else if (tipo === 'likes') {
-    document.getElementById('e-lk').value        = u.likes_disponibles || '';
-    document.getElementById('e-env-likes').value = u.envios_por_dia || 3;
-    document.getElementById('e-stat-likes').value = u.plan_activo ? 'true' : 'false';
-  }
-  document.getElementById('msg-edit').style.display = 'none';
-  document.getElementById('usr-det-card').scrollIntoView({ behavior:'smooth', block:'start' });
+  selEditTipo(u.ilimitado ? 'ilimitado' : u.plan_tipo);
 }
 
-function pedirConfirmarGuardar() {
-  if (!editUID) return;
-  let detalle = '';
-
-  if (editTipo === 'ilimitado') {
-    detalle = `<strong>Tipo:</strong> 🚀 Ilimitado<br><strong>Sin límite</strong> de días, likes ni envíos.`;
-  } else if (editTipo === 'dias') {
-    const dias   = parseInt(document.getElementById('e-dias').value) || 0;
-    const envDia = parseInt(document.getElementById('e-env-dias').value) || 3;
-    const activo = document.getElementById('e-stat-dias').value === 'true';
-    detalle = `<strong>Tipo:</strong> 📅 Por días<br>`
-            + `<strong>Días del plan:</strong> ${dias} días<br>`
-            + `<strong>Envíos por día:</strong> ${envDia}<br>`
-            + `<strong>Estado:</strong> ${activo ? '✅ Activo' : '❌ Inactivo'}`;
-  } else {
-    const lk     = parseInt(document.getElementById('e-lk').value) || 0;
-    const envDia = parseInt(document.getElementById('e-env-likes').value) || 3;
-    const activo = document.getElementById('e-stat-likes').value === 'true';
-    detalle = `<strong>Tipo:</strong> ❤️ Por likes<br>`
-            + `<strong>Likes (nuevo total):</strong> ${lk.toLocaleString('es')}<br>`
-            + `<strong>Envíos por día:</strong> ${envDia}<br>`
-            + `<strong>Estado:</strong> ${activo ? '✅ Activo' : '❌ Inactivo'}`;
-  }
-
-  document.getElementById('confirm-detail').innerHTML = detalle;
-  document.getElementById('ov-confirm').classList.add('open');
-}
-
-function cerrarConfirm() {
-  document.getElementById('ov-confirm').classList.remove('open');
-}
-
-async function confirmarGuardar() {
-  cerrarConfirm();
-  if (!editUID) return;
-  let r;
-  if (editTipo === 'ilimitado') {
-    r = await API.putAdmin('/api/admin/usuarios/' + editUID + '/ilimitado', {}, admTok);
-  } else if (editTipo === 'dias') {
-    r = await API.putAdmin('/api/admin/usuarios/' + editUID, {
-      plan_tipo: 'dias',
-      dias_plan: parseInt(document.getElementById('e-dias').value) || 0,
-      envios_por_dia: parseInt(document.getElementById('e-env-dias').value) || 3,
-      plan_activo: document.getElementById('e-stat-dias').value === 'true',
-    }, admTok);
-  } else {
-    r = await API.putAdmin('/api/admin/usuarios/' + editUID, {
-      plan_tipo: 'likes',
-      likes_plan: parseInt(document.getElementById('e-lk').value) || 0,
-      envios_por_dia: parseInt(document.getElementById('e-env-likes').value) || 3,
-      plan_activo: document.getElementById('e-stat-likes').value === 'true',
-    }, admTok);
-  }
-  if (!r.ok) return showMsg('msg-edit', r.error, 'err');
-  showMsg('msg-edit', '✓ Plan actualizado correctamente', 'ok');
-  mostrarDetUsr(r.usuario);
-  loadDash();
-  loadUsrs();
-}
-
-function pedirEliminar() {
-  if (!editUID) return;
-  document.getElementById('del-p').value = '';
-  document.getElementById('msg-del').style.display = 'none';
-  document.getElementById('ov-del').classList.add('open');
-  setTimeout(() => document.getElementById('del-p').focus(), 300);
-}
-
-function cerrarDel() {
-  document.getElementById('ov-del').classList.remove('open');
-}
-
-async function confirmarDel() {
-  const pass = document.getElementById('del-p').value;
-  if (!pass) return showMsg('msg-del', 'Ingresa tu contraseña', 'err');
-  const verif = await API.post('/api/admin/login', { username:admUser, password:pass });
-  if (!verif.ok) return showMsg('msg-del', 'Contraseña incorrecta', 'err');
-  await API.deleteAdmin('/api/admin/usuarios/' + editUID, admTok);
-  cerrarDel();
-  cerrarDetUsr();
-  loadUsrs();
+/* ── EXTRA / MASSIVE ── */
+async function ajustarDiasMasivo(dias) {
+  const tipo = document.getElementById('extra-plan-tipo').value;
+  if(!confirm(`¿Estás seguro de sumar/restar ${dias} días a todos los usuarios de tipo "${tipo}"?`)) return;
+  
+  const res = await API.postAdmin('/api/admin/usuarios/extra-days', { tipo, dias }, admTok);
+  if(!res.ok) return showMsg('msg-extra', res.error, 'err');
+  
+  showMsg('msg-extra', `¡Éxito! Se actualizaron ${res.total_afectados} usuarios.`, 'ok');
   loadDash();
 }
 
-document.getElementById('ov-del').addEventListener('click', e => {
-  if (e.target === document.getElementById('ov-del')) cerrarDel();
-});
-document.getElementById('ov-confirm').addEventListener('click', e => {
-  if (e.target === document.getElementById('ov-confirm')) cerrarConfirm();
-});
-
-async function loadUsrs() {
-  const r = await API.getAdmin('/api/admin/usuarios', admTok);
-  if (!r.ok) return;
-  document.getElementById('tb-usr').innerHTML = r.usuarios.length
-    ? r.usuarios.map(u => {
-        const planInfo = u.ilimitado ? '∞ Ilimitado'
-          : u.plan_tipo === 'likes'
-            ? `${(u.likes_disponibles||0).toLocaleString('es')} lk restantes`
-            : u.plan_vence
-              ? `${Math.max(0, Math.ceil((new Date(u.plan_vence) - Date.now()) / 86400000))}d restantes`
-              : '—';
-        return `<tr>
-          <td><code style="color:var(--g);font-size:.74rem">${u.uid}</code></td>
-          <td>${u.username}</td>
-          <td style="color:var(--mut);font-size:.78rem;max-width:120px;overflow:hidden;text-overflow:ellipsis">${u.contact}</td>
-          <td><span class="badge ${u.plan_activo?'bok':'bnone'}">${u.plan_activo?'Activo':'Sin plan'}</span></td>
-          <td><span class="badge ${u.ilimitado?'bilim':u.plan_tipo==='likes'?'blikes':'bdias'}">${u.ilimitado?'🚀 Ilim.':u.plan_tipo||'días'}</span></td>
-          <td style="font-size:.78rem">${planInfo}</td>
-          <td style="color:var(--mut);font-size:.78rem">${new Date(u.creado_en).toLocaleDateString('es')}</td>
-          <td><button class="btn bo bsm" onclick='mostrarDetUsr(${JSON.stringify(u).replace(/'/g,"&#39;")})'>Ver</button></td>
-        </tr>`;
-      }).join('')
-    : '<tr><td colspan="8" style="text-align:center;color:var(--mut);padding:1.8rem">Sin usuarios</td></tr>';
+/* ── UTILS ── */
+function showMsg(id, txt, tipo) {
+  const el = document.getElementById(id);
+  if(!el) return;
+  el.textContent = txt;
+  el.className = 'msg ' + tipo;
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 4000);
 }
 
+function copiarCod() {
+  const txt = document.getElementById('nc-val').textContent;
+  navigator.clipboard.writeText(txt).then(() => {
+    alert('Copiado: ' + txt);
+  });
+}
+
+/* ── RECUPERACIÓN ── */
 async function buscarRec() {
   const q = document.getElementById('rec-q').value.trim();
   if (!q) return;
@@ -1224,14 +1000,6 @@ function copiarRecCod() {
   navigator.clipboard.writeText(document.getElementById('rec-cv').textContent);
 }
 
-function showMsg(id, txt, tipo) {
-  const el = document.getElementById(id);
-  if (!el) return;
-  el.textContent = txt;
-  el.className   = 'msg ' + tipo;
-  el.style.display = txt ? 'block' : 'none';
-  if (txt) setTimeout(() => { if (el.textContent === txt) el.style.display = 'none'; }, 5500);
-}
 </script>
 </body>
 </html>

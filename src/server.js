@@ -484,9 +484,10 @@ app.post('/api/canjear', authMiddleware, async (req, res) => {
       return res.json({ ok: true, message: `✅ Plan activado: ${cod.likes.toLocaleString()} likes · ${cod.envios_dia} envíos/día.` });
     }
     const vence = new Date(Date.now() + cod.dias * 86400000).toISOString();
-    await pool.query(`UPDATE usuarios SET plan_activo=true, plan_nombre=$1, plan_tipo='dias', likes_disponibles=0, likes_limite_plan=0, likes_enviados_plan=0, envios_por_dia=$2, plan_vence=$3, ilimitado=false WHERE id=$4`, [`Plan ${cod.dias} días`, cod.envios_dia, vence, req.user.id]);
+    const planNom = cod.tipo === 'revendedor' ? `Plan Revendedor ${cod.dias}d` : `Plan ${cod.dias} días`;
+    await pool.query(`UPDATE usuarios SET plan_activo=true, plan_nombre=$1, plan_tipo=$2, likes_disponibles=0, likes_limite_plan=0, likes_enviados_plan=0, envios_por_dia=$3, plan_vence=$4, ilimitado=false WHERE id=$5`, [planNom, cod.tipo || 'dias', cod.envios_dia, vence, req.user.id]);
     await pool.query('UPDATE codigos SET usado=true, usado_por=$1, usado_en=NOW() WHERE codigo=$2', [user.rows[0].uid, cod.codigo]);
-    res.json({ ok: true, message: `✅ Plan activado: ${cod.dias} días · ${cod.envios_dia} envíos/día.` });
+    res.json({ ok: true, message: `✅ Plan activado: ${planNom} · ${cod.envios_dia} envíos/día.` });
   } catch (err) { res.status(500).json({ error: 'Error interno' }); }
 });
 
@@ -784,12 +785,12 @@ app.post('/api/admin/codigos', adminMiddleware, async (req, res) => {
       return res.json({ ok: true, codigo: result.rows[0] });
     }
     if (!envios_dia) return res.status(400).json({ error: 'Completa todos los campos' });
-    const tipoFinal = tipo === 'likes' ? 'likes' : 'dias';
-    if (tipoFinal === 'dias'  && !dias)  return res.status(400).json({ error: 'Ingresa los días del plan' });
+    const tipoFinal = (tipo === 'likes' ? 'likes' : (tipo === 'revendedor' ? 'revendedor' : 'dias'));
+    if ((tipoFinal === 'dias' || tipoFinal === 'revendedor') && !dias) return res.status(400).json({ error: 'Ingresa los días del plan' });
     if (tipoFinal === 'likes' && !likes) return res.status(400).json({ error: 'Ingresa la cantidad de likes' });
     let codigo, intentos = 0;
     do { codigo = genCodigo(intentos === 0 ? custom : ''); const chk = await pool.query('SELECT id FROM codigos WHERE codigo=$1', [codigo]); if (!chk.rows.length) break; } while (++intentos < 20);
-    const result = await pool.query(`INSERT INTO codigos (codigo, tipo, dias, likes, envios_dia) VALUES ($1, $2, $3, $4, $5) RETURNING *`, [codigo, tipoFinal, tipoFinal === 'dias' ? dias : 0, tipoFinal === 'likes' ? likes : 0, envios_dia]);
+    const result = await pool.query(`INSERT INTO codigos (codigo, tipo, dias, likes, envios_dia) VALUES ($1, $2, $3, $4, $5) RETURNING *`, [codigo, tipoFinal, (tipoFinal === 'dias' || tipoFinal === 'revendedor') ? dias : 0, tipoFinal === 'likes' ? likes : 0, envios_dia]);
     res.json({ ok: true, codigo: result.rows[0] });
   } catch (err) { if (err.code === '23505') return res.status(400).json({ error: 'Ese código ya existe' }); res.status(500).json({ error: 'Error interno' }); }
 });
@@ -805,7 +806,25 @@ app.get('/api/admin/usuarios', adminMiddleware, async (req, res) => {
   try { const r = await pool.query(`SELECT id,uid,username,contact,plan_activo,plan_nombre,plan_tipo,likes_disponibles,likes_limite_plan,likes_enviados_plan,envios_por_dia,envios_hoy,plan_vence,ilimitado,creado_en FROM usuarios ORDER BY creado_en DESC`); res.json({ ok: true, usuarios: r.rows }); } catch (err) { res.status(500).json({ error: 'Error interno' }); }
 });
 app.get('/api/admin/usuarios/buscar', adminMiddleware, async (req, res) => {
-  try { const { q } = req.query; const r = await pool.query(`SELECT id,uid,username,contact,plan_activo,plan_nombre,plan_tipo,likes_disponibles,likes_limite_plan,likes_enviados_plan,envios_por_dia,envios_hoy,plan_vence,ilimitado,creado_en FROM usuarios WHERE uid ILIKE $1 OR LOWER(username) ILIKE LOWER($1) LIMIT 10`, [`%${q}%`]); res.json({ ok: true, usuarios: r.rows }); } catch (err) { res.status(500).json({ error: 'Error interno' }); }
+  try {
+    const { q } = req.query;
+    const r = await pool.query(`SELECT id,uid,username,contact,plan_activo,plan_nombre,plan_tipo,likes_disponibles,likes_limite_plan,likes_enviados_plan,envios_por_dia,envios_hoy,plan_vence,ilimitado,creado_en FROM usuarios WHERE uid ILIKE $1 OR LOWER(username) ILIKE LOWER($1) LIMIT 10`, [`%${q}%`]);
+    
+    const users = r.rows;
+    for (let u of users) {
+      if (u.plan_tipo === 'revendedor') {
+        const [autoRes, hoyRes] = await Promise.all([
+          pool.query('SELECT COUNT(*) AS total FROM auto_ids WHERE usuario_id=$1 AND activo=true', [u.id]),
+          pool.query(`SELECT COUNT(DISTINCT ff_uid) AS total FROM historial WHERE usuario_id=$1 AND fecha::date = CURRENT_DATE`, [u.id])
+        ]);
+        u.extra_stats = {
+          auto_count: parseInt(autoRes.rows[0].total, 10),
+          sent_today_count: parseInt(hoyRes.rows[0].total, 10)
+        };
+      }
+    }
+    res.json({ ok: true, usuarios: users });
+  } catch (err) { res.status(500).json({ error: 'Error interno' }); }
 });
 app.put('/api/admin/usuarios/:id', adminMiddleware, async (req, res) => {
   try {
@@ -845,6 +864,25 @@ app.put('/api/admin/usuarios/:id/ilimitado', adminMiddleware, async (req, res) =
 });
 app.delete('/api/admin/usuarios/:id', adminMiddleware, async (req, res) => {
   try { await pool.query('DELETE FROM usuarios WHERE id=$1', [req.params.id]); res.json({ ok: true }); } catch (err) { res.status(500).json({ error: 'Error interno' }); }
+});
+
+app.post('/api/admin/usuarios/extra-days', adminMiddleware, async (req, res) => {
+  try {
+    const { tipo, cantidad } = req.body;
+    if (!tipo || cantidad === undefined) return res.status(400).json({ error: 'Tipo y cantidad requeridos' });
+    const dias = parseInt(cantidad, 10);
+    if (isNaN(dias)) return res.status(400).json({ error: 'Cantidad inválida' });
+    
+    // Solo aplicar a usuarios con plan_vence no nulo y del tipo seleccionado
+    const r = await pool.query(`
+      UPDATE usuarios 
+      SET plan_vence = plan_vence + ($1 || ' days')::interval 
+      WHERE plan_tipo = $2 AND plan_vence IS NOT NULL AND plan_activo = true
+      RETURNING id
+    `, [dias, tipo]);
+    
+    res.json({ ok: true, modified: r.rows.length, message: `Se han ajustado ${dias} días a ${r.rows.length} usuarios.` });
+  } catch (err) { res.status(500).json({ error: 'Error interno: ' + err.message }); }
 });
 
 app.post('/api/admin/codigos-recuperacion', adminMiddleware, async (req, res) => {
