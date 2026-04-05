@@ -484,7 +484,7 @@ app.post('/api/canjear', authMiddleware, async (req, res) => {
       return res.json({ ok: true, message: `✅ Plan activado: ${cod.likes.toLocaleString()} likes · ${cod.envios_dia} envíos/día.` });
     }
     const vence = new Date(Date.now() + cod.dias * 86400000).toISOString();
-    const planNom = cod.tipo === 'revendedor' ? `Plan Revendedor ${cod.dias}d` : `Plan ${cod.dias} días`;
+    const planNom = cod.tipo === 'revendedor' ? `Revendedor` : `Plan ${cod.dias} días`;
     await pool.query(`UPDATE usuarios SET plan_activo=true, plan_nombre=$1, plan_tipo=$2, likes_disponibles=0, likes_limite_plan=0, likes_enviados_plan=0, envios_por_dia=$3, plan_vence=$4, ilimitado=false WHERE id=$5`, [planNom, cod.tipo || 'dias', cod.envios_dia, vence, req.user.id]);
     await pool.query('UPDATE codigos SET usado=true, usado_por=$1, usado_en=NOW() WHERE codigo=$2', [user.rows[0].uid, cod.codigo]);
     res.json({ ok: true, message: `✅ Plan activado: ${planNom} · ${cod.envios_dia} envíos/día.` });
@@ -844,7 +844,10 @@ app.put('/api/admin/usuarios/:id', adminMiddleware, async (req, res) => {
     sets.push(`ilimitado=$${idx++}`); params.push(false);
     if (tipoFinal === 'dias' && diasFinal !== null) {
       const vence = diasFinal > 0 ? new Date(Date.now() + diasFinal * 86400000).toISOString() : null;
-      sets.push(`plan_tipo=$${idx++}`); params.push('dias'); sets.push(`plan_vence=$${idx++}`); params.push(vence); sets.push(`plan_nombre=$${idx++}`); params.push(`Plan ${diasFinal} días (Admin)`); sets.push(`likes_disponibles=$${idx++}`); params.push(0); sets.push(`likes_limite_plan=$${idx++}`); params.push(0); sets.push(`likes_enviados_plan=$${idx++}`); params.push(0);
+      sets.push(`plan_tipo=$${idx++}`); params.push('dias'); sets.push(`plan_vence=$${idx++}`); params.push(vence); sets.push(`plan_nombre=$${idx++}`); params.push(`Plan ${diasFinal} días`); sets.push(`likes_disponibles=$${idx++}`); params.push(0); sets.push(`likes_limite_plan=$${idx++}`); params.push(0); sets.push(`likes_enviados_plan=$${idx++}`); params.push(0);
+    } else if (tipoFinal === 'revendedor' && diasFinal !== null) {
+      const vence = diasFinal > 0 ? new Date(Date.now() + diasFinal * 86400000).toISOString() : null;
+      sets.push(`plan_tipo=$${idx++}`); params.push('revendedor'); sets.push(`plan_vence=$${idx++}`); params.push(vence); sets.push(`plan_nombre=$${idx++}`); params.push('Revendedor'); sets.push(`likes_disponibles=$${idx++}`); params.push(0); sets.push(`likes_limite_plan=$${idx++}`); params.push(0); sets.push(`likes_enviados_plan=$${idx++}`); params.push(0);
     } else if (tipoFinal === 'likes' && likesFinal !== null) {
       sets.push(`plan_tipo=$${idx++}`); params.push('likes'); sets.push(`likes_disponibles=$${idx++}`); params.push(likesFinal); sets.push(`likes_limite_plan=$${idx++}`); params.push(likesFinal); sets.push(`likes_enviados_plan=$${idx++}`); params.push(0); sets.push(`plan_nombre=$${idx++}`); params.push(`Plan ${likesFinal} Likes (Admin)`); sets.push(`plan_vence=$${idx++}`); params.push(null);
     } else if (!activoFinal) { sets.push(`plan_vence=$${idx++}`); params.push(null); }

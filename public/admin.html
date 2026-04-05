@@ -650,9 +650,21 @@ function cerrarDetUsr() {
 
 function selTipo(tipo) {
   tipoPlan = tipo;
-  ['dias','likes','ilimitado'].forEach(t => {
-    document.getElementById('topt-' + t).classList.toggle('sel', t === tipo);
-    document.getElementById('campos-' + t).style.display = t === tipo ? 'block' : 'none';
+  ['dias','likes','revendedor','ilimitado'].forEach(t => {
+    const el = document.getElementById('topt-' + t);
+    if (el) el.classList.toggle('sel', t === tipo);
+    
+    const campos = document.getElementById('campos-' + t);
+    if (campos) {
+      campos.style.display = t === tipo ? 'block' : 'none';
+    } else if (t === 'revendedor' && tipo === 'revendedor') {
+      // Usar los campos de dias para revendedor
+      document.getElementById('campos-dias').style.display = 'block';
+    } else if (t === 'dias' && tipo === 'revendedor') {
+      // Mantener campos-dias visible
+    } else if (t === 'dias' && tipo !== 'dias' && tipo !== 'revendedor') {
+       document.getElementById('campos-dias').style.display = 'none';
+    }
   });
   const btn = document.getElementById('btn-crear-cod');
   btn.style.background = tipo === 'ilimitado' ? '#a78bfa' : '';
@@ -769,7 +781,7 @@ async function loadCods() {
           ? '<span class="badge bilim">Ilimitado</span>'
           : tipo === 'likes'
             ? '<span class="badge blikes">Likes</span>'
-            : '<span class="badge bdias">Días</span>';
+            : (tipo === 'revendedor' ? '<span class="badge brev">Revendedor</span>' : '<span class="badge bdias">Días</span>');
         const detalle = c.ilimitado ? '∞'
           : tipo === 'likes' ? `${(c.likes||0).toLocaleString('es')} lk`
           : `${c.dias||0}d`;
