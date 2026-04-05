@@ -526,7 +526,7 @@ app.get('/api/perfil', authMiddleware, async (req, res) => {
   try {
     const today = new Date().toISOString().slice(0, 10);
     await pool.query(`UPDATE usuarios SET envios_hoy=0, fecha_ultimo_envio=$1 WHERE id=$2 AND (fecha_ultimo_envio IS NULL OR fecha_ultimo_envio < $1)`, [today, req.user.id]);
-    const result = await pool.query(`SELECT id,uid,username,contact,plan_activo,plan_nombre,plan_tipo,likes_disponibles,likes_limite_plan,likes_enviados_plan,envios_por_dia,envios_hoy,plan_vence,ilimitado,creado_en FROM usuarios WHERE id=$1`, [req.user.id]);
+    const result = await pool.query(`SELECT id,uid,username,contact,plan_activo,plan_nombre,plan_tipo,likes_disponibles,likes_limite_plan,likes_enviados_plan,envios_por_dia,envios_hoy,plan_vence,ilimitado,creado_en,google_id,google_email FROM usuarios WHERE id=$1`, [req.user.id]);
     if (!result.rows.length) return res.status(404).json({ error: 'Usuario no encontrado' });
     const u = result.rows[0];
     if (u.plan_activo && !u.ilimitado && u.plan_tipo === 'dias' && u.plan_vence && new Date(u.plan_vence) < new Date()) { await pool.query('UPDATE usuarios SET plan_activo=false WHERE id=$1', [u.id]); u.plan_activo = false; }
@@ -537,6 +537,38 @@ app.get('/api/perfil', authMiddleware, async (req, res) => {
     u.total_likes_enviados = parseInt(totalLikes.rows[0].total, 10);
     res.json({ ok: true, user: u, historial: hist.rows });
   } catch (err) { res.status(500).json({ error: 'Error interno' }); }
+});
+
+app.post('/api/perfil/update', authMiddleware, async (req, res) => {
+  try {
+    const { username, password } = req.body;
+    let upQuery = [];
+    let params = [];
+    let pIdx = 1;
+
+    if (username) {
+      if (username.length < 3) return res.status(400).json({ error: 'Mínimo 3 caracteres para el usuario' });
+      const existe = await pool.query('SELECT id FROM usuarios WHERE LOWER(username)=LOWER($1) AND id!=$2', [username, req.user.id]);
+      if (existe.rows.length) return res.status(400).json({ error: 'Ese nombre de usuario ya está en uso' });
+      upQuery.push(`username=$${pIdx++}`);
+      params.push(username);
+    }
+    
+    if (password) {
+      if (password.length < 6) return res.status(400).json({ error: 'Mínimo 6 caracteres para la contraseña' });
+      const hash = await bcrypt.hash(password, 10);
+      upQuery.push(`password=$${pIdx++}`);
+      params.push(hash);
+    }
+    
+    if (upQuery.length === 0) return res.status(400).json({ error: 'No se enviaron datos para actualizar' });
+    
+    params.push(req.user.id);
+    await pool.query(`UPDATE usuarios SET ${upQuery.join(', ')} WHERE id=$${pIdx}`, params);
+    
+    const updated = await pool.query('SELECT id,uid,username,contact,plan_activo,plan_nombre,google_id FROM usuarios WHERE id=$1', [req.user.id]);
+    res.json({ ok: true, message: 'Se ha actualizado tu perfil correctamente', user: updated.rows[0] });
+  } catch (err) { res.status(500).json({ error: 'Error interno al actualizar perfil' }); }
 });
 
 app.post('/api/canjear', authMiddleware, async (req, res) => {

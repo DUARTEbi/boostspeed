@@ -390,20 +390,21 @@ input[type=number] { -moz-appearance: textfield; }
       <div class="spin" id="spin-login"></div>
       <span id="txt-login">Ingresar</span>
     </button>
-      <div style="text-align:center;margin-top:22px;display:flex;flex-direction:column;gap:10px;">
+      <div style="text-align:center;margin-top:22px;">
         <a href="#" onclick="cerrarModal('login');abrirModal('recuperar');return false"
            style="color:rgba(255,255,255,0.35);font-size:13px;">¿Olvidaste tu contraseña?</a>
-        <a href="#" onclick="cerrarModal('login');abrirModal('registro');return false"
-           style="color:rgba(255,255,255,0.35);font-size:13px;">No tengo cuenta</a>
       </div>
-      <div class="divider">O CONTINUAR CON</div>
+      <div class="divider">NUEVA CUENTA O RECUERDA SESSION</div>
       <button class="btn-google" onclick="loginConGoogle()">
         <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="google-icon">
-        Iniciar con Google
+        Continuar con Google
       </button>
     </div>
   </div>
 </div>
+
+<!-- MODAL REGISTRO (DESACTIVADO DE LA INTERFAZ) -->
+<div class="ov" id="ov-registro" style="display:none"></div>
 
 <!-- MODAL REGISTRO -->
 <div class="ov" id="ov-registro">
@@ -439,15 +440,20 @@ input[type=number] { -moz-appearance: textfield; }
 <div class="ov" id="ov-google-setup">
   <div class="glass-card">
     <button class="btn-close" onclick="cerrarModal('google-setup')">✕</button>
-    <div style="font-size:1.3rem;font-weight:700;margin-bottom:12px;text-align:center;">Finaliza tu perfil</div>
-    <p style="text-align:center;margin-bottom:22px;font-size:0.8rem;">Elige un nombre de usuario y contraseña para tu cuenta.</p>
+    <div class="logo-container" style="margin-bottom:20px;font-size:34px;">
+      <span class="logo-boost">Boost</span><span class="logo-speed">Speed</span>
+      <svg class="rayo-impacto" viewBox="0 0 24 24" fill="currentColor" style="width:26px;height:26px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    </div>
+    <div style="font-size:1.3rem;font-weight:700;margin-bottom:12px;text-align:center;">¡Ya casi estás!</div>
+    <p style="text-align:center;margin-bottom:22px;font-size:0.85rem;color:rgba(255,255,255,0.6);">Configura tus credenciales para finalizar el registro.</p>
     <div id="msg-google-setup" class="msg"></div>
-    <input type="text" id="gs-user" class="input-field" placeholder="Nombre de usuario" autocomplete="username">
-    <input type="password" id="gs-pass" class="input-field" placeholder="Contraseña personalizada" autocomplete="new-password">
+    <input type="text" id="gs-user" class="input-field" placeholder="Tu nombre de usuario" autocomplete="username">
+    <input type="password" id="gs-pass" class="input-field" placeholder="Tu contraseña" autocomplete="new-password">
     <button id="btn-gs" class="submit-btn" onclick="confirmarGoogleSetup()">
       <div class="spin" id="spin-gs"></div>
-      <span id="txt-gs">Completar registro</span>
+      <span id="txt-gs">Crear mi cuenta ⚡</span>
     </button>
+    <p style="margin-top:20px;font-size:12px;text-align:center;color:rgba(255,255,255,0.25);">Podrás cambiar estos datos luego en tu Perfil.</p>
   </div>
 </div>
 
@@ -473,7 +479,14 @@ input[type=number] { -moz-appearance: textfield; }
                style="margin-bottom:0;">
       </div>
       <button class="submit-btn" onclick="recuperarP1()">Verificar cuenta →</button>
-      <div style="text-align:center;margin-top:16px;">
+
+      <div class="divider" style="margin:20px 0;">O RECUPERA AL INSTANTE</div>
+      <button class="btn-google" onclick="loginConGoogle()">
+        <img src="https://www.gstatic.com/firebasejs/ui/2.0.0/images/auth/google.svg" class="google-icon">
+        Recuperar con Google
+      </button>
+
+      <div style="text-align:center;margin-top:18px;">
         <a href="#" onclick="cerrarModal('recuperar');abrirModal('login');return false"
            style="color:rgba(255,255,255,0.3);font-size:13px;">← Volver a iniciar sesión</a>
       </div>
@@ -752,13 +765,17 @@ document.addEventListener('DOMContentLoaded', async () => {
       if (res.isNew) {
         googleUserTemp = user;
         cerrarModal('login');
+        cerrarModal('recuperar');
         abrirModal('google-setup');
       } else if (res.ok) {
         localStorage.setItem('bs_token', res.token);
         localStorage.setItem('bs_user', JSON.stringify(res.user));
-        location.href = '/dashboard.html';
+        // Si estaba en recuperar, mandamos al perfil directamente
+        const isRec = document.getElementById('ov-recuperar').classList.contains('open') || document.getElementById('ov-recuperar').style.display === 'flex';
+        location.href = '/dashboard.html' + (isRec ? '#perfil' : '');
       } else {
-        mostrarMsg('msg-login', res.error, 'err');
+        const msgId = (document.getElementById('ov-recuperar').style.display === 'flex') ? 'msg-recuperar' : 'msg-login';
+        mostrarMsg(msgId, res.error, 'err');
       }
     } catch (error) {
       console.error(error);
