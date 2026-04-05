@@ -307,28 +307,26 @@ function interpretarRespuestaFF(apiData) {
   const sentMatch = String(apiData.sent || '').match(/\d+/);
   const fromSentStr = sentMatch ? parseInt(sentMatch[0], 10) : 0;
   const added  = parseInt(apiData.likes_added || fromSentStr || 0, 10);
-  const before = parseInt(apiData.likes_before || apiData.likes_antes || 0, 10);
-  const after  = parseInt(apiData.likes_after || apiData.likes_depois || 0, 10);
+  const before = parseInt(apiData.likes_before || apiData.likes_antes || apiData.Likes_Iniciais || 0, 10);
+  const after  = parseInt(apiData.likes_after || apiData.likes_depois || apiData.Likes_Atuais || 0, 10);
   const msgRaw = String((apiData.message || '') + (apiData.error || '') + (apiData.msg_sistema || '')).toLowerCase();
 
-  if (apiData.status_envio === 'SUCESSO') return { tipo: 'ok' };
-  if (apiData.res === 'LIMIT_EXCEEDED') return { tipo: 'limite' };
-  if (apiData.res === 'KEY_NOT_FOUND') return { tipo: 'auth_error' };
+  const playerName = apiData.nickname || apiData.Nickname || apiData.player_name || apiData.PlayerName || '';
+  const level = apiData.level || apiData.Level || 0;
+  const region = apiData.region || apiData.Region || 'BR';
 
-  if (apiData.status === 2) return { tipo: 'ya_recibio' };
+  if (apiData.status_envio === 'SUCESSO' || apiData.status === 'success' || (apiData.res === 'SUCCESS' && !apiData.error)) {
+    return { tipo: 'ok', added, before, after, playerName, level, region };
+  }
+  
+  if (apiData.res === 'LIMIT_EXCEEDED' || msgRaw.includes('limite di') || msgRaw.includes('limit reached')) return { tipo: 'limite' };
+  if (apiData.res === 'KEY_NOT_FOUND' || msgRaw.includes('chave inv') || msgRaw.includes('key not found') || apiData.status_code === 401) return { tipo: 'auth_error' };
+  if (apiData.res === 'TOO_MANY_REQUESTS' || msgRaw.includes('6hrs') || msgRaw.includes('recibio likes') || apiData._httpStatus === 429) return { tipo: 'ya_recibio' };
+
+  if (apiData.status === 2 || apiData.status === '2') return { tipo: 'ya_recibio' };
   if (added === 0 && before > 0 && after === before) return { tipo: 'ya_recibio' };
 
-  if (apiData._httpStatus === 429 || apiData._limit === true ||
-      ['limit','already','wait','espera','daily','limite'].some(k => msgRaw.includes(k)))
-    return { tipo: 'limite' };
-
-  if (apiData._httpStatus === 401 || msgRaw.includes('api key') || msgRaw.includes('apikey') ||
-      msgRaw.includes('unauthorized') || msgRaw.includes('access denied') || msgRaw.includes('denegado') || msgRaw.includes('chave') || msgRaw.includes('inválida'))
-    return { tipo: 'auth_error' };
-
-  if (apiData.status === 1 || added > 0) return { tipo: 'ok' };
-
-  return { tipo: 'error' };
+  return { tipo: 'error', error: apiData.error || apiData.message || 'Error desconocido' };
 }
 
 app.get('/api/public-stats', async (req, res) => {
