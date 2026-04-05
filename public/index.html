@@ -1,0 +1,690 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="theme-color" content="#0C0C0C"/>
+<meta name="description" content="BoostSpeed - Plataforma premium de likes para Free Fire. Seguro, instantáneo y disponible 24/7."/>
+<title>BoostSpeed ⚡</title>
+<link href="https://fonts.googleapis.com/css2?family=Archivo+Narrow:wght@700&family=Inter:wght@400;500;600;700&family=Yellowtail&display=swap" rel="stylesheet">
+<style>
+/* === VARIABLES & BASE === */
+* { -webkit-tap-highlight-color: transparent; }
+:root {
+  --bg: #0C0C0C;
+  --bg-card: #121212;
+  --border: #222222;
+  --border-neon: rgba(0, 255, 30, 0.2);
+  --accent: #00FF1E;
+  --accent-glow: rgba(0, 255, 30, 0.4);
+  --text-main: #FFFFFF;
+  --text-mut: #999999;
+  --err: #ff3333;
+  --font: 'Inter', sans-serif;
+}
+
+* { box-sizing: border-box; margin: 0; padding: 0; }
+body { background: var(--bg); color: var(--text-main); font-family: var(--font); font-size: 14px; line-height: 1.6; -webkit-font-smoothing: antialiased; }
+a { color: var(--text-mut); text-decoration: none; transition: all 0.3s ease; }
+a:hover { color: var(--accent); }
+ul { list-style: none; }
+
+/* === TYPOGRAPHY === */
+.text-accent { color: var(--accent); }
+.text-glow { text-shadow: 0 0 15px var(--accent-glow), 0 0 30px rgba(0,255,30,0.2); }
+h1 { font-size: clamp(1.8rem, 4.5vw, 3.2rem); font-weight: 700; color: var(--text-main); line-height: 1.15; letter-spacing: -0.02em; margin-bottom: 1.2rem; }
+h2 { font-size: 1.6rem; font-weight: 700; margin-bottom: 2.2rem; color: var(--text-main); }
+h3 { font-size: 1rem; font-weight: 600; margin-bottom: 0.5rem; color: var(--text-main); }
+p { color: var(--text-mut); font-size: 0.85rem; }
+
+/* === ANIMATIONS === */
+@keyframes fadeUp {
+  from { opacity: 0; transform: translateY(20px); }
+  to { opacity: 1; transform: translateY(0); }
+}
+.anim-fade { opacity: 0; animation: fadeUp 0.8s cubic-bezier(0.16, 1, 0.3, 1) forwards; }
+.delay-1 { animation-delay: 0.1s; }
+.delay-2 { animation-delay: 0.2s; }
+.delay-3 { animation-delay: 0.3s; }
+
+.rayo-impacto {
+  color: #FFEA00; display: inline-block; vertical-align: middle; width: 0.9em; height: 0.9em; margin-left: 6px; will-change: transform, opacity, filter; transform-origin: center bottom; animation: strike 3.5s infinite linear;
+}
+@keyframes strike {
+  0%, 80%, 85%, 92%, 100% { opacity: 0.1; transform: scale(0.9) rotate(0deg); filter: drop-shadow(0 0 2px rgba(255, 234, 0, 0.2)); }
+  82% { opacity: 1; transform: scale(1.1) rotate(-5deg); filter: drop-shadow(0 0 10px #FFEA00); }
+  88% { opacity: 1; transform: scale(1.3) rotate(6deg); filter: drop-shadow(0 0 15px #FFEA00) drop-shadow(0 0 5px #fff); }
+}
+
+/* === UTILS === */
+.container { max-width: 1100px; margin: 0 auto; padding: 0 24px; }
+.flex { display: flex; }
+.col { flex-direction: column; }
+.items-center { align-items: center; }
+.justify-between { justify-content: space-between; }
+.justify-center { justify-content: center; }
+.text-center { text-align: center; }
+.mt-4 { margin-top: 2rem; }
+
+/* === BUTTONS === */
+.btn { position: relative; overflow: hidden; border: none; border-radius: 8px; padding: 0.85rem 1.6rem; cursor: pointer; transition: all 0.3s ease; font-weight: 600; font-family: var(--font); display: inline-flex; justify-content: center; align-items: center; gap: 8px; font-size: 0.95rem; }
+.btn-nav { background: transparent; color: var(--text-main); border: 1px solid var(--border); padding: 0.5rem 1.2rem; font-size: 0.85rem;}
+.btn-nav:hover { border-color: var(--accent); color: var(--accent); }
+
+.btn-primary { background: var(--accent); color: #000; box-shadow: 0 4px 15px rgba(0,255,30,0.15); border: 1px solid var(--accent); }
+.btn-primary:hover { box-shadow: 0 0 25px rgba(0,255,30,0.4); transform: translateY(-2px); background: #00e61a; }
+
+.btn-outline { background: var(--bg-card); color: var(--text-main); border: 1px solid transparent; }
+.btn-outline:hover { border-color: var(--accent); color: var(--accent); transform: translateY(-2px); box-shadow: 0 0 15px rgba(0,255,30,0.1); }
+.btn-full { width: 100%; }
+
+.btn::before, .submit-btn::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: -150%;
+    width: 60%;
+    height: 100%;
+    background: linear-gradient(to right, transparent, rgba(255, 255, 255, 0.4), transparent);
+    transform: skewX(-30deg);
+    animation: flash-swipe 3.5s infinite;
+    pointer-events: none;
+}
+@keyframes flash-swipe {
+    0% { left: -150%; }
+    20% { left: 150%; }
+    100% { left: 150%; }
+}
+
+.hero-cta { display: flex; flex-direction: column; gap: 0.9rem; width: 100%; max-width: 340px; margin: 0 auto; }
+
+/* === NAVBAR === */
+nav { position: sticky; top: 0; background: rgba(12, 12, 12, 0.85); backdrop-filter: blur(10px); padding: 1rem 0; z-index: 100; }
+
+.neon-pingpong-container { width: 100%; height: 2px; background: rgba(255, 255, 255, 0.02); position: absolute; bottom: 0; left: 0; overflow: hidden; box-shadow: 0 0 5px rgba(0, 0, 0, 0.5); z-index: 101; }
+.neon-pingpong-line { position: absolute; top: 0; left: -100%; width: 100%; height: 100%; background: linear-gradient(to right, transparent, var(--accent) 50%, transparent); box-shadow: 0 0 10px rgba(0, 255, 30, 0.7), 0 0 20px rgba(0, 255, 30, 0.4); animation: neon-swipe-pingpong 4s ease-in-out infinite; }
+@keyframes neon-swipe-pingpong {
+    0% { left: -100%; }
+    50% { left: 100%; }
+    100% { left: -100%; }
+}
+
+.logo { display: flex; align-items: center; gap: 4px; text-decoration: none; }
+.logo-container {
+    font-family: 'Yellowtail', cursive;
+    font-size: 38px;
+    letter-spacing: 1px;
+    margin: 0;
+    line-height: 1;
+    white-space: nowrap;
+    display: flex; align-items: center; justify-content: center;
+}
+.logo-boost { color: #ffffff; }
+.logo-speed { color: #00FF1E; text-shadow: 0 0 10px rgba(0, 255, 30, 0.4), 0 0 20px rgba(0, 255, 30, 0.2); }
+
+/* === HERO & STATS === */
+.hero { padding: 6rem 0 4rem; max-width: 850px; margin: 0 auto; }
+.hero p { max-width: 650px; margin: 0 auto 2.5rem; line-height: 1.6; }
+
+.stats-wrapper { display: flex; align-items: center; justify-content: center; gap: 80px; margin-top: 3rem; }
+.stat-group { text-align: center; display: flex; flex-direction: column; align-items: center; opacity: 0; transform: translateY(10px); animation: appear 0.6s ease-out forwards; }
+.neon-val { font-family: 'Archivo Narrow', sans-serif; font-size: clamp(2.5rem, 5vw, 48px); font-weight: 700; color: var(--accent); margin: 0; line-height: 0.9; letter-spacing: -1px; text-shadow: 0 0 10px rgba(0, 255, 30, 0.5); }
+.stat-label { font-family: var(--font); font-size: 10px; font-weight: 600; color: rgba(255, 255, 255, 0.4); text-transform: uppercase; letter-spacing: 1px; margin-top: 12px; }
+.laser-divider { width: 1px; height: 50px; background: linear-gradient(to bottom, transparent, rgba(255,255,255,0.1), transparent); }
+@keyframes appear { to { opacity: 1; transform: translateY(0); } }
+
+/* === STATUS ONLINE === */
+.status-online { display: inline-flex; align-items: center; gap: 8px; padding: 4px 12px; background: rgba(0, 255, 30, 0.03); border-radius: 30px; font-family: var(--font); cursor: default; margin-bottom: 8px; }
+.dot-pulse-wrapper { position: relative; display: flex; align-items: center; justify-content: center; width: 10px; height: 10px; transform: scale(0.9); }
+.dot-center { width: 8px; height: 8px; background-color: var(--accent); border-radius: 50%; z-index: 2; box-shadow: 0 0 10px rgba(0, 255, 30, 0.5); }
+.dot-ring { position: absolute; width: 100%; height: 100%; background-color: var(--accent); border-radius: 50%; z-index: 1; animation: neon-pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite; }
+@keyframes neon-pulse { 0% { transform: scale(1); opacity: 0.6; } 100% { transform: scale(3); opacity: 0; } }
+.status-text { font-size: 10px; font-weight: 700; color: var(--accent); text-transform: uppercase; letter-spacing: 1px; text-shadow: 0 0 5px rgba(0, 255, 30, 0.3); }
+
+/* === GRID SEC === */
+.sec { padding: 5rem 0; border-top: 1px solid var(--border); }
+.grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(250px, 1fr)); gap: 24px; }
+.card { background: var(--bg-card); border: none; border-radius: 8px; padding: 2rem; transition: all 0.3s ease; animation: floatCard 4s ease-in-out infinite; }
+.card:nth-child(2) { animation-delay: 0.5s; }
+.card:nth-child(3) { animation-delay: 1s; }
+.card:nth-child(4) { animation-delay: 1.5s; }
+.card:hover { box-shadow: 0 15px 40px rgba(0,255,30,0.08); transform: translateY(-10px) scale(1.02); animation-play-state: paused; cursor: default; }
+@keyframes floatCard {
+  0% { transform: translateY(0); }
+  50% { transform: translateY(-8px); }
+  100% { transform: translateY(0); }
+}
+.c-icon { font-size: 1.5rem; color: var(--accent); margin-bottom: 1rem; }
+
+/* === HOW IT WORKS === */
+.steps-container { display: flex; flex-direction: column; gap: 16px; width: 100%; max-width: 650px; margin: 0 auto; padding: 20px; }
+.step-card { background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(30px); -webkit-backdrop-filter: blur(30px); border-radius: 22px; padding: 28px; display: flex; align-items: center; gap: 20px; position: relative; cursor: pointer; transition: transform 0.3s cubic-bezier(0.22, 1, 0.36, 1), background 0.3s ease; }
+.step-card:hover { transform: translateY(-4px); background: rgba(255, 255, 255, 0.06); }
+.step-number { width: 45px; height: 45px; border-radius: 50%; background: rgba(0, 0, 0, 0.5); border: 1px solid rgba(0, 255, 30, 0.15); display: flex; justify-content: center; align-items: center; font-size: 16px; font-weight: 700; color: var(--accent); flex-shrink: 0; transition: all 0.3s cubic-bezier(0.22, 1, 0.36, 1); }
+.step-card:hover .step-number { border-color: var(--accent); box-shadow: 0 0 15px rgba(0, 255, 30, 0.3); transform: scale(1.1); }
+.step-content h3 { font-size: 16px; font-weight: 600; margin: 0 0 5px 0; color: var(--text-main); letter-spacing: -0.5px; }
+.step-content p { font-size: 13px; line-height: 1.5; color: rgba(255,255,255,0.5); margin: 0; transition: color 0.3s ease; }
+.step-card:hover .step-content p { color: rgba(255, 255, 255, 0.8); }
+
+/* === FOOTER === */
+footer { text-align: center; padding: 2rem 0; border-top: 1px solid var(--border); font-size: 0.85rem;}
+
+/* === MODALS === */
+.ov { position: fixed; inset: 0; background: rgba(0, 0, 0, 0.6); backdrop-filter: blur(8px); z-index: 1000; display: none; align-items: center; justify-content: center; opacity: 0; transition: opacity 0.3s ease; padding: 20px; box-sizing: border-box; }
+.ov.open { display: flex; opacity: 1; }
+
+.glass-card { width: 100%; max-width: 380px; background: rgba(255, 255, 255, 0.03); backdrop-filter: blur(25px); -webkit-backdrop-filter: blur(25px); border: 1px solid rgba(255, 255, 255, 0.05); border-radius: 32px; padding: 40px 30px; box-shadow: 0 25px 50px rgba(0, 0, 0, 0.5); position: relative; transform: scale(0.95); transition: transform 0.3s ease; max-height: 90vh; overflow-y: auto; }
+.ov.open .glass-card { transform: scale(1); }
+
+.input-field { width: 100%; background: rgba(255, 255, 255, 0.03); border: none; padding: 16px; border-radius: 16px; color: white; font-size: 14px; margin-bottom: 12px; outline: none; transition: 0.3s ease; font-family: var(--font); box-sizing: border-box; }
+.input-field:focus { background: rgba(255, 255, 255, 0.08); }
+.input-field::placeholder { color: rgba(255, 255, 255, 0.4); }
+input[type=number]::-webkit-inner-spin-button,
+input[type=number]::-webkit-outer-spin-button { -webkit-appearance: none; margin: 0; }
+input[type=number] { -moz-appearance: textfield; }
+
+.submit-btn { position: relative; overflow: hidden; width: 100%; background: var(--accent); color: black; border: none; padding: 16px; border-radius: 16px; font-weight: 700; font-size: 14px; cursor: pointer; margin-top: 5px; transition: 0.3s ease; display: inline-flex; justify-content: center; align-items: center; gap: 8px; font-family: var(--font); }
+.submit-btn:hover { transform: translateY(-2px); box-shadow: 0 15px 30px rgba(0, 255, 30, 0.25); }
+.submit-btn:disabled { opacity: 0.6; cursor: not-allowed; transform: none; }
+
+.btn-close { position: absolute; top: 20px; right: 25px; background: transparent; border: none; color: rgba(255,255,255,0.4); font-size: 1.2rem; cursor: pointer; transition: 0.3s; }
+.btn-close:hover { color: white; }
+
+/* === MENSAJES === */
+.msg { padding: 0.8rem 1rem; border-radius: 12px; font-size: 0.85rem; margin-bottom: 1rem; display: none; }
+.msg.ok { display: block; background: rgba(0,255,30,0.05); border: 1px solid var(--accent); color: var(--accent); }
+.msg.err { display: block; background: rgba(255,51,51,0.05); border: 1px solid var(--err); color: var(--err); }
+
+/* === SPINNER === */
+.spin { display: none; width: 14px; height: 14px; border: 2px solid rgba(0,0,0,0.2); border-top-color: currentColor; border-radius: 50%; animation: sp 0.6s linear infinite; flex-shrink: 0; }
+@keyframes sp { to { transform: rotate(360deg); } }
+
+/* === PASOS RECUPERAR === */
+.sdots { display: flex; gap: 6px; justify-content: center; margin-bottom: 20px; }
+.sdot { width: 6px; height: 6px; border-radius: 50%; background: rgba(255,255,255,0.08); transition: background 0.3s, box-shadow 0.3s; }
+.sdot.active { background: var(--accent); box-shadow: 0 0 8px var(--accent); }
+
+/* === LINKS SOPORTE === */
+.sup-link { display: flex; justify-content: space-between; align-items: center; text-decoration: none; color: var(--text-main); background: rgba(255,255,255,0.03); border: 1px solid rgba(255,255,255,0.06); border-radius: 14px; padding: 14px 16px; margin-bottom: 10px; font-size: 13px; transition: all 0.25s; }
+.sup-link:hover { border-color: rgba(0,255,30,0.25); color: var(--accent); transform: translateX(3px); }
+.sup-arrow { color: var(--accent); }
+
+/* === NOTIFICATIONS === */
+#notif-container { position: fixed; bottom: 20px; left: 20px; z-index: 900; display: flex; flex-direction: column-reverse; gap: 10px; pointer-events: none; max-width: 260px; }
+.notif { display: flex; align-items: center; gap: 12px; background: var(--bg-card); border: 1px solid var(--border); border-radius: 10px; padding: 12px 16px; box-shadow: 0 4px 20px rgba(0,0,0,0.5), 0 0 10px rgba(0,255,30,0.06); animation: fadeUp 0.3s ease; }
+.notif-ico { color: var(--accent); font-size: 1.1rem; flex-shrink: 0; }
+.notif-txt { display: flex; flex-direction: column; min-width: 0; }
+.notif-name { font-size: 0.82rem; color: var(--text-main); font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.notif-likes { font-size: 0.73rem; color: var(--accent); font-weight: 700; }
+
+/* === RESPONSIVE === */
+@media screen and (max-width: 850px) {
+  .hero { padding: 4rem 0 3rem; }
+  h1 { font-size: clamp(1.6rem, 5.5vw, 2.6rem); margin-bottom: 1rem; line-height: 1.15; }
+  .hero p { font-size: 0.85rem; padding: 0 10px; }
+  .stats-wrapper { flex-direction: row; gap: 40px; margin-top: 2.5rem; justify-content: center; }
+}
+
+@media screen and (max-width: 550px) {
+  .step-card { flex-direction: column; text-align: center; padding: 25px 20px; gap: 15px; align-items: center; }
+}
+
+@media screen and (max-width: 480px) {
+  .hero { padding: 2.5rem 0 2rem; }
+  h1 { font-size: 1.6rem; margin-top: 0.5rem; letter-spacing: -1px; }
+  .hero p { font-size: 0.8rem; line-height: 1.3; margin-bottom: 1.5rem; }
+  nav { padding: 0.7rem 0; }
+  .logo-container { font-size: 28px; }
+  .btn-nav { padding: 0.4rem 1rem; font-size: 0.75rem; }
+  .container { padding: 0 16px; }
+  .glass-card { padding: 35px 25px; border-radius: 24px; }
+  .stats-wrapper { gap: 15px; align-items: flex-start; margin-top: 2rem; }
+  .laser-divider { margin-top: 15px; height: 40px; }
+  .neon-val { font-size: 1.7rem; }
+  .stat-label { font-size: 8px; letter-spacing: 1px; }
+  .status-text { font-size: 8px; }
+  .status-online { padding: 4px 8px; gap: 4px; margin-bottom: 5px; }
+  .dot-pulse-wrapper { transform: scale(0.8); }
+}
+</style>
+</head>
+<body>
+
+<!-- ── NAVBAR ── -->
+<nav>
+  <div class="container flex items-center justify-between">
+    <a href="#" class="logo">
+      <div class="dot-pulse-wrapper" style="margin-right: 6px;"><div class="dot-center"></div><div class="dot-ring"></div></div>
+      <div class="logo-container">
+        <span class="logo-boost">Boost</span><span class="logo-speed">Speed</span>
+        <svg class="rayo-impacto" style="width:24px;height:24px;margin-left:6px;" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+      </div>
+    </a>
+    <button class="btn btn-nav" onclick="abrirModal('login')">Entrar</button>
+  </div>
+  <div class="neon-pingpong-container">
+    <div class="neon-pingpong-line"></div>
+  </div>
+</nav>
+
+<main>
+  <!-- ── HERO ── -->
+  <header class="sec hero text-center">
+    <div class="container">
+      <h1 class="anim-fade delay-1">Aumenta tus <span class="text-accent text-glow">Likes de Free Fire</span></h1>
+      <p class="anim-fade delay-2">Plataforma dedicada a Free Fire: Servicios premium para impulsar tu cuenta. Seguro y rápido, diseñado para que seas superior a los demás.</p>
+
+      <div class="hero-cta mt-4 anim-fade delay-2">
+        <button class="btn btn-primary" onclick="abrirModal('login')">Iniciar sesión</button>
+        <button class="btn btn-outline" onclick="abrirModal('registro')">Crear cuenta</button>
+      </div>
+
+      <div class="stats-wrapper anim-fade delay-3">
+        <div class="stat-group" style="animation-delay:0.1s;">
+          <div class="status-online">
+            <div class="dot-pulse-wrapper"><div class="dot-center"></div><div class="dot-ring"></div></div>
+            <span class="status-text">USUARIOS</span>
+          </div>
+          <div class="neon-val" id="tk-users">0</div>
+          <div class="stat-label">USUARIOS REGISTRADOS</div>
+        </div>
+        <div class="laser-divider"></div>
+        <div class="stat-group" style="animation-delay:0.3s;">
+          <div class="status-online">
+            <div class="dot-pulse-wrapper"><div class="dot-center"></div><div class="dot-ring"></div></div>
+            <span class="status-text">LIKES</span>
+          </div>
+          <div class="neon-val" id="tk-likes">0</div>
+          <div class="stat-label">LIKES ENVIADOS</div>
+        </div>
+      </div>
+    </div>
+  </header>
+
+  <!-- ── SERVICIOS ── -->
+  <section class="sec">
+    <div class="container">
+      <h2 class="text-center">¿Qué tiene <span class="text-accent">BoostSpeed</span>?</h2>
+      <div class="grid">
+        <div class="card">
+          <div class="c-icon">✦</div>
+          <h3>Sistema de Likes</h3>
+          <p>Envío automatizado de 200–220 likes cada 24h a tu ID. Seguro, constante y sin riesgos.</p>
+        </div>
+        <div class="card">
+          <div class="c-icon">❖</div>
+          <h3>Fragmentos Universales</h3>
+          <p>Contacta directamente al administrador y consigue fragmentos al mejor precio.</p>
+        </div>
+        <div class="card">
+          <div class="c-icon">➜</div>
+          <h3>Sistema +1500 Likes</h3>
+          <p>Compra y recibe 1500 a 2000 likes de forma instantánea. Ideal para impulsar tu perfil rápidamente.</p>
+        </div>
+        <div class="card">
+          <div class="c-icon">✓</div>
+          <h3>Pases Boyaa</h3>
+          <p>Compra tus pases Boyaa al precio más bajo.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+
+  <!-- ── CÓMO FUNCIONA ── -->
+  <section class="sec">
+    <div class="container">
+      <h2 class="text-center">Cómo funciona</h2>
+      <div class="steps-container">
+        <div class="step-card anim-fade delay-1">
+          <div class="step-number">1</div>
+          <div class="step-content">
+            <h3>Registro</h3>
+            <p>Crea tu cuenta de forma segura y obtén acceso al panel principal.</p>
+          </div>
+        </div>
+        <div class="step-card anim-fade delay-2">
+          <div class="step-number">2</div>
+          <div class="step-content">
+            <h3>Canjea tu código</h3>
+            <p>Ingresa el código del administrador para activar tu plan al instante.</p>
+          </div>
+        </div>
+        <div class="step-card anim-fade delay-3">
+          <div class="step-number">3</div>
+          <div class="step-content">
+            <h3>Recepción</h3>
+            <p>Observa el progreso del envío instantáneo y automatizado a tu cuenta.</p>
+          </div>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="container">
+    <p>&copy; 2026 <strong style="color:var(--accent)">BoostSpeed</strong> ⚡ · Plataforma de likes para Free Fire · Activo 24/7</p>
+  </div>
+</footer>
+
+<!-- MODAL LOGIN -->
+<div class="ov" id="ov-login">
+  <div class="glass-card">
+    <button class="btn-close" onclick="cerrarModal('login')">✕</button>
+    <div class="logo-container" style="margin-bottom:20px;font-size:34px;">
+      <span class="logo-boost">Boost</span><span class="logo-speed">Speed</span>
+      <svg class="rayo-impacto" viewBox="0 0 24 24" fill="currentColor" style="width:26px;height:26px;"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+    </div>
+    <div id="msg-login" class="msg"></div>
+    <input type="text"     id="l-user" class="input-field" placeholder="Usuario" autocomplete="username">
+    <input type="password" id="l-pass" class="input-field" placeholder="Contraseña" autocomplete="current-password"
+           onkeydown="if(event.key==='Enter')login()">
+    <button id="btn-login" class="submit-btn" onclick="login()">
+      <div class="spin" id="spin-login"></div>
+      <span id="txt-login">Ingresar</span>
+    </button>
+    <div style="text-align:center;margin-top:22px;display:flex;flex-direction:column;gap:10px;">
+      <a href="#" onclick="cerrarModal('login');abrirModal('recuperar');return false"
+         style="color:rgba(255,255,255,0.35);font-size:13px;">¿Olvidaste tu contraseña?</a>
+      <a href="#" onclick="cerrarModal('login');abrirModal('registro');return false"
+         style="color:rgba(255,255,255,0.35);font-size:13px;">No tengo cuenta</a>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL REGISTRO -->
+<div class="ov" id="ov-registro">
+  <div class="glass-card">
+    <button class="btn-close" onclick="cerrarModal('registro')">✕</button>
+    <div style="font-size:1.3rem;font-weight:700;margin-bottom:22px;text-align:center;">Crear Cuenta</div>
+    <div id="msg-registro" class="msg"></div>
+    <input type="text" id="r-user" class="input-field" placeholder="Nuevo usuario" autocomplete="username">
+    <div style="display:flex;gap:8px;margin-bottom:12px;">
+      <input type="text"   id="r-prefix"  class="input-field" value="+57" placeholder="+XX"
+             style="width:85px;text-align:center;padding:16px 10px;margin-bottom:0;">
+      <input type="number" id="r-contact" class="input-field" placeholder="WhatsApp / Teléfono"
+             style="margin-bottom:0;">
+    </div>
+    <input type="password" id="r-pass" class="input-field" placeholder="Contraseña (mín. 6 caracteres)"
+           autocomplete="new-password" onkeydown="if(event.key==='Enter')registro()">
+    <button id="btn-registro" class="submit-btn" onclick="registro()">
+      <div class="spin" id="spin-registro"></div>
+      <span id="txt-registro">Registrarse</span>
+    </button>
+    <div style="text-align:center;margin-top:20px;">
+      <a href="#" onclick="cerrarModal('registro');abrirModal('login');return false"
+         style="color:rgba(255,255,255,0.35);font-size:13px;">Ya tengo cuenta</a>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL RECUPERAR — 3 pasos -->
+<div class="ov" id="ov-recuperar">
+  <div class="glass-card">
+    <button class="btn-close" onclick="cerrarModal('recuperar')">✕</button>
+    <div style="font-size:1.3rem;font-weight:700;margin-bottom:20px;text-align:center;">Recuperar acceso</div>
+
+    <!-- PASO 1 -->
+    <div id="rec-step1">
+      <div class="sdots">
+        <div class="sdot active"></div><div class="sdot"></div><div class="sdot"></div>
+      </div>
+      <div id="msg-recuperar" class="msg"></div>
+      <p style="font-size:13px;color:rgba(255,255,255,0.4);text-align:center;margin-bottom:14px;">
+        Ingresa tu correo o teléfono registrado
+      </p>
+      <div style="display:flex;gap:8px;margin-bottom:12px;">
+        <input type="text"   id="rec-prefix"  class="input-field" value="+57" placeholder="+XX"
+               style="width:85px;text-align:center;padding:16px 10px;margin-bottom:0;">
+        <input type="number" id="rec-contact" class="input-field" placeholder="Número o correo"
+               style="margin-bottom:0;">
+      </div>
+      <button class="submit-btn" onclick="recuperarP1()">Verificar cuenta →</button>
+      <div style="text-align:center;margin-top:16px;">
+        <a href="#" onclick="cerrarModal('recuperar');abrirModal('login');return false"
+           style="color:rgba(255,255,255,0.3);font-size:13px;">← Volver a iniciar sesión</a>
+      </div>
+    </div>
+
+    <!-- PASO 2 -->
+    <div id="rec-step2" style="display:none;">
+      <div class="sdots">
+        <div class="sdot"></div><div class="sdot active"></div><div class="sdot"></div>
+      </div>
+      <div id="msg-recuperar2" class="msg"></div>
+      <p style="font-size:13px;color:rgba(255,255,255,0.4);text-align:center;margin-bottom:6px;">
+        Cuenta encontrada: <strong id="rec-found-name" style="color:var(--accent)">—</strong>
+      </p>
+      <p style="font-size:12px;color:rgba(255,255,255,0.3);text-align:center;margin-bottom:16px;">
+        Contacta al admin para obtener tu código
+      </p>
+      <a class="sup-link" href="https://t.me/DuarteStoreX" target="_blank" rel="noopener">
+        Telegram · @DuarteStoreX <span class="sup-arrow">➜</span>
+      </a>
+      <a class="sup-link" href="https://wa.me/573164377140" target="_blank" rel="noopener">
+        WhatsApp · +57 316 437 7140 <span class="sup-arrow">➜</span>
+      </a>
+      <input type="text" id="rec-codigo" class="input-field"
+             placeholder="Código del administrador" style="margin-top:10px;text-transform:uppercase;">
+      <button class="submit-btn" onclick="recuperarP2()">Verificar código →</button>
+      <div style="text-align:center;margin-top:14px;">
+        <a href="#" onclick="recReset();return false"
+           style="color:rgba(255,255,255,0.3);font-size:13px;">← Volver</a>
+      </div>
+    </div>
+
+    <!-- PASO 3 -->
+    <div id="rec-step3" style="display:none;">
+      <div class="sdots">
+        <div class="sdot"></div><div class="sdot"></div><div class="sdot active"></div>
+      </div>
+      <div id="msg-recuperar3" class="msg"></div>
+      <p style="font-size:13px;color:rgba(255,255,255,0.4);text-align:center;margin-bottom:14px;">
+        Elige tu nueva contraseña
+      </p>
+      <input type="password" id="rec-new"     class="input-field" placeholder="Nueva contraseña">
+      <input type="password" id="rec-confirm" class="input-field" placeholder="Confirmar contraseña">
+      <button class="submit-btn" onclick="recuperarP3()">Guardar nueva contraseña →</button>
+    </div>
+  </div>
+</div>
+
+<!-- Contenedor notificaciones flotantes -->
+<div id="notif-container"></div>
+
+<script src="/js/api.js"></script>
+<script>
+/* Redirigir si ya tiene sesión */
+if (localStorage.getItem('bs_token')) location.href = '/dashboard.html';
+
+let recUserId = null;
+
+/* ── MODALES ── */
+function abrirModal(n) {
+  const el = document.getElementById('ov-' + n);
+  if (!el) return;
+  el.style.display = 'flex';
+  void el.offsetWidth;
+  el.classList.add('open');
+}
+
+function cerrarModal(n) {
+  const el = document.getElementById('ov-' + n);
+  if (!el) return;
+  el.classList.remove('open');
+  setTimeout(() => { el.style.display = 'none'; }, 300);
+  el.querySelectorAll('input').forEach(i => i.value = '');
+  ['msg-' + n, 'msg-' + n + '2', 'msg-' + n + '3'].forEach(id => {
+    const m = document.getElementById(id);
+    if (m) { m.style.display = 'none'; m.className = 'msg'; }
+  });
+  if (n === 'recuperar') recReset();
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  document.querySelectorAll('.ov').forEach(o => {
+    o.addEventListener('click', e => {
+      if (e.target === o) cerrarModal(o.id.replace('ov-', ''));
+    });
+  });
+});
+
+/* ── SPINNER ── */
+function cargando(id, estado) {
+  const spin = document.getElementById('spin-' + id);
+  const txt  = document.getElementById('txt-'  + id);
+  const btn  = document.getElementById('btn-'  + id);
+  if (spin) spin.style.display = estado ? 'block' : 'none';
+  if (txt)  txt.style.display  = estado ? 'none'  : 'inline';
+  if (btn)  btn.disabled = estado;
+}
+
+/* ── MENSAJES ── */
+function mostrarMsg(id, texto, tipo) {
+  const el = document.getElementById(id);
+  if (!el) return;
+  el.textContent = texto;
+  el.className = 'msg ' + tipo;
+  el.style.display = 'block';
+  setTimeout(() => { el.style.display = 'none'; }, 5500);
+}
+
+/* ── LOGIN ── */
+async function login() {
+  const user = document.getElementById('l-user').value.trim();
+  const pass = document.getElementById('l-pass').value;
+  if (!user || !pass) return mostrarMsg('msg-login', 'Completa todos los campos', 'err');
+  cargando('login', true);
+  const res = await API.post('/api/login', { username: user, password: pass });
+  cargando('login', false);
+  if (!res.ok) return mostrarMsg('msg-login', res.error, 'err');
+  localStorage.setItem('bs_token', res.token);
+  localStorage.setItem('bs_user', JSON.stringify(res.user));
+  location.href = '/dashboard.html';
+}
+
+/* ── REGISTRO ── */
+async function registro() {
+  const user    = document.getElementById('r-user').value.trim();
+  const prefix  = document.getElementById('r-prefix').value.trim();
+  const num     = document.getElementById('r-contact').value.trim();
+  const contact = prefix + num;
+  const pass    = document.getElementById('r-pass').value;
+  if (!user || !num || !pass)
+    return mostrarMsg('msg-registro', 'Completa todos los campos', 'err');
+  if (pass.length < 6)
+    return mostrarMsg('msg-registro', 'La contraseña debe tener mínimo 6 caracteres', 'err');
+  cargando('registro', true);
+  const res = await API.post('/api/registro', { username: user, contact, password: pass });
+  cargando('registro', false);
+  if (!res.ok) return mostrarMsg('msg-registro', res.error, 'err');
+  localStorage.setItem('bs_token', res.token);
+  localStorage.setItem('bs_user', JSON.stringify(res.user));
+  location.href = '/dashboard.html';
+}
+
+/* ── RECUPERAR ── */
+function recReset() {
+  document.getElementById('rec-step1').style.display = 'block';
+  document.getElementById('rec-step2').style.display = 'none';
+  document.getElementById('rec-step3').style.display = 'none';
+  recUserId = null;
+}
+async function recuperarP1() {
+  const prefix  = document.getElementById('rec-prefix').value.trim();
+  const num     = document.getElementById('rec-contact').value.trim();
+  const contact = prefix + num;
+  if (!num) return mostrarMsg('msg-recuperar', 'Ingresa tu número o correo', 'err');
+  const res = await API.post('/api/recuperar-check', { contact });
+  if (!res.ok) return mostrarMsg('msg-recuperar', res.error, 'err');
+  recUserId = res.userId;
+  document.getElementById('rec-found-name').textContent = res.username;
+  document.getElementById('rec-step1').style.display = 'none';
+  document.getElementById('rec-step2').style.display = 'block';
+}
+async function recuperarP2() {
+  const codigo = document.getElementById('rec-codigo').value.trim().toUpperCase();
+  if (!codigo) return mostrarMsg('msg-recuperar2', 'Ingresa el código de recuperación', 'err');
+  const res = await API.post('/api/recuperar-verificar', { userId: recUserId, codigo });
+  if (!res.ok) return mostrarMsg('msg-recuperar2', res.error, 'err');
+  document.getElementById('rec-step2').style.display = 'none';
+  document.getElementById('rec-step3').style.display = 'block';
+}
+async function recuperarP3() {
+  const nueva    = document.getElementById('rec-new').value;
+  const confirma = document.getElementById('rec-confirm').value;
+  if (!nueva || nueva.length < 6)
+    return mostrarMsg('msg-recuperar3', 'Mínimo 6 caracteres', 'err');
+  if (nueva !== confirma)
+    return mostrarMsg('msg-recuperar3', 'Las contraseñas no coinciden', 'err');
+  const res = await API.post('/api/recuperar-cambiar', { userId: recUserId, password_nueva: nueva });
+  if (!res.ok) return mostrarMsg('msg-recuperar3', res.error, 'err');
+  mostrarMsg('msg-recuperar3', '✓ Contraseña actualizada. Iniciando sesión…', 'ok');
+  setTimeout(() => { cerrarModal('recuperar'); abrirModal('login'); }, 2200);
+}
+
+/* ── STATS ── */
+function animCount(el, target) {
+  if (!el || !target) return;
+  const duration = 1500;
+  const startTime = performance.now();
+  function update(now) {
+    const p = Math.min((now - startTime) / duration, 1);
+    const ease = p * (2 - p);
+    el.textContent = Math.floor(ease * target).toLocaleString('es');
+    if (p < 1) requestAnimationFrame(update);
+    else el.textContent = target.toLocaleString('es');
+  }
+  requestAnimationFrame(update);
+}
+async function cargarStats() {
+  try {
+    const res = await fetch('/api/public-stats');
+    if (!res.ok) return;
+    const d = await res.json();
+    animCount(document.getElementById('tk-users'), d.usuarios || 0);
+    animCount(document.getElementById('tk-likes'),  d.likes    || 0);
+  } catch(e) {}
+}
+
+/* ── NOTIFICACIONES ── */
+let notifVistas = new Set(), notifQueue = [];
+function mostrarNotif(username, likesAgregados) {
+  const cont = document.getElementById('notif-container');
+  const el   = document.createElement('div');
+  el.className = 'notif';
+  el.innerHTML = `<div class="notif-ico">❤️</div><div class="notif-txt"><div class="notif-name">${username}</div><div class="notif-likes">+${Number(likesAgregados).toLocaleString('es')} likes enviados</div></div>`;
+  cont.appendChild(el);
+  setTimeout(() => { if (el.parentNode) el.parentNode.removeChild(el); }, 4700);
+  while (cont.children.length > 4) cont.removeChild(cont.firstChild);
+}
+async function pollNotificaciones() {
+  try {
+    const res = await fetch('/api/notificaciones-likes');
+    if (!res.ok) return;
+    const data = await res.json();
+    if (!data.ok || !data.notificaciones) return;
+    data.notificaciones.forEach(n => {
+      const key = n.username + n.creado_en;
+      if (!notifVistas.has(key) && n.likes_agregados > 0) {
+        notifVistas.add(key);
+        notifQueue.push(n);
+      }
+    });
+  } catch(e) {}
+}
+function processNotifQueue() {
+  if (notifQueue.length > 0) mostrarNotif(...[notifQueue.shift()].map(n => [n.username, n.likes_agregados])[0]);
+}
+
+/* ── INIT ── */
+document.addEventListener('DOMContentLoaded', async () => {
+  cargarStats();
+  await pollNotificaciones();
+  notifQueue = [];
+  setInterval(pollNotificaciones, 8000);
+  setInterval(processNotifQueue,  3000);
+});
+</script>
+</body>
+</html>
