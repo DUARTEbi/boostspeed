@@ -215,10 +215,10 @@ function adminMiddleware(req, res, next) {
 
 async function llamarApiFF(uid, server = 'BR') {
   const apiKey = (process.env.FF_API_KEY || '').trim();
-  let apiBase = (process.env.FF_API_URL || 'https://rtpysistemsapi.squareweb.app').trim().replace(/\/+$/, '');
+  let apiBase = (process.env.FF_API_URL || '').trim().replace(/\/+$/, '');
 
-  if (!apiKey) throw new Error('FF_API_KEY no configurada');
-  if (!apiBase) throw new Error('FF_API_URL no configurada');
+  if (!apiKey) throw new Error('FF_API_KEY no configurada en las variables de Railway');
+  if (!apiBase) throw new Error('FF_API_URL no configurada en las variables de Railway');
 
   const targets = [];
   const urlObj = new URL(apiBase);
