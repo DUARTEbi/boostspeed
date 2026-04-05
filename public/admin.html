@@ -22,6 +22,9 @@
 button,a,[onclick]{outline:none;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
 button:focus,a:focus,[onclick]:focus{outline:none}
 button:focus-visible,a:focus-visible{outline:2px solid var(--g);outline-offset:2px}
+/* Quitar flechas de inputs numéricos */
+input::-webkit-outer-spin-button, input::-webkit-inner-spin-button { -webkit-appearance:none; margin:0 }
+input[type=number] { -moz-appearance:textfield }
 
 body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-height:100vh;display:flex;flex-direction:column;overflow-x:hidden}
 
@@ -399,9 +402,10 @@ main{padding:1.4rem 1.4rem 6.5rem;max-width:960px;margin:0 auto;width:100%}
           <strong>Los valores que ingreses reemplazarán</strong> el plan actual del usuario, no se suman.
         </div>
 
-        <div class="tipo-grid" style="grid-template-columns:1fr 1fr 1fr;margin-bottom:.8rem">
-          <div class="topt sel" id="etopt-dias"      onclick="selEditTipo('dias')"><h4>Por días</h4><p>Asignar días de plan</p></div>
-          <div class="topt" id="etopt-likes"          onclick="selEditTipo('likes')"><h4>Por likes</h4><p>Asignar cantidad de likes</p></div>
+        <div class="tipo-grid" style="grid-template-columns:1fr 1fr 1fr 1fr;margin-bottom:.8rem">
+          <div class="topt sel" id="etopt-dias"      onclick="selEditTipo('dias')"><h4>Por días</h4><p>Asignar días</p></div>
+          <div class="topt" id="etopt-likes"          onclick="selEditTipo('likes')"><h4>Por likes</h4><p>Asignar likes</p></div>
+          <div class="topt" id="etopt-revendedor"     onclick="selEditTipo('revendedor')"><h4>Revendedor</h4><p>Plan especial</p></div>
           <div class="topt ilim-opt" id="etopt-ilimitado" onclick="selEditTipo('ilimitado')"><h4>Ilimitado</h4><p>Sin límites</p></div>
         </div>
 
@@ -820,9 +824,16 @@ async function buscarUsr() {
 
 function selEditTipo(tipo) {
   editTipo = tipo;
-  ['dias','likes','ilimitado'].forEach(t => {
-    document.getElementById('etopt-' + t).classList.toggle('sel', t === tipo);
-    document.getElementById('edit-campos-' + t).style.display = t === tipo ? 'block' : 'none';
+  ['dias','likes','revendedor','ilimitado'].forEach(t => {
+    const el = document.getElementById('etopt-' + t);
+    if(el) el.classList.toggle('sel', t === tipo);
+    const c = document.getElementById('edit-campos-' + t);
+    if(c) c.style.display = t === tipo ? 'block' : 'none';
+    else if(t === 'revendedor' && tipo === 'revendedor') {
+      document.getElementById('edit-campos-dias').style.display = 'block';
+    } else if(t === 'dias' && tipo !== 'dias' && tipo !== 'revendedor') {
+      document.getElementById('edit-campos-dias').style.display = 'none';
+    }
   });
 }
 
@@ -889,11 +900,11 @@ function pedirConfirmarGuardar() {
 
   if (editTipo === 'ilimitado') {
     detalle = `<strong>Tipo:</strong> Ilimitado<br><strong>Sin límite</strong> de días, likes ni envíos.`;
-  } else if (editTipo === 'dias') {
+  } else if (editTipo === 'dias' || editTipo === 'revendedor') {
     const dias   = parseInt(document.getElementById('e-dias').value) || 0;
     const envDia = parseInt(document.getElementById('e-env-dias').value) || 3;
     const activo = document.getElementById('e-stat-dias').value === 'true';
-    detalle = `<strong>Tipo:</strong> Por días<br>`
+    detalle = `<strong>Tipo:</strong> ${editTipo === 'revendedor' ? 'Revendedor' : 'Por días'}<br>`
             + `<strong>Días del plan:</strong> ${dias} días<br>`
             + `<strong>Envíos por día:</strong> ${envDia}<br>`
             + `<strong>Estado:</strong> ${activo ? 'Activo' : 'Inactivo'}`;
@@ -921,9 +932,9 @@ async function confirmarGuardar() {
   let r;
   if (editTipo === 'ilimitado') {
     r = await API.putAdmin('/api/admin/usuarios/' + editUID + '/ilimitado', {}, admTok);
-  } else if (editTipo === 'dias') {
+  } else if (editTipo === 'dias' || editTipo === 'revendedor') {
     r = await API.putAdmin('/api/admin/usuarios/' + editUID, {
-      plan_tipo: 'dias',
+      plan_tipo: editTipo,
       dias_plan: parseInt(document.getElementById('e-dias').value) || 0,
       envios_por_dia: parseInt(document.getElementById('e-env-dias').value) || 3,
       plan_activo: document.getElementById('e-stat-dias').value === 'true',
