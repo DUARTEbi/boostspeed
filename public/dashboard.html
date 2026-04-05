@@ -26,6 +26,7 @@ body{font-family:'Exo 2',sans-serif;background:var(--bg);color:var(--txt);min-he
 .neon-pingpong-container{width:100%;height:2px;background:rgba(255,255,255,.02);position:absolute;bottom:0;left:0;overflow:hidden;box-shadow:0 0 5px rgba(0,0,0,.5);z-index:101}
 .neon-pingpong-line{position:absolute;top:0;left:-100%;width:100%;height:100%;background:linear-gradient(to right,transparent,var(--g) 50%,transparent);box-shadow:0 0 10px rgba(0,255,30,.7),0 0 20px rgba(0,255,30,.4);animation:neon-swipe-pingpong 4s ease-in-out infinite}
 @keyframes neon-swipe-pingpong{0%{left:-100%}50%{left:100%}100%{left:-100%}}
+.flash-impacto{position:relative;overflow:hidden}.flash-impacto::before{content:'';position:absolute;top:0;left:-150%;width:70%;height:100%;background:linear-gradient(to right,transparent,rgba(255,255,255,.3),transparent);transform:skewX(-30deg);animation:flash-swipe 3s infinite;pointer-events:none;z-index:5}@keyframes flash-swipe{0%{left:-150%}20%{left:150%}100%{left:150%}}
 svg{overflow:visible}
 #r-nombre{max-width:140px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
 .logo{display:flex;align-items:center;text-decoration:none;white-space:nowrap;flex-shrink:0;}
@@ -264,7 +265,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 <main>
 <!-- INICIO -->
 <div class="pane active" id="pane-inicio">
-  <div class="stats-card" style="margin-bottom:.9rem">
+  <div class="stats-card flash-impacto" style="margin-bottom:.9rem">
     <div class="stats-card-inner">
       <div class="stat-item"><div class="stat-icon"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="var(--g)" stroke-width="2"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></div><div class="stat-val" id="st-usuarios">—</div><div class="stat-lbl">Usuarios</div></div>
       <div class="stat-divider"></div>
@@ -281,7 +282,7 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
         <div><div style="font-family:'Rajdhani',sans-serif;font-weight:700;font-size:.95rem" id="inicio-plan-nombre">Plan activo</div><div style="color:var(--mut);font-size:.74rem" id="inicio-plan-sub">Listo para enviar likes</div></div>
       </div>
       <button class="btn bp bf btn-manual" onclick="tab('likes')" style="margin-bottom:.5rem"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path stroke-linejoin="round" stroke-linecap="round" d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78L12 21.23l7.78-7.78a5.5 5.5 0 0 0 0-7.78z"/></svg>Likes manualmente</button>
-      <button class="btn btn-auto-inicio bf" onclick="tab('auto')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Likes automáticos</button>
+      <button class="btn btn-auto-inicio bf flash-impacto" onclick="tab('auto')"><svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>Likes automáticos</button>
     </div>
     <div id="inicio-sin-plan" style="display:none">
       <div style="display:flex;align-items:center;gap:.75rem;margin-bottom:.75rem">
@@ -382,8 +383,8 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
     </div>
 
     <!-- PRODUCTO 2 -->
-    <div class="copt" style="padding:1rem;cursor:default;position:relative;overflow:hidden">
-      <div style="position:absolute;top:5px;right:5px;background:var(--red);color:#fff;font-size:.55rem;font-weight:900;padding:.1rem .4rem;border-radius:4px;letter-spacing:.5px;z-index:2">FLASH ⚡</div>
+    <div class="copt flash-impacto" style="padding:1rem;cursor:default;position:relative;overflow:hidden">
+      <div style="position:absolute;top:5px;right:5px;background:var(--red);color:#fff;font-size:.55rem;font-weight:900;padding:.1rem .4rem;border-radius:4px;letter-spacing:.5px;z-index:10">FLASH ⚡</div>
       <div class="cico" style="background:rgba(255,71,87,.1);border:1px solid rgba(255,71,87,.3)"><svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="var(--red)" stroke-width="2"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg></div>
       <div style="flex:1">
         <div class="ctit2">+1500 likes instantáneos</div>
@@ -768,7 +769,8 @@ async function cargarTop(){
     list.innerHTML=top5.map((u,i)=>{
       const rayoHtml=i===0?'<svg class="rayo-impacto" style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);width:20px;height:20px;color:#FFEA00" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>':'';
       const avStyle=i===0?'border-color:#FFEA00;box-shadow:0 0 8px rgba(255,234,0,.3)':'';
-      return `<div class="top-item" style="animation-delay:${i*55}ms;opacity:1;transform:none"><div style="position:relative;flex-shrink:0">${rayoHtml}</div><div class="top-name" style="margin-left: 10px;">${(i+1)}. ${u.username}</div><div style="text-align:right"><div class="top-lks">${parseInt(u.total_likes||0).toLocaleString('es')}</div><div class="top-ll">likes enviados</div></div></div>`;
+      const flashCls=i===0?'flash-impacto':'';
+      return `<div class="top-item ${flashCls}" style="animation-delay:${i*55}ms;opacity:1;transform:none"><div style="position:relative;flex-shrink:0">${rayoHtml}</div><div class="top-name" style="margin-left: 10px;">${(i+1)}. ${u.username}</div><div style="text-align:right"><div class="top-lks">${parseInt(u.total_likes||0).toLocaleString('es')}</div><div class="top-ll">likes enviados</div></div></div>`;
     }).join('');list.setAttribute('data-loaded','true');
   }catch(e){if(!list.hasAttribute('data-loaded'))list.innerHTML='<div class="empty"><p>Error cargando top</p></div>';}
 }
