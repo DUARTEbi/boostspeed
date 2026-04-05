@@ -568,6 +568,22 @@ main{padding:1.4rem 1.4rem 6.5rem;max-width:960px;margin:0 auto;width:100%}
   </div>
 </div>
 
+<!-- MODAL CONFIRMAR EXTRA -->
+<div class="ov" id="ov-extra">
+  <div class="modal" style="border-color:rgba(0,255,30,.22)">
+    <button class="mc" onclick="cerrarExtra()">
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+    <h2 style="color:var(--g)">Confirmar ajuste masivo</h2>
+    <p id="extra-confirm-txt">¿Estás seguro de que deseas aplicar este ajuste?</p>
+    <div class="confirm-detail" id="extra-confirm-detail" style="text-align:center; font-size:1.1rem; color:var(--txt)">+1 día a todos</div>
+    <div class="dbtns">
+      <button class="btn bo bf" onclick="cerrarExtra()">Cancelar</button>
+      <button class="btn bp bf" onclick="confirmarAplicarExtra()">Confirmar Ajuste</button>
+    </div>
+  </div>
+</div>
+
 <script src="/js/api.js"></script>
 <script>
 /* METEOROS */
@@ -1088,17 +1104,27 @@ function showMsg(id, txt, tipo) {
   if (txt) setTimeout(() => { if (el.textContent === txt) el.style.display = 'none'; }, 5500);
 }
 
-async function aplicarDiasExtra() {
+let extraPayload = null;
+function aplicarDiasExtra() {
   const d = parseInt(document.getElementById('extra-days-val').value);
   const target = document.getElementById('extra-target').value;
   if (!d || isNaN(d)) return showMsg('msg-extra', 'Ingresa un número válido', 'err');
-  const confirmMsg = target === 'todos' 
-    ? `¿Confirmas ajustar ${d} días a TODOS los usuarios activos?`
-    : `¿Confirmas ajustar ${d} días a los ${target === 'revendedor' ? 'Revendedores' : 'Usuarios con plan de días'}?`;
   
-  if (!confirm(confirmMsg)) return;
+  const targetTxt = target === 'todos' ? 'TODOS los usuarios activos' : (target === 'revendedor' ? 'los Revendedores' : 'los Usuarios con plan de días');
+  document.getElementById('extra-confirm-detail').innerHTML = `<strong style="color:var(--g)">${d > 0 ? '+' : ''}${d} día${Math.abs(d) !== 1 ? 's' : ''}</strong> a ${targetTxt}`;
+  
+  extraPayload = { tipo: target, cantidad: d };
+  document.getElementById('ov-extra').classList.add('open');
+}
 
-  const r = await API.postAdmin('/api/admin/usuarios/extra-days', { tipo: target, cantidad: d }, admTok);
+function cerrarExtra() {
+  document.getElementById('ov-extra').classList.remove('open');
+}
+
+async function confirmarAplicarExtra() {
+  if (!extraPayload) return;
+  cerrarExtra();
+  const r = await API.postAdmin('/api/admin/usuarios/extra-days', extraPayload, admTok);
   if (!r.ok) return showMsg('msg-extra', r.error, 'err');
   showMsg('msg-extra', `Ajuste completado: ${r.message}`, 'ok');
   loadDash();
