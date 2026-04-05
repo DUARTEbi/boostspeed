@@ -727,10 +727,9 @@ async function cargarTop(){
     if(!res.ok||!res.top||!res.top.length){list.innerHTML='<div class="empty"><svg width="36" height="36" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><polyline points="23 6 13.5 15.5 8.5 10.5 1 18"/></svg><p>Sin datos aún</p></div>';return;}
     const top5=res.top.slice(0,5);
     list.innerHTML=top5.map((u,i)=>{
-      const crownHtml=i===0?'<svg style="position:absolute;top:-13px;left:50%;transform:translateX(-50%)" width="15" height="15" viewBox="0 0 24 24" fill="#FFD700" stroke="#b8940a" stroke-width="1.5"><path d="M3 20h18M5 20V10l2-2 5 5 5-5 2 2v10"/></svg>':'';
-      const numBadge=i>0?'<span style="position:absolute;top:-6px;right:-5px;font-size:.55rem;font-weight:700;font-family:Rajdhani;width:13px;height:13px;border-radius:50%;background:var(--bg3);border:1px solid var(--bdr);display:flex;align-items:center;justify-content:center;color:'+['','#C0C0C0','#CD7F32','var(--mut)','var(--mut)'][i]+'">'+(i+1)+'</span>':'';
-      const avStyle=i===0?'border-color:#FFD700;box-shadow:0 0 8px rgba(255,215,0,.3)':'';
-      return `<div class="top-item" style="animation-delay:${i*55}ms;opacity:1;transform:none"><div style="position:relative;flex-shrink:0">${crownHtml}</div><div class="top-name" style="margin-left: 10px;">${(i+1)}. ${u.username}</div><div style="text-align:right"><div class="top-lks">${parseInt(u.total_likes||0).toLocaleString('es')}</div><div class="top-ll">likes enviados</div></div></div>`;
+      const rayoHtml=i===0?'<svg class="rayo-impacto" style="position:absolute;top:-16px;left:50%;transform:translateX(-50%);width:20px;height:20px;color:#FFEA00" viewBox="0 0 24 24" fill="currentColor"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>':'';
+      const avStyle=i===0?'border-color:#FFEA00;box-shadow:0 0 8px rgba(255,234,0,.3)':'';
+      return `<div class="top-item" style="animation-delay:${i*55}ms;opacity:1;transform:none"><div style="position:relative;flex-shrink:0">${rayoHtml}</div><div class="top-name" style="margin-left: 10px;">${(i+1)}. ${u.username}</div><div style="text-align:right"><div class="top-lks">${parseInt(u.total_likes||0).toLocaleString('es')}</div><div class="top-ll">likes enviados</div></div></div>`;
     }).join('');list.setAttribute('data-loaded','true');
   }catch(e){if(!list.hasAttribute('data-loaded'))list.innerHTML='<div class="empty"><p>Error cargando top</p></div>';}
 }
