@@ -969,10 +969,17 @@ app.post('/api/admin/login', rateLimit(5), async (req, res) => {
 app.get('/api/admin/stats', adminMiddleware, async (req, res) => {
   try {
     const today = new Date().toISOString().slice(0, 10);
-    const [tu, tc, uc, ap, ru, envHoy] = await Promise.all([
-      pool.query('SELECT COUNT(*) FROM usuarios'), pool.query('SELECT COUNT(*) FROM codigos'), pool.query('SELECT COUNT(*) FROM codigos WHERE usado=true'), pool.query('SELECT COUNT(*) FROM usuarios WHERE plan_activo=true'), pool.query(`SELECT id,uid,username,contact,plan_activo,plan_nombre,plan_tipo,likes_disponibles,ilimitado,creado_en FROM usuarios ORDER BY creado_en DESC LIMIT 10`), pool.query(`SELECT COUNT(*) AS total FROM historial WHERE fecha::date = $1`, [today]),
+    const [tu, tc, uc, ap, ru, envHoy, idsHoy] = await Promise.all([
+      pool.query('SELECT COUNT(*) FROM usuarios'), 
+      pool.query('SELECT COUNT(*) FROM codigos'), 
+      pool.query('SELECT COUNT(*) FROM codigos WHERE usado=true'), 
+      pool.query('SELECT COUNT(*) FROM usuarios WHERE plan_activo=true'), 
+      pool.query(`SELECT id,uid,username,contact,plan_activo,plan_nombre,plan_tipo,likes_disponibles,ilimitado,creado_en FROM usuarios ORDER BY creado_en DESC LIMIT 10`), 
+      pool.query(`SELECT COUNT(*) AS total FROM historial WHERE fecha::date = $1`, [today]),
+      pool.query(`SELECT COUNT(DISTINCT ff_uid) AS total FROM historial WHERE fecha::date = $1 AND likes_agregados > 0`, [today]),
     ]);
-    res.json({ ok: true, totalUsuarios: parseInt(tu.rows[0].count, 10), totalCodigos: parseInt(tc.rows[0].count, 10), codigosUsados: parseInt(uc.rows[0].count, 10), planesActivos: parseInt(ap.rows[0].count, 10), enviosHoy: parseInt(envHoy.rows[0].total, 10), keyUsage: lastKeyUsage, usuariosRecientes: ru.rows });
+    res.json({ ok: true, totalUsuarios: parseInt(tu.rows[0].count, 10), totalCodigos: parseInt(tc.rows[0].count, 10), codigosUsados: parseInt(uc.rows[0].count, 10), planesActivos: parseInt(ap.rows[0].count, 10), enviosHoy: parseInt(envHoy.rows[0].total, 10), idsHoy: parseInt(idsHoy.rows[0].total, 10), keyUsage: lastKeyUsage, usuariosRecientes: ru.rows });
+
   } catch (err) { res.status(500).json({ error: 'Error interno' }); }
 });
 app.get('/api/admin/envios-hoy', adminMiddleware, async (req, res) => {

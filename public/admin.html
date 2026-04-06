@@ -177,6 +177,7 @@ tr:hover td{background:rgba(0,255,30,.02)}
 .ir .iv{font-weight:700;font-size:.86rem}
 
 .mobn-dock-container {
+  display:none;
   position:fixed;bottom:20px;left:50%;transform:translateX(-50%);
   width:calc(100% - 40px);max-width:480px;z-index:500;
   background:rgba(255,255,255,.03);backdrop-filter:blur(25px);-webkit-backdrop-filter:blur(25px);
@@ -274,7 +275,24 @@ main{padding:1.4rem 1.4rem 6.5rem;max-width:960px;margin:0 auto;width:100%}
           <div style="color:var(--mut); font-size:.6rem; text-transform:uppercase; letter-spacing:1px;">Usos hoy</div>
         </div>
       </div>
+    <div class="card" id="card-api3-usage" style="margin-bottom:1.2rem; background:rgba(20,20,20,0.4)">
+      <div style="display:flex; align-items:center; justify-content:space-between; gap:1rem;">
+        <div style="display:flex; align-items:center; gap:.8rem;">
+          <div style="width:40px; height:40px; border-radius:10px; background:rgba(0,255,30,0.1); display:flex; align-items:center; justify-content:center; color:var(--g)">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M22 11.08V12a10 10 0 1 1-5.93-9.14"/><polyline points="22 4 12 14.01 9 11.01"/></svg>
+          </div>
+          <div>
+            <div style="font-family:'Rajdhani',sans-serif; font-weight:700; font-size:1rem; color:#fff">Usos de API 3 Hoy</div>
+            <div style="color:var(--mut); font-size:.7rem">IDs que recibieron likes hoy</div>
+          </div>
+        </div>
+        <div style="text-align:right">
+          <div style="font-family:'Rajdhani',sans-serif; font-size:1.4rem; font-weight:900; color:var(--g);" id="api3-usage-val">0</div>
+          <div style="color:var(--mut); font-size:.6rem; text-transform:uppercase; letter-spacing:1px;">IDs únicos</div>
+        </div>
+      </div>
     </div>
+
 
     <!-- ID Summary Stats Grid -->
     <div class="sg">
@@ -742,6 +760,11 @@ async function loadDash() {
       txtEl.textContent = uses > 0 ? `Uso de API hoy` : `Sin uso de API hoy`;
     }
   }
+
+  // Widget API 3 Hoy
+  const api3ValEl = document.getElementById('api3-usage-val');
+  if (api3ValEl) api3ValEl.textContent = (r.idsHoy || 0).toLocaleString();
+
 
   // Ocultar widget viejo
   if(document.querySelector('.api-stats')) document.querySelector('.api-stats').style.display = 'none';
