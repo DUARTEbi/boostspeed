@@ -13,6 +13,7 @@ const API = {
       if (body) opts.body = JSON.stringify(body);
       const r = await fetch(url, opts);
       const d = await r.json();
+      d.status = r.status; // Guardar el código de estado HTTTP
       if (!d.ok && !d.error) d.error = 'Error desconocido';
       return d;
     } catch (e) {

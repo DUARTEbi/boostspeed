@@ -532,7 +532,7 @@ window.addEventListener('DOMContentLoaded',async()=>{
   setInterval(actualizarCountdowns,60000);
 });
 
-async function cargarPerfil(){const res=await API.get('/api/perfil');if(!res.ok){salir();return;}userData=res.user;pintarUI(res.user,res.historial);}
+async function cargarPerfil(){const res=await API.get('/api/perfil');if(!res.ok){if(res.status===401)salir();return;}userData=res.user;pintarUI(res.user,res.historial);}
 async function cargarPublicStats(){try{const res=await API.get('/api/public-stats');if(res.ok){animCount('st-usuarios',res.usuarios);animCount('st-likes-total',res.likes_hoy!==undefined?res.likes_hoy:res.likes);}}catch(e){}}
 
 function pintarUI(u,hist){
