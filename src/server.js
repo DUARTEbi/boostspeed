@@ -1069,7 +1069,16 @@ app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../public', 'index
 initDB().then(() => {
   app.listen(PORT, () => {
     console.log(`🚀 BoostSpeed corriendo en puerto ${PORT}`);
-    setTimeout(() => { ejecutarAutoLikes(); }, 5000);
+    setTimeout(async () => { 
+      try {
+        const nextSlotUTC = new Date();
+        nextSlotUTC.setUTCHours(13, 30, 0, 0); // 8:30 AM COT
+        console.log(`[EMERGENCY RESET] Sincronizando IDs al slot de las 8:30 AM COT...`);
+        await pool.query(`UPDATE auto_ids SET proximo_envio = $1 WHERE activo = true`, [nextSlotUTC.toISOString()]);
+        console.log(`[EMERGENCY RESET] Hecho.`);
+      } catch(e) { console.error('[RESET ERROR]', e.message); }
+      ejecutarAutoLikes(); 
+    }, 5000);
     setInterval(ejecutarAutoLikes, 2 * 60 * 1000);
   });
 }).catch(err => {
