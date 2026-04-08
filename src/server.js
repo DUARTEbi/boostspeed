@@ -157,10 +157,7 @@ async function initDB() {
       ALTER TABLE auto_ids  ADD COLUMN IF NOT EXISTS motivo_error TEXT;
     `);
 
-    // RESET GLOBAL AL ARRANCAR: Todos los activos intentan ahora
-    await client.query(`UPDATE auto_ids SET proximo_envio = NOW(), reintentando = true WHERE activo = true`);
-
-
+    // SE ELIMINÓ EL RESET GLOBAL PARA EVITAR SPAM EN CADA DEPLOY
     await client.query(`
       CREATE INDEX IF NOT EXISTS idx_auto_ids_usuario ON auto_ids(usuario_id);
       CREATE INDEX IF NOT EXISTS idx_auto_ids_proximo ON auto_ids(proximo_envio) WHERE activo = true;
@@ -836,10 +833,7 @@ function calcularProximoIntento() {
 }
 
 function calcularProximoExito() {
-  const ahora = new Date();
-  ahora.setDate(ahora.getDate() + 1);
-  ahora.setHours(5, 0, 0, 0);
-  return ahora.toISOString();
+  return new Date(Date.now() + 24 * 60 * 60 * 1000).toISOString();
 }
 
 async function procesarAutoID(autoId) {
