@@ -249,6 +249,9 @@ async function llamarApiFF(uid, server = 'BR') {
   const apiKey = (process.env.FF_API_KEY || '').trim();
   let apiBase = (process.env.FF_API_URL || '').trim().replace(/\/+$/, '');
 
+  const apiKey2 = (process.env.FF_API2_KEY || '').trim();
+  let apiBase2 = (process.env.FF_API2_URL || '').trim().replace(/\/+$/, '');
+
   if (!apiKey) throw new Error('FF_API_KEY no configurada en las variables de Railway');
   if (!apiBase) throw new Error('FF_API_URL no configurada en las variables de Railway');
 
@@ -256,44 +259,53 @@ async function llamarApiFF(uid, server = 'BR') {
   console.log(`[CYCLE] Consultando likes antes para ID: ${uid}`);
   const infoPre = await consultarInfoFF(uid);
 
-  const targets = [];
-  try {
-    const urlObj = new URL(apiBase);
-    const path = urlObj.pathname;
-    if (path === '/' || path === '' || (!path.includes('like') && !path.includes('send_likes'))) {
-      const cleanBase = apiBase.replace(/\/+$/, '');
-      targets.push(`${cleanBase}/send_likes`);
-      targets.push(`${cleanBase}/like`);
-    } else {
-      targets.push(apiBase);
-      if (path.includes('/like')) targets.push(apiBase.replace(/\/like$/, '/send_likes'));
-      else if (path.includes('/send_likes')) targets.push(apiBase.replace(/\/send_likes$/, '/like'));
-    }
-  } catch (e) {
-    targets.push(apiBase);
-  }
-
-  let lastError = null;
-  let apiRes = null;
-
-  for (const baseUrl of targets) {
+  const intentarEndpoints = async (base, key) => {
+    if (!base || !key) return null;
+    const targets = [];
     try {
-      // PASO 2: Realizar el Envío
-      apiRes = await ejecutarPeticion(baseUrl, uid, apiKey, server);
-      if (apiRes) break;
-    } catch (err) {
-      lastError = err;
-      if (err.message.includes('HTML_RESPONSE')) {
-        console.log(`[API FF] Falló endpoint ${baseUrl.split('?')[0]} con respuesta HTML. Probando siguiente...`);
-        continue;
+      const urlObj = new URL(base);
+      const path = urlObj.pathname;
+      if (path === '/' || path === '' || (!path.includes('like') && !path.includes('send_likes'))) {
+        const cleanBase = base.replace(/\/+$/, '');
+        targets.push(`${cleanBase}/send_likes`);
+        targets.push(`${cleanBase}/like`);
+      } else {
+        targets.push(base);
+        if (path.includes('/like')) targets.push(base.replace(/\/like$/, '/send_likes'));
+        else if (path.includes('/send_likes')) targets.push(base.replace(/\/send_likes$/, '/like'));
       }
-      throw err;
+    } catch (e) {
+      targets.push(base);
     }
+
+    let lastError = null;
+    for (const baseUrl of targets) {
+      try {
+        const res = await ejecutarPeticion(baseUrl, uid, key, server);
+        if (res) return res;
+      } catch (err) {
+        lastError = err;
+        if (err.message.includes('HTML_RESPONSE')) {
+          console.log(`[API FF] Falló endpoint ${baseUrl.split('?')[0]} con respuesta HTML. Probando siguiente...`);
+          continue;
+        }
+      }
+    }
+    return null;
+  };
+
+  // PASO 2: Realizar el Envío Dual
+  const [api1Res, api2Res] = await Promise.all([
+    intentarEndpoints(apiBase, apiKey),
+    intentarEndpoints(apiBase2, apiKey2)
+  ]);
+
+  if (!api1Res && !api2Res) {
+    throw new Error(`Ambas APIs fallaron o no respondieron con JSON válido. Revisa tus variables FF_API_URL y FF_API2_URL en Railway.`);
   }
 
-  if (!apiRes) {
-    throw new Error(`La API no respondió con un JSON válido en ninguna de las rutas intentadas. Revisa tu FF_API_URL en Railway. (Recibido: ${lastError ? lastError.message : 'N/A'})`);
-  }
+  // Tomamos como base la respuesta de la que haya funcionado (priorizando la 1)
+  let apiRes = api1Res || api2Res;
 
   // PASO 3: Esperar 2 segundos para que los likes se reflejen en la base de datos de FF
   await new Promise(r => setTimeout(r, 2000));
@@ -311,10 +323,17 @@ async function llamarApiFF(uid, server = 'BR') {
   }
   if (infoPost) {
     apiRes.likes_depois = infoPost.likes;
-    // Si la API reportó 0 o nada de likes_enviados, calculamos la diferencia real
     const diff = infoPost.likes - (infoPre ? infoPre.likes : 0);
-    if ((!apiRes.likes_enviados || parseInt(apiRes.likes_enviados,10) === 0) && diff > 0) {
+    
+    // Calcular suma de likes reportados por ambas APIs
+    const parseAdded = (res) => parseInt(res?.likes_added || res?.successful_likes || res?.likes_enviados || String(res?.sent||'').match(/\d+/)?.[0] || 0);
+    const totalSentRaw = parseAdded(api1Res) + parseAdded(api2Res);
+    
+    // Si la diferencia real es mayor a lo reportado en apiRes o el API reportó 0, actualizamos
+    if (diff > 0) {
       apiRes.likes_enviados = diff;
+    } else if (totalSentRaw > 0) {
+      apiRes.likes_enviados = totalSentRaw;
     }
   }
 
