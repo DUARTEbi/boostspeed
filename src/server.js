@@ -169,6 +169,21 @@ async function initDB() {
       CREATE INDEX IF NOT EXISTS idx_historial_fecha_date ON historial(fecha) WHERE likes_agregados > 0;
     `);
 
+    // Tabla de configuracion persistente
+    await client.query(`
+      CREATE TABLE IF NOT EXISTS config (
+        clave VARCHAR(100) PRIMARY KEY,
+        valor TEXT NOT NULL DEFAULT ''
+      );
+    `);
+    // Insertar clave mantenimiento si no existe
+    await client.query(`INSERT INTO config(clave,valor) VALUES('mantenimiento','false') ON CONFLICT(clave) DO NOTHING`);
+
+    // Cargar estado de mantenimiento desde la BD
+    const cfgRes = await client.query(`SELECT valor FROM config WHERE clave='mantenimiento'`);
+    if (cfgRes.rows.length) modoMantenimiento = cfgRes.rows[0].valor === 'true';
+    console.log(`[INIT] Modo mantenimiento: ${modoMantenimiento}`);
+
     console.log('✅ Base de datos lista');
   } finally {
     client.release();
@@ -1015,11 +1030,12 @@ async function ejecutarAutoLikes() {
 app.get('/api/mantenimiento', (req, res) => {
   res.json({ ok: true, activo: modoMantenimiento });
 });
-app.post('/api/admin/mantenimiento', adminMiddleware, (req, res) => {
+app.post('/api/admin/mantenimiento', adminMiddleware, async (req, res) => {
   const { activo } = req.body;
   modoMantenimiento = !!activo;
+  // Persistir en BD para sobrevivir reinicios
+  try { await pool.query(`UPDATE config SET valor=$1 WHERE clave='mantenimiento'`, [modoMantenimiento ? 'true' : 'false']); } catch(e) { console.error('Error guardando mantenimiento en BD:', e.message); }
   console.log(`[ADMIN] Modo mantenimiento: ${modoMantenimiento ? 'ACTIVADO' : 'DESACTIVADO'}`);
-  // Si se desactiva, reanudar cron inmediatamente
   if (!modoMantenimiento) setImmediate(ejecutarAutoLikes);
   res.json({ ok: true, activo: modoMantenimiento });
 });
