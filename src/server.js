@@ -411,7 +411,7 @@ function interpretarRespuestaFF(apiData) {
   const level = apiData.level || apiData.Level || 0;
   const region = apiData.region || apiData.Region || 'BR';
 
-  if (apiData.status_envio === 'SUCESSO' || apiData.status === 'success' || apiData.status === 'ok' || (apiData.res === 'SUCCESS' && !apiData.error)) {
+  if (added > 0 || apiData.status_envio === 'SUCESSO' || apiData.status === 'success' || apiData.status === 'ok' || (apiData.res === 'SUCCESS' && !apiData.error)) {
     return { tipo: 'ok', added: added || 0, before, after, playerName, level, region };
   }
   
@@ -419,7 +419,7 @@ function interpretarRespuestaFF(apiData) {
   if (apiData.res === 'KEY_NOT_FOUND' || msgRaw.includes('chave inv') || msgRaw.includes('key not found') || apiData.status_code === 401) return { tipo: 'auth_error' };
   if (apiData.res === 'TOO_MANY_REQUESTS' || msgRaw.includes('6hrs') || msgRaw.includes('recibio likes') || apiData._httpStatus === 429) return { tipo: 'ya_recibio' };
 
-  if (apiData.status === 2 || apiData.status === '2') return { tipo: 'ya_recibio' };
+  if (added === 0 && (apiData.status === 2 || apiData.status === '2')) return { tipo: 'ya_recibio' };
   if (added === 0 && before > 0 && after === before) return { tipo: 'ya_recibio' };
 
   return { tipo: 'error', error: apiData.error || apiData.message || 'Error desconocido' };
