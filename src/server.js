@@ -282,24 +282,18 @@ async function llamarApiFF(uid, server = 'BR') {
 
   if (!apiKey1 && !apiKey2) throw new Error('No hay API Keys configuradas en las variables de entorno.');
 
-  // PASO 1: Consultar info inicial (Antes)
-  console.log(`[CYCLE] Consultando likes antes para ID: ${uid}`);
-  const infoPre = await consultarInfoFF(uid);
-
   const intentarEndpoints = async (base, key, isKey1 = true) => {
     if (!base || !key) return null;
     const targets = [];
     try {
       const urlObj = new URL(base);
       const path = urlObj.pathname;
-      // Probamos varias rutas comunes si el usuario solo puso el dominio
       if (path === '/' || path === '' || (!path.includes('like') && !path.includes('send_likes'))) {
         const cleanBase = base.replace(/\/+$/, '');
         targets.push(`${cleanBase}/send_likes`);
         targets.push(`${cleanBase}/like`);
       } else {
         targets.push(base);
-        // Intentar alternar entre /like y /send_likes si uno falla
         if (path.includes('/like')) targets.push(base.replace(/\/like$/, '/send_likes'));
         else if (path.includes('/send_likes')) targets.push(base.replace(/\/send_likes$/, '/like'));
       }
@@ -318,68 +312,47 @@ async function llamarApiFF(uid, server = 'BR') {
     return null;
   };
 
-  // PASO 2: Realizar el Envío Secuencial (API 2 primero, luego API 1)
-  // Esto permite que si uno falla, el otro continúe
-  console.log(`[CYCLE] Iniciando envío secuencial: API 2 -> API 1`);
-  
+  // PASO 2: Realizar el Envío en Secuencia (Para maximizar entrega)
   let api2Res = null;
-  try {
-    api2Res = await intentarEndpoints(apiBase2, apiKey2, false);
-  } catch (e) {
-    console.error(`[API 2] Error crítico:`, e.message);
-  }
+  try { api2Res = await intentarEndpoints(apiBase2, apiKey2, false); } catch (e) {}
 
   let api1Res = null;
-  try {
-    api1Res = await intentarEndpoints(apiBase1, apiKey1, true);
-  } catch (e) {
-    console.error(`[API 1] Error crítico:`, e.message);
-  }
+  try { api1Res = await intentarEndpoints(apiBase1, apiKey1, true); } catch (e) {}
 
-  if (!api1Res && !api2Res) {
-    throw new Error(`Ambas APIs fallaron. Revisa el estado de tus proveedores.`);
-  }
-
-  // Combinamos resultados (Priorizamos la respuesta exitosa para la metadata del jugador)
-  let apiRes = api1Res || api2Res;
-
-  // PASO 3: Esperar 2 segundos para propagación
-  await new Promise(r => setTimeout(r, 2000));
-
-  // PASO 4: Consultar info final (Después)
-  console.log(`[CYCLE] Consultando likes después para ID: ${uid}`);
-  const infoPost = await consultarInfoFF(uid);
-  
-  // Fusionar datos reales en la respuesta
-  if (infoPre) {
-    apiRes.likes_antes = infoPre.likes;
-    apiRes.playerName = infoPre.name;
-    apiRes.nickname = infoPre.name;
-    apiRes.level = infoPre.level;
-  }
-  
-  // Lógica de suma de likes enviados
   const parseAdded = (res) => {
     if (!res) return 0;
     const val = parseInt(res.likes_added || res.likes_enviados || res.sent_likes || String(res.sent || '').match(/\d+/)?.[0] || 0, 10);
     return isNaN(val) ? 0 : val;
   };
-  
-  const totalSentRaw = parseAdded(api1Res) + parseAdded(api2Res);
 
-  if (infoPost) {
-    apiRes.likes_depois = infoPost.likes;
-    apiRes.likes_after = infoPost.likes;
-    const diff = infoPost.likes - (infoPre ? infoPre.likes : 0);
-    
-    // Si la diferencia real es detectable, usamos esa. Si no, usamos lo reportado.
-    if (diff > 0) {
-      apiRes.likes_enviados = diff;
-    } else {
-      apiRes.likes_enviados = totalSentRaw;
-    }
-  } else {
-    apiRes.likes_enviados = totalSentRaw;
+  const a1Added = parseAdded(api1Res);
+  const a2Added = parseAdded(api2Res);
+
+  if (!api1Res && !api2Res) {
+    throw new Error(`Ambas APIs fallaron.`);
+  }
+
+  // Si ambas fallaron en enviar likes (aunque devolvieron JSON), tiramos error
+  if (a1Added === 0 && a2Added === 0) {
+    // Si alguna tiene un mensaje de error útil, lo usamos
+    const errRes = api1Res || api2Res;
+    const msg = errRes.message || errRes.error || "No se pudieron enviar likes (Límite alcanzado en ambas APIs)";
+    throw new Error(msg);
+  }
+
+  // Fusionamos resultados: Priorizamos la que SÍ envió likes
+  let apiRes = (a1Added > 0) ? api1Res : api2Res;
+  
+  const totalSentRaw = a1Added + a2Added;
+  apiRes.likes_enviados = totalSentRaw;
+
+  // Los campos before y after los sacamos de la respuesta que usamos como base
+  apiRes.likes_antes = parseInt(apiRes.likes_before || apiRes.likes_antes || apiRes.Likes_Iniciais || 0, 10);
+  apiRes.likes_depois = parseInt(apiRes.likes_after || apiRes.likes_depois || apiRes.Likes_Atuais || 0, 10);
+  
+  // Si likes_depois no se actualizó, lo estimamos
+  if (apiRes.likes_depois <= apiRes.likes_antes) {
+    apiRes.likes_depois = apiRes.likes_antes + totalSentRaw;
   }
 
   return apiRes;
@@ -1308,13 +1281,17 @@ app.get('/api/admin/likes-hoy', adminMiddleware, async (req, res) => {
 
 app.get('*', (req, res) => res.sendFile(path.join(__dirname, '../public', 'index.html')));
 
-initDB().then(() => {
-  app.listen(PORT, () => {
-    console.log(`🚀 BoostSpeed corriendo en puerto ${PORT}`);
-    setTimeout(() => { ejecutarAutoLikes(); }, 5000);
-    setInterval(ejecutarAutoLikes, 2 * 60 * 1000);
+if (require.main === module) {
+  initDB().then(() => {
+    app.listen(PORT, () => {
+      console.log(`🚀 BoostSpeed corriendo en puerto ${PORT}`);
+      setTimeout(() => { ejecutarAutoLikes(); }, 5000);
+      setInterval(ejecutarAutoLikes, 2 * 60 * 1000);
+    });
+  }).catch(err => {
+    console.error('❌ Error conectando a la base de datos:', err.message);
+    process.exit(1);
   });
-}).catch(err => {
-  console.error('❌ Error conectando a la base de datos:', err.message);
-  process.exit(1);
-});
+}
+
+module.exports = { llamarApiFF, interpretarRespuestaFF, consultarInfoFF };
