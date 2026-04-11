@@ -426,7 +426,7 @@ function interpretarRespuestaFF(apiData) {
   const sentMatch = String(apiData.sent || '').match(/\d+/);
   const fromSentStr = sentMatch ? parseInt(sentMatch[0], 10) : 0;
   
-  let added = parseInt(apiData.likes_added || apiData.likes_enviados || apiData.sent_likes || apiData.sucessos || apiData.sucesso || apiData.Likes_Enviados || fromSentStr || 0, 10);
+  let added = apiData.likes_enviados !== undefined ? parseInt(apiData.likes_enviados, 10) : parseInt(apiData.likes_added || apiData.sent_likes || apiData.sucessos || apiData.sucesso || apiData.Likes_Enviados || fromSentStr || 0, 10);
   
   // Fallback para mensajes de éxito sin campo numérico directo
   const msgRaw = String((apiData.message || '') + (apiData.error || '') + (apiData.msg_sistema || '') + (apiData.sent || '')).toLowerCase();
