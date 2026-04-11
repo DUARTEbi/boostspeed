@@ -762,7 +762,8 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
 
     const d      = apiData;
     const player = d.player || d.nickname || ff_uid.trim();
-    const level  = d.level  || '—';
+    // Parsear el nivel a 0 si la API retorna falsy para evitar crash en BD (campo tipo INTEGER)
+    const level  = parseInt(d.level !== undefined ? d.level : (d.Level || 0), 10) || 0;
     const region = d.region || serverFinal;
     const before = parseInt(d.likes_before || d.likes_antes || 0, 10);
     const after  = parseInt(d.likes_after || d.likes_depois || 0, 10);
