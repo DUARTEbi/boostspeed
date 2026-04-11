@@ -480,10 +480,6 @@ function interpretarRespuestaFF(apiData) {
   return { tipo: 'error', error: apiData.error || apiData.message || 'Error del proveedor' };
 }
 
-
-  return { tipo: 'error', error: apiData.error || apiData.message || 'Error desconocido' };
-}
-
 app.get('/api/public-stats', async (req, res) => {
   try {
     const [usuarios, likesTotal, likesHoy] = await Promise.all([
