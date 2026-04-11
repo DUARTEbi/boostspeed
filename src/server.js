@@ -340,42 +340,37 @@ async function llamarApiFF(uid, server = 'BR') {
   const a1Added = parseAdded(api1Res);
   const a2Added = parseAdded(api2Res);
 
-  if (!api1Res && !api2Res) {
-    throw new Error(`Ambas APIs fallaron en la conexión.`);
-  }
+  const totalAdded = a1Added + a2Added;
 
-  // Si ninguna API reportó envío de likes, informamos el error
-  if (a1Added === 0 && a2Added === 0) {
-    const errRes = api1Res || api2Res;
-    const msg = errRes.message || errRes.error || "No se pudieron enviar likes (Límite alcanzado en ambas APIs)";
-    throw new Error(msg);
-  }
-
-  // Fusionamos resultados: Priorizamos el objeto que tenga datos reales del jugador
-  // Un objeto con metadatos es mejor que uno que solo dice "likes enviados"
-  let apiRes = api2Res; // Por defecto API 2 (BLNHub) suele dar más info
-  if (api1Res && (api1Res.likes_before !== undefined || api1Res.nickname)) {
-    apiRes = api1Res;
-  }
-  // Pero si el elegido falló y el otro NO, cambiamos
-  if (!apiRes || (parseAdded(apiRes) === 0 && (a1Added > 0 || a2Added > 0))) {
-    apiRes = (a1Added > 0) ? api1Res : api2Res;
+  if (totalAdded === 0 && (!api1Res && !api2Res)) {
+    throw new Error("Ambas APIs están caídas o no respondieron en absoluto.");
   }
   
-  // EL PUNTO CLAVE: Sumamos ambos resultados sin fijar límites
-  const totalSentRaw = a1Added + a2Added;
-  apiRes.likes_enviados = totalSentRaw;
-
-  // Metadata del jugador (Antes/Después/Nombre/Nivel)
-  apiRes.likes_antes = parseInt(apiRes.likes_before || apiRes.likes_antes || apiRes.Likes_Iniciais || 0, 10);
-  apiRes.likes_depois = parseInt(apiRes.likes_after || apiRes.likes_depois || apiRes.Likes_Atuais || 0, 10);
-  
-  // Ajuste visual del 'después' basado en la suma total reportada
-  if (apiRes.likes_depois <= apiRes.likes_antes) {
-    apiRes.likes_depois = apiRes.likes_antes + totalSentRaw;
+  if (totalAdded === 0) {
+    const errObj = api2Res || api1Res;
+    throw new Error(errObj.message || errObj.error || errObj.res || "Límite alcanzado, no se pudieron enviar likes.");
   }
 
-  return apiRes;
+  // --- LÓGICA BASE PROPUESTA: API 2 COMO FUENTE DE VERDAD ---
+  let baseData = api2Res;
+  
+  // Si API 2 no sirvió para dar datos del jugador, rescatamos los datos de API 1 como plan B
+  if (!baseData || (baseData.likes_antes === undefined && baseData.likes_before === undefined && api1Res)) {
+    baseData = api1Res;
+  }
+
+  // 1. Tomamos "Likes Antes" directo sacado de la base elegida:
+  const likesAntes = parseInt(baseData.likes_before || baseData.likes_antes || baseData.Likes_Iniciais || 0, 10);
+  
+  // 2. Calculamos los "Likes Después" puramente matemáticos:
+  const likesDespues = likesAntes + totalAdded;
+
+  // 3. Empaquetamos todo dentro de la variable base y regresamos a la Web
+  baseData.likes_enviados = totalAdded;
+  baseData.likes_antes = likesAntes;
+  baseData.likes_depois = likesDespues;
+  
+  return baseData;
 }
 
 function ejecutarPeticion(baseUrl, uid, apiKey, server, isKey1 = true) {
