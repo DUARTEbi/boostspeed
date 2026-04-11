@@ -342,8 +342,16 @@ async function llamarApiFF(uid, server = 'BR') {
     throw new Error(msg);
   }
 
-  // Fusionamos resultados: Priorizamos el objeto que sí tenga datos del jugador
-  let apiRes = (a1Added > 0) ? api1Res : api2Res;
+  // Fusionamos resultados: Priorizamos el objeto que tenga datos reales del jugador
+  // Un objeto con metadatos es mejor que uno que solo dice "likes enviados"
+  let apiRes = api2Res; // Por defecto API 2 (BLNHub) suele dar más info
+  if (api1Res && (api1Res.likes_before !== undefined || api1Res.nickname)) {
+    apiRes = api1Res;
+  }
+  // Pero si el elegido falló y el otro NO, cambiamos
+  if (!apiRes || (parseAdded(apiRes) === 0 && (a1Added > 0 || a2Added > 0))) {
+    apiRes = (a1Added > 0) ? api1Res : api2Res;
+  }
   
   // EL PUNTO CLAVE: Sumamos ambos resultados sin fijar límites
   const totalSentRaw = a1Added + a2Added;
