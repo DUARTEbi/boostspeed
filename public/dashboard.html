@@ -248,9 +248,13 @@ input[type=number]{-moz-appearance:textfield;appearance:textfield}
 .bg-btn:hover{transform:translateY(-2px);box-shadow:0 10px 20px rgba(255,255,255,.1)}
 .g-email-badge{background:var(--gdim);border:1px solid rgba(0,255,30,.2);padding:.3rem .6rem;border-radius:100px;font-size:.75rem;color:var(--g);display:inline-flex;align-items:center;gap:.4rem;margin-top:.4rem}
 /* Overlay mantenimiento - Rediseño Vidrio */
-#mant-overlay{position:fixed;inset:0;z-index:9999;backdrop-filter:blur(22px);-webkit-backdrop-filter:blur(22px);background:rgba(0,0,0,.82);visibility:hidden;opacity:0;pointer-events:none;display:flex;align-items:center;justify-content:center;padding:1.5rem;transition:opacity .4s ease,visibility .4s ease;}
+#mant-overlay{position:fixed;inset:0;z-index:99999;backdrop-filter:blur(30px);-webkit-backdrop-filter:blur(30px);background:rgba(0,0,0,.92);visibility:hidden;opacity:0;pointer-events:none;display:flex;align-items:center;justify-content:center;padding:1.5rem;transition:opacity .4s ease,visibility .4s ease;}
 #mant-overlay.active{visibility:visible;opacity:1;pointer-events:all;}
-body.no-scroll{overflow:hidden}
+body.no-scroll{overflow:hidden; height:100vh;}
+body.no-scroll .tb, 
+body.no-scroll .bnav, 
+body.no-scroll .mobn-dock-container,
+body.no-scroll footer { display: none !important; }
 .mant-card{background:rgba(255,255,255,0.06);backdrop-filter:blur(10px);-webkit-backdrop-filter:blur(10px);border:none;border-radius:30px;padding:2.5rem 2rem;width:100%;max-width:420px;text-align:center;box-shadow:0 15px 35px rgba(0,0,0,0.5), 0 0 0 1px rgba(255,255,255,0.05);position:relative;overflow:hidden;animation:mantIn .6s cubic-bezier(.23,1,.32,1)}
 @keyframes mantIn{from{transform:translateY(30px) opacity(0);opacity:0}to{transform:translateY(0) opacity(1);opacity:1}}
 .mant-icon{width:64px;height:64px;border-radius:20px;background:rgba(255,193,7,.15);border:none;display:flex;align-items:center;justify-content:center;margin:0 auto 1.5rem;animation:floatY 3s ease-in-out infinite;}
