@@ -823,7 +823,6 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
 
     // 1. CHEQUEO LOCAL DE COOLDOWN (24 Horas Estrictas)
     let estado = null;
-    const cleanUID = ff_uid.trim();
     
     // Buscamos con TRIM por si acaso hay espacios en DB
     const cooldownRes = await pool.query(`SELECT * FROM ff_uids_estado WHERE TRIM(ff_uid)=$1`, [cleanUID]);
