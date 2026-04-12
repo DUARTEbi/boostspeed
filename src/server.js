@@ -150,6 +150,13 @@ async function initDB() {
         activo         BOOLEAN     DEFAULT true,
         creado_en      TIMESTAMP   DEFAULT NOW()
       );
+      CREATE TABLE IF NOT EXISTS ff_uids_estado (
+        ff_uid         VARCHAR(30) PRIMARY KEY,
+        player_name    VARCHAR(100),
+        nivel          INTEGER,
+        likes_count    INTEGER,
+        ultimo_exito   TIMESTAMP DEFAULT NOW()
+      );
     `);
 
     await client.query(`
@@ -197,8 +204,11 @@ setInterval(async () => {
     await pool.query(
       `DELETE FROM notificaciones_likes WHERE creado_en < NOW() - INTERVAL '24 hours'`
     );
+    await pool.query(
+      `DELETE FROM ff_uids_estado WHERE ultimo_exito < NOW() - INTERVAL '7 days'`
+    );
   } catch (e) {
-    console.error('Cleanup notificaciones error:', e.message);
+    console.error('Cleanup error:', e.message);
   }
 }, 60 * 60 * 1000);
 
@@ -468,10 +478,6 @@ function interpretarRespuestaFF(apiData) {
   const level = apiData.level || apiData.Level || 0;
   const region = apiData.region || apiData.Region || 'BR';
 
-  // Extraer tiempo si existe en el mensaje (ej: "5h 30m", "10m", "23:59:59")
-  const timeMatch = msgRaw.match(/(\d+h\s*)?\d+m/) || msgRaw.match(/\d{1,2}:\d{2}:\d{2}/);
-  const timerExtract = timeMatch ? timeMatch[0].trim() : null;
-
   // CRITERIOS DE ÉXITO
   const esExito = (
     added > 0 || 
@@ -488,21 +494,21 @@ function interpretarRespuestaFF(apiData) {
   
   // CRITERIOS DE ERROR
   if (apiData.res === 'LIMIT_EXCEEDED' || msgRaw.includes('limite di') || msgRaw.includes('limit reached')) {
-    return { tipo: 'limite', timer: timerExtract };
+    return { tipo: 'limite' };
   }
   if (apiData.res === 'KEY_NOT_FOUND' || msgRaw.includes('chave inv') || msgRaw.includes('key not found') || apiData.status_code === 401) {
     return { tipo: 'auth_error' };
   }
   if (apiData.res === 'TOO_MANY_REQUESTS' || msgRaw.includes('6hrs') || msgRaw.includes('recibio likes') || apiData._httpStatus === 429) {
-    return { tipo: 'ya_recibio', timer: timerExtract };
+    return { tipo: 'ya_recibio' };
   }
   
   // Tratamiento para status 2 (ya recibió likes hoy en RTPY)
   if (apiData.status === 2 || apiData.status === '2' || (added === 0 && before > 0 && after === before)) {
-    return { tipo: 'ya_recibio', timer: timerExtract };
+    return { tipo: 'ya_recibio' };
   }
 
-  return { tipo: 'error', error: apiData.error || apiData.message || 'Error del proveedor', timer: timerExtract };
+  return { tipo: 'error', error: apiData.error || apiData.message || 'Error del proveedor' };
 }
 
 app.get('/api/public-stats', async (req, res) => {
@@ -813,44 +819,61 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
 
     const serversValidos = ['BR', 'IND', 'US', 'SAC', 'NA'];
     const serverFinal = serversValidos.includes((server || 'BR').toUpperCase()) ? server.toUpperCase() : 'BR';
+    const cleanUID = ff_uid.trim();
+
+    // 1. CHEQUEO LOCAL DE COOLDOWN (24 Horas Estrictas)
+    const cooldownRes = await pool.query(`SELECT * FROM ff_uids_estado WHERE ff_uid=$1`, [cleanUID]);
+    if (cooldownRes.rows.length) {
+      const estado = cooldownRes.rows[0];
+      const ultimaExito = new Date(estado.ultimo_exito);
+      const diffMs = Date.now() - ultimaExito.getTime();
+      const venticuatroHoras = 24 * 60 * 60 * 1000;
+
+      if (diffMs < venticuatroHoras) {
+        const restanteMs = venticuatroHoras - diffMs;
+        const horas = Math.floor(restanteMs / 3600000);
+        const mins = Math.floor((restanteMs % 3600000) / 60000);
+        const tiempoStr = horas > 0 ? `${horas}h ${mins}m` : `${mins}m`;
+        
+        return res.status(400).json({ 
+          error: `Este UID ya recibió likes hoy. Disponible en ${tiempoStr}.`, 
+          data: { 
+            jugador: estado.player_name || cleanUID, 
+            uid: cleanUID, 
+            nivel: estado.nivel || '—', 
+            region: serverFinal, 
+            likes_antes: estado.likes_count || 0, 
+            likes_despues: estado.likes_count || 0, // No hubo cambio
+            likes_agregados: 0, 
+            tiempo_restante: tiempoStr, 
+            ya_recibio: true 
+          } 
+        });
+      }
+    }
 
     let apiData;
-    try { apiData = await llamarApiFF(ff_uid.trim(), serverFinal); } catch (apiErr) { return res.status(500).json({ error: 'Error al contactar la API: ' + apiErr.message }); }
+    try { apiData = await llamarApiFF(cleanUID, serverFinal); } catch (apiErr) { return res.status(500).json({ error: 'Error al contactar la API: ' + apiErr.message }); }
 
     const interpretado = interpretarRespuestaFF(apiData);
     if (interpretado.tipo === 'auth_error') return res.status(500).json({ error: '❌ Error de autenticación con la API. Verifica que FF_API_KEY esté configurada.' });
     if (interpretado.tipo === 'ya_recibio' || interpretado.tipo === 'limite') {
       const d      = apiData;
-      const player = d.player || d.nickname || ff_uid.trim();
+      const player = d.player || d.nickname || cleanUID;
       const level  = d.level  || '—';
       const region = d.region || serverFinal;
       const before = parseInt(d.likes_before || interpretado.before || 0, 10);
       
-      let tiempoRestante = interpretado.timer;
-      
-      // Si la API no dio tiempo, lo calculamos para el próximo reset UTC (como fallback)
-      if (!tiempoRestante) {
-        const ahora  = new Date();
-        const manana = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate() + 1, 0, 0, 0, 0));
-        const diffMs = manana - ahora;
-        const horas  = Math.floor(diffMs / 3600000);
-        const mins   = Math.floor((diffMs % 3600000) / 60000);
-        tiempoRestante = horas > 0 ? `${horas}h ${mins}m` : `${mins}m`;
-      }
+      const ahora  = new Date();
+      const manana = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate() + 1, 0, 0, 0, 0));
+      const diffMs = manana - ahora;
+      const horas  = Math.floor(diffMs / 3600000);
+      const mins   = Math.floor((diffMs % 3600000) / 60000);
+      const tiempoRestante = horas > 0 ? `${horas}h ${mins}m` : `${mins}m`;
 
       return res.status(400).json({ 
         error: `Este UID ya recibió likes hoy. Disponible en ${tiempoRestante}.`, 
-        data: { 
-          jugador: player, 
-          uid: d.uid || ff_uid.trim(), 
-          nivel: level, 
-          region, 
-          likes_antes: before, 
-          likes_despues: before, 
-          likes_agregados: 0, 
-          tiempo_restante: tiempoRestante, 
-          ya_recibio: true 
-        } 
+        data: { jugador: player, uid: d.uid || cleanUID, nivel: level, region, likes_antes: before, likes_despues: before, likes_agregados: 0, tiempo_restante: tiempoRestante, ya_recibio: true } 
       });
     }
 
@@ -860,7 +883,7 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
     }
 
     const d      = apiData;
-    const player = d.player || d.nickname || ff_uid.trim();
+    const player = d.player || d.nickname || cleanUID;
     const level  = parseInt(d.level !== undefined ? d.level : (d.Level || 0), 10) || 0;
     const region = d.region || serverFinal;
     const before = interpretado.before;
@@ -879,10 +902,17 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
       } else {
         await pool.query(`UPDATE usuarios SET envios_hoy=envios_hoy+1, likes_enviados_plan=likes_enviados_plan+$1, fecha_ultimo_envio=$2 WHERE id=$3`, [likesAdded, today, req.user.id]);
       }
-      await pool.query(`INSERT INTO historial (usuario_id,ff_uid,player_name,likes_antes,likes_despues,likes_agregados,nivel,region,auto_envio) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,false)`, [req.user.id, ff_uid.trim(), player, before, after, likesAdded, level, region]);
-      pool.query(`INSERT INTO notificaciones_likes (username, ff_uid, player_name, likes_agregados) VALUES ($1,$2,$3,$4)`, [u.username, ff_uid.trim(), player, likesAdded]).catch(() => {});
+      await pool.query(`INSERT INTO historial (usuario_id,ff_uid,player_name,likes_antes,likes_despues,likes_agregados,nivel,region,auto_envio) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,false)`, [req.user.id, cleanUID, player, before, after, likesAdded, level, region]);
+      pool.query(`INSERT INTO notificaciones_likes (username, ff_uid, player_name, likes_agregados) VALUES ($1,$2,$3,$4)`, [u.username, cleanUID, player, likesAdded]).catch(() => {});
+      
+      // REGISTRO DEL ESTADO PARA COOLDOWN INTERNO
+      await pool.query(`INSERT INTO ff_uids_estado (ff_uid, player_name, nivel, likes_count, ultimo_exito) 
+                        VALUES ($1, $2, $3, $4, NOW()) 
+                        ON CONFLICT (ff_uid) DO UPDATE 
+                        SET player_name=EXCLUDED.player_name, nivel=EXCLUDED.nivel, likes_count=EXCLUDED.likes_count, ultimo_exito=NOW()`, 
+                        [cleanUID, player, level, after]);
     }
-    res.json({ ok: true, data: { jugador: player, uid: d.uid || ff_uid.trim(), nivel: level, region, likes_antes: before, likes_despues: after, likes_agregados: likesAdded, tiempo }, message: `✅ ¡${likesAdded} likes enviados a ${player}!` });
+    res.json({ ok: true, data: { jugador: player, uid: d.uid || cleanUID, nivel: level, region, likes_antes: before, likes_despues: after, likes_agregados: likesAdded, tiempo }, message: `✅ ¡${likesAdded} likes enviados a ${player}!` });
   } catch (err) { res.status(500).json({ error: 'Error interno del servidor' }); }
 });
 
@@ -942,16 +972,33 @@ async function procesarAutoID(autoId) {
   if (!row.ilimitado && row.plan_tipo === 'likes' && (row.likes_disponibles || 0) <= 0) { await pool.query('UPDATE auto_ids SET activo=false WHERE id=$1', [autoId]); return; }
   if (row.likes_meta > 0 && (row.likes_enviados || 0) >= row.likes_meta) { await pool.query('UPDATE auto_ids SET activo=false WHERE id=$1', [autoId]); return; }
 
-  if (!row.ilimitado) {
-    const fechaUltimo = row.fecha_ultimo_envio ? new Date(row.fecha_ultimo_envio).toISOString().slice(0, 10) : null;
-    const enviosHoyActual = fechaUltimo === today ? (row.envios_hoy || 0) : 0;
-    if (enviosHoyActual >= row.envios_por_dia) {
-      // Límite diario: Esperamos hasta el próximo ciclo (5 AM)
-      const prox = calcularProximoExito();
-      await pool.query('UPDATE auto_ids SET proximo_envio=$1, reintentando=false WHERE id=$2', [prox, autoId]); 
-      return;
+    if (!row.ilimitado) {
+      const fechaUltimo = row.fecha_ultimo_envio ? new Date(row.fecha_ultimo_envio).toISOString().slice(0, 10) : null;
+      const enviosHoyActual = fechaUltimo === today ? (row.envios_hoy || 0) : 0;
+      if (enviosHoyActual >= row.envios_por_dia) {
+        // Límite diario: Esperamos hasta el próximo ciclo (5 AM)
+        const prox = calcularProximoExito();
+        await pool.query('UPDATE auto_ids SET proximo_envio=$1, reintentando=false WHERE id=$2', [prox, autoId]); 
+        return;
+      }
     }
-  }
+
+    // 1. CHEQUEO LOCAL DE COOLDOWN (24 Horas Estrictas)
+    const cooldownRes = await pool.query(`SELECT * FROM ff_uids_estado WHERE ff_uid=$1`, [row.ff_uid]);
+    if (cooldownRes.rows.length) {
+      const estado = cooldownRes.rows[0];
+      const ultimaExito = new Date(estado.ultimo_exito);
+      const diffMs = Date.now() - ultimaExito.getTime();
+      const venticuatroHoras = 24 * 60 * 60 * 1000;
+
+      if (diffMs < venticuatroHoras) {
+        // Aún en cooldown: Calcular próximo intento para cuando se venza el cooldown
+        const restanteMs = venticuatroHoras - diffMs;
+        const prox = new Date(Date.now() + restanteMs + 60000).toISOString(); // +1 min margen
+        await pool.query('UPDATE auto_ids SET proximo_envio=$1, reintentando=false WHERE id=$2', [prox, autoId]);
+        return;
+      }
+    }
 
   let apiData;
   try { 
