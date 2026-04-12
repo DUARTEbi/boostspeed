@@ -353,8 +353,9 @@ async function llamarApiFF(uid, server = 'BR') {
 
   // Si no se pudo enviar ningún like (debido a límite u otro error) devolvemos el error más relevante
   if (totalAdded === 0) {
-    if (res2Int && (res2Int.tipo === 'limite' || res2Int.tipo === 'ya_recibio')) return api2Res;
-    if (res1Int && (res1Int.tipo === 'limite' || res1Int.tipo === 'ya_recibio')) return api1Res;
+    // Prioridad: Si API 1 (RTPY) tiene el aviso de "ya recibió" (que suele traer el tiempo restante), lo usamos.
+    if (res1Int && (res1Int.tipo === 'ya_recibio' || res1Int.tipo === 'limite')) return api1Res;
+    if (res2Int && (res2Int.tipo === 'ya_recibio' || res2Int.tipo === 'limite')) return api2Res;
     return api2Res || api1Res;
   }
 
@@ -442,6 +443,10 @@ function interpretarRespuestaFF(apiData) {
   const level = apiData.level || apiData.Level || 0;
   const region = apiData.region || apiData.Region || 'BR';
 
+  // Extraer tiempo si existe en el mensaje (ej: "5h 30m", "10m", "23:59:59")
+  const timeMatch = msgRaw.match(/(\d+h\s*)?\d+m/) || msgRaw.match(/\d{1,2}:\d{2}:\d{2}/);
+  const timerExtract = timeMatch ? timeMatch[0].trim() : null;
+
   // CRITERIOS DE ÉXITO
   const esExito = (
     added > 0 || 
@@ -457,14 +462,22 @@ function interpretarRespuestaFF(apiData) {
   }
   
   // CRITERIOS DE ERROR
-  if (apiData.res === 'LIMIT_EXCEEDED' || msgRaw.includes('limite di') || msgRaw.includes('limit reached')) return { tipo: 'limite' };
-  if (apiData.res === 'KEY_NOT_FOUND' || msgRaw.includes('chave inv') || msgRaw.includes('key not found') || apiData.status_code === 401) return { tipo: 'auth_error' };
-  if (apiData.res === 'TOO_MANY_REQUESTS' || msgRaw.includes('6hrs') || msgRaw.includes('recibio likes') || apiData._httpStatus === 429) return { tipo: 'ya_recibio' };
+  if (apiData.res === 'LIMIT_EXCEEDED' || msgRaw.includes('limite di') || msgRaw.includes('limit reached')) {
+    return { tipo: 'limite', timer: timerExtract };
+  }
+  if (apiData.res === 'KEY_NOT_FOUND' || msgRaw.includes('chave inv') || msgRaw.includes('key not found') || apiData.status_code === 401) {
+    return { tipo: 'auth_error' };
+  }
+  if (apiData.res === 'TOO_MANY_REQUESTS' || msgRaw.includes('6hrs') || msgRaw.includes('recibio likes') || apiData._httpStatus === 429) {
+    return { tipo: 'ya_recibio', timer: timerExtract };
+  }
   
   // Tratamiento para status 2 (ya recibió likes hoy en RTPY)
-  if (apiData.status === 2 || apiData.status === '2' || (added === 0 && before > 0 && after === before)) return { tipo: 'ya_recibio' };
+  if (apiData.status === 2 || apiData.status === '2' || (added === 0 && before > 0 && after === before)) {
+    return { tipo: 'ya_recibio', timer: timerExtract };
+  }
 
-  return { tipo: 'error', error: apiData.error || apiData.message || 'Error del proveedor' };
+  return { tipo: 'error', error: apiData.error || apiData.message || 'Error del proveedor', timer: timerExtract };
 }
 
 app.get('/api/public-stats', async (req, res) => {
@@ -781,21 +794,39 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
 
     const interpretado = interpretarRespuestaFF(apiData);
     if (interpretado.tipo === 'auth_error') return res.status(500).json({ error: '❌ Error de autenticación con la API. Verifica que FF_API_KEY esté configurada.' });
-    if (interpretado.tipo === 'limite') return res.status(400).json({ error: '⚠️ Este ID ya recibió likes recientemente. Intenta en unas horas.' });
-
-    if (interpretado.tipo === 'ya_recibio') {
+    if (interpretado.tipo === 'ya_recibio' || interpretado.tipo === 'limite') {
       const d      = apiData;
       const player = d.player || d.nickname || ff_uid.trim();
       const level  = d.level  || '—';
       const region = d.region || serverFinal;
-      const before = parseInt(d.likes_before || 0, 10);
-      const ahora  = new Date();
-      const manana = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate() + 1, 0, 0, 0, 0));
-      const diffMs = manana - ahora;
-      const horas  = Math.floor(diffMs / 3600000);
-      const mins   = Math.floor((diffMs % 3600000) / 60000);
-      const tiempoRestante = horas > 0 ? `${horas}h ${mins}m` : `${mins}m`;
-      return res.status(400).json({ error: `Este UID ya recibió likes hoy. Disponible en ${tiempoRestante}.`, data: { jugador: player, uid: d.uid || ff_uid.trim(), nivel: level, region, likes_antes: before, likes_despues: before, likes_agregados: 0, tiempo_restante: tiempoRestante, ya_recibio: true } });
+      const before = parseInt(d.likes_before || interpretado.before || 0, 10);
+      
+      let tiempoRestante = interpretado.timer;
+      
+      // Si la API no dio tiempo, lo calculamos para el próximo reset UTC (como fallback)
+      if (!tiempoRestante) {
+        const ahora  = new Date();
+        const manana = new Date(Date.UTC(ahora.getUTCFullYear(), ahora.getUTCMonth(), ahora.getUTCDate() + 1, 0, 0, 0, 0));
+        const diffMs = manana - ahora;
+        const horas  = Math.floor(diffMs / 3600000);
+        const mins   = Math.floor((diffMs % 3600000) / 60000);
+        tiempoRestante = horas > 0 ? `${horas}h ${mins}m` : `${mins}m`;
+      }
+
+      return res.status(400).json({ 
+        error: `Este UID ya recibió likes hoy. Disponible en ${tiempoRestante}.`, 
+        data: { 
+          jugador: player, 
+          uid: d.uid || ff_uid.trim(), 
+          nivel: level, 
+          region, 
+          likes_antes: before, 
+          likes_despues: before, 
+          likes_agregados: 0, 
+          tiempo_restante: tiempoRestante, 
+          ya_recibio: true 
+        } 
+      });
     }
 
     if (interpretado.tipo === 'error') {
