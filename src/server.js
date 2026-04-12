@@ -239,38 +239,38 @@ function adminMiddleware(req, res, next) {
 }
 
 async function consultarInfoFF(uid) {
-  const apiKey = (process.env.FF_API_KEY || '').trim();
-  let apiBase = (process.env.FF_API_URL || '').trim();
-  
-  // Si no hay URL, no podemos consultar
-  if (!apiBase) return null;
+  const apiKey1 = (process.env.FF_API_KEY || '').trim();
+  let apiBase1 = (process.env.FF_API_URL || '').trim();
+  const apiKey2 = (process.env.FF_API2_KEY || '').trim();
+  let apiBase2 = (process.env.FF_API2_URL || '').trim();
 
-  // Derivamos la URL de info (buscamos cambiar el endpoint de envío por /info)
-  // Muchos proveedores usan /info para datos del perfil
-  let infoUrl = apiBase;
-  if (infoUrl.includes('/likes-220')) infoUrl = infoUrl.replace('/likes-220', '/info');
-  else if (infoUrl.includes('/send_likes')) infoUrl = infoUrl.replace('/send_likes', '/info');
-  else if (infoUrl.includes('/like')) infoUrl = infoUrl.replace('/like', '/info');
-  else {
-    // Si no tiene ruta conocida, intentamos añadir /info a la base
-    infoUrl = infoUrl.replace(/\/$/, '') + '/info';
-  }
-  
-  try {
-    const res = await ejecutarPeticion(infoUrl, uid, apiKey, 'BR');
-    // Soporte para múltiples formatos de respuesta de info
-    const info = res?.AccountInfo || res?.info || res;
-    if (info) {
-      return {
-        likes: parseInt(info.AccountLikes || info.likes || info.likes_antes || info.likes_before || 0, 10),
-        name: info.AccountName || info.nickname || info.player || info.playerName || '',
-        level: info.AccountLevel || info.level || 0
-      };
-    }
-  } catch (e) {
-    console.warn(`[API INFO] No se pudo obtener la info para ${uid}:`, e.message);
-  }
-  return null;
+  const obtenerDeBase = async (base, key) => {
+    if (!base || !key) return null;
+    let infoUrl = base;
+    if (infoUrl.includes('/likes-220')) infoUrl = infoUrl.replace('/likes-220', '/info');
+    else if (infoUrl.includes('/send_likes')) infoUrl = infoUrl.replace('/send_likes', '/info');
+    else if (infoUrl.includes('/like')) infoUrl = infoUrl.replace('/like', '/info');
+    else infoUrl = infoUrl.replace(/\/$/, '') + '/info';
+
+    try {
+      const res = await ejecutarPeticion(infoUrl, uid, key, 'BR');
+      const info = res?.AccountInfo || res?.info || res;
+      if (info && (info.Nickname || info.nickname || info.AccountName)) {
+        return {
+          likes: parseInt(info.AccountLikes || info.likes || info.likes_antes || info.likes_before || info.Likes || 0, 10),
+          name: info.AccountName || info.nickname || info.player || info.playerName || info.Nickname || '',
+          level: parseInt(info.AccountLevel || info.level || info.Level || 0, 10),
+          region: info.Region || info.region || 'BR'
+        };
+      }
+    } catch (e) {}
+    return null;
+  };
+
+  // Intentar con API 2 primero (suele ser más estable para info) y luego API 1
+  let data = await obtenerDeBase(apiBase2, apiKey2);
+  if (!data) data = await obtenerDeBase(apiBase1, apiKey1);
+  return data;
 }
 
 async function llamarApiFF(uid, server = 'BR') {
@@ -360,11 +360,27 @@ async function llamarApiFF(uid, server = 'BR') {
     if (api2Res && (api2Res.nickname || api2Res.Nickname || api2Res.player_name || api2Res.PlayerName || api2Res.player)) {
       errorRes.nickname = api2Res.nickname || api2Res.Nickname || api2Res.player_name || api2Res.PlayerName || api2Res.player;
       errorRes.level = api2Res.level || api2Res.Level;
-      // Mantenemos los likes_antes de la API 2 si están presentes, ya que el usuario prefiere su info
       if (api2Res.likes_antes !== undefined || api2Res.likes_before !== undefined) {
         errorRes.likes_antes = api2Res.likes_antes || api2Res.likes_before;
       }
     }
+
+    // NUEVO: Si aún no tenemos Nickname o queremos asegurar datos FRESCOS (como pidió el usuario), 
+    // hacemos una consulta de info explícita.
+    try {
+      const fresh = await consultarInfoFF(uid);
+      if (fresh) {
+        errorRes.nickname = fresh.name || errorRes.nickname;
+        errorRes.level = fresh.level || errorRes.level;
+        errorRes.likes_antes = fresh.likes !== undefined ? fresh.likes : errorRes.likes_antes;
+        errorRes.region = fresh.region || errorRes.region;
+        // En caso de error, likes_despues es igual a likes_antes
+        errorRes.likes_depois = errorRes.likes_antes;
+      }
+    } catch (e) {
+      console.warn('[API FRESH INFO ERROR]', e.message);
+    }
+
     return errorRes;
   }
 
