@@ -822,9 +822,27 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
     const cleanUID = ff_uid.trim();
 
     // 1. CHEQUEO LOCAL DE COOLDOWN (24 Horas Estrictas)
+    let estado = null;
     const cooldownRes = await pool.query(`SELECT * FROM ff_uids_estado WHERE ff_uid=$1`, [cleanUID]);
+    
     if (cooldownRes.rows.length) {
-      const estado = cooldownRes.rows[0];
+      estado = cooldownRes.rows[0];
+    } else {
+      // FALLBACK: Consultar historial por si el ID recibió likes antes de implementar ff_uids_estado
+      const histRes = await pool.query(`SELECT player_name, nivel, likes_despues as likes_count, fecha as ultimo_exito 
+                                        FROM historial 
+                                        WHERE ff_uid=$1 AND likes_agregados > 0 
+                                        ORDER BY fecha DESC LIMIT 1`, [cleanUID]);
+      if (histRes.rows.length) {
+        estado = histRes.rows[0];
+        // Opcional: Migrarlo al estado nuevo para futuras consultas rápidas
+        await pool.query(`INSERT INTO ff_uids_estado (ff_uid, player_name, nivel, likes_count, ultimo_exito) 
+                          VALUES ($1, $2, $3, $4, $5) ON CONFLICT DO NOTHING`, 
+                          [cleanUID, estado.player_name, estado.nivel, estado.likes_count, estado.ultimo_exito]);
+      }
+    }
+
+    if (estado) {
       const ultimaExito = new Date(estado.ultimo_exito);
       const diffMs = Date.now() - ultimaExito.getTime();
       const venticuatroHoras = 24 * 60 * 60 * 1000;
@@ -843,7 +861,7 @@ app.post('/api/enviar-likes', authMiddleware, async (req, res) => {
             nivel: estado.nivel || '—', 
             region: serverFinal, 
             likes_antes: estado.likes_count || 0, 
-            likes_despues: estado.likes_count || 0, // No hubo cambio
+            likes_despues: estado.likes_count || 0, 
             likes_agregados: 0, 
             tiempo_restante: tiempoStr, 
             ya_recibio: true 
@@ -984,9 +1002,18 @@ async function procesarAutoID(autoId) {
     }
 
     // 1. CHEQUEO LOCAL DE COOLDOWN (24 Horas Estrictas)
+    let estado = null;
     const cooldownRes = await pool.query(`SELECT * FROM ff_uids_estado WHERE ff_uid=$1`, [row.ff_uid]);
+    
     if (cooldownRes.rows.length) {
-      const estado = cooldownRes.rows[0];
+      estado = cooldownRes.rows[0];
+    } else {
+      // FALLBACK HISTORIAL: Por si no estaba en ff_uids_estado
+      const histRes = await pool.query(`SELECT fecha as ultimo_exito FROM historial WHERE ff_uid=$1 AND likes_agregados > 0 ORDER BY fecha DESC LIMIT 1`, [row.ff_uid]);
+      if (histRes.rows.length) estado = histRes.rows[0];
+    }
+
+    if (estado) {
       const ultimaExito = new Date(estado.ultimo_exito);
       const diffMs = Date.now() - ultimaExito.getTime();
       const venticuatroHoras = 24 * 60 * 60 * 1000;
