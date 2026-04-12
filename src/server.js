@@ -1009,66 +1009,48 @@ async function procesarAutoID(autoId) {
   if (!row.ilimitado && row.plan_tipo === 'likes' && (row.likes_disponibles || 0) <= 0) { await pool.query('UPDATE auto_ids SET activo=false WHERE id=$1', [autoId]); return; }
   if (row.likes_meta > 0 && (row.likes_enviados || 0) >= row.likes_meta) { await pool.query('UPDATE auto_ids SET activo=false WHERE id=$1', [autoId]); return; }
 
-    if (!row.ilimitado) {
-      const fechaUltimo = row.fecha_ultimo_envio ? new Date(row.fecha_ultimo_envio).toISOString().slice(0, 10) : null;
-      const enviosHoyActual = fechaUltimo === today ? (row.envios_hoy || 0) : 0;
-      if (enviosHoyActual >= row.envios_por_dia) {
-        // Límite diario: Esperamos hasta el próximo ciclo (5 AM)
-        const prox = calcularProximoExito();
-        await pool.query('UPDATE auto_ids SET proximo_envio=$1, reintentando=false WHERE id=$2', [prox, autoId]); 
-        return;
-      }
-    }
-
-    // 1. CHEQUEO LOCAL DE COOLDOWN (24 Horas Estrictas)
-    let estado = null;
-    const cooldownRes = await pool.query(`SELECT * FROM ff_uids_estado WHERE ff_uid=$1`, [row.ff_uid]);
-    
-    if (cooldownRes.rows.length) {
-      estado = cooldownRes.rows[0];
-    } else {
-      // FALLBACK HISTORIAL: Por si no estaba en ff_uids_estado
-      const histRes = await pool.query(`SELECT fecha as ultimo_exito FROM historial WHERE ff_uid=$1 AND likes_agregados > 0 ORDER BY fecha DESC LIMIT 1`, [row.ff_uid]);
-      if (histRes.rows.length) estado = histRes.rows[0];
-    }
-
-    if (estado) {
-      const ultimaExito = new Date(estado.ultimo_exito);
-      const diffMs = Date.now() - ultimaExito.getTime();
-      const venticuatroHoras = 24 * 60 * 60 * 1000;
-
-      if (diffMs < venticuatroHoras) {
-        // Aún en cooldown: Calcular próximo intento para cuando se venza el cooldown
-        const restanteMs = venticuatroHoras - diffMs;
-        const prox = new Date(Date.now() + restanteMs + 60000).toISOString(); // +1 min margen
-        await pool.query('UPDATE auto_ids SET proximo_envio=$1, reintentando=false WHERE id=$2', [prox, autoId]);
-        return;
-      }
-    }
-
-    let apiData;
-    try { 
-      apiData = await llamarApiFF(row.ff_uid, row.region || 'BR'); 
-    } catch (apiErr) {
-      // ...
-    }
-
-    const interpretado = interpretarRespuestaFF(apiData);
-    if (interpretado.tipo === 'ya_recibio' || interpretado.tipo === 'limite') {
-      // Si la API dice que ya recibió pero no tenemos récord local, esperamos al próximo reset genérico (mañana)
-      const manana = new Date();
-      manana.setDate(manana.getDate() + 1);
-      manana.setHours(7, 0, 0, 0); // Reset a las 7 AM como en otros procesos
-      await pool.query('UPDATE auto_ids SET proximo_envio=$1, reintentando=false WHERE id=$2', [manana.toISOString(), autoId]);
+  if (!row.ilimitado) {
+    const fechaUltimo = row.fecha_ultimo_envio ? new Date(row.fecha_ultimo_envio).toISOString().slice(0, 10) : null;
+    const enviosHoyActual = fechaUltimo === today ? (row.envios_hoy || 0) : 0;
+    if (enviosHoyActual >= row.envios_por_dia) {
+      const prox = calcularProximoExito();
+      await pool.query('UPDATE auto_ids SET proximo_envio=$1, reintentando=false WHERE id=$2', [prox, autoId]); 
       return;
     }
+  }
+
+  // 1. CHEQUEO LOCAL DE COOLDOWN (24 Horas Estrictas)
+  let estado = null;
+  const cooldownRes = await pool.query(`SELECT * FROM ff_uids_estado WHERE ff_uid=$1`, [row.ff_uid]);
+  if (cooldownRes.rows.length) {
+    estado = cooldownRes.rows[0];
+  } else {
+    const histRes = await pool.query(`SELECT fecha as ultimo_exito FROM historial WHERE ff_uid=$1 AND likes_agregados > 0 ORDER BY fecha DESC LIMIT 1`, [row.ff_uid]);
+    if (histRes.rows.length) estado = histRes.rows[0];
+  }
+
+  if (estado) {
+    const ultimaExito = new Date(estado.ultimo_exito);
+    const diffMs = Date.now() - ultimaExito.getTime();
+    const venticuatroHoras = 24 * 60 * 60 * 1000;
+    if (diffMs < venticuatroHoras) {
+      const restanteMs = venticuatroHoras - diffMs;
+      const prox = new Date(Date.now() + restanteMs + 60000).toISOString();
+      await pool.query('UPDATE auto_ids SET proximo_envio=$1, reintentando=false WHERE id=$2', [prox, autoId]);
+      return;
+    }
+  }
+
+  let apiData;
+  try { 
+    apiData = await llamarApiFF(row.ff_uid, row.region || 'BR'); 
+  } catch (apiErr) {
+    const prox = calcularProximoIntento();
     await pool.query('UPDATE auto_ids SET proximo_envio=$1, reintentando=true WHERE id=$2', [prox, autoId]); 
     return;
   }
 
-
   const interpretado = interpretarRespuestaFF(apiData);
-
   const player = apiData.player || apiData.nickname || row.player_name || row.ff_uid;
   const level  = apiData.level  || row.nivel || null;
   const region = apiData.region || row.region || 'BR';
@@ -1076,7 +1058,11 @@ async function procesarAutoID(autoId) {
   if (interpretado.tipo === 'auth_error') return;
 
   if (interpretado.tipo === 'ya_recibio' || interpretado.tipo === 'limite') {
-    return await registrarFalloID(autoId, row.falla_desde, player, level, region);
+    const manana = new Date();
+    manana.setDate(manana.getDate() + 1);
+    manana.setHours(7, 0, 0, 0);
+    await pool.query('UPDATE auto_ids SET proximo_envio=$1, reintentando=false WHERE id=$2', [manana.toISOString(), autoId]);
+    return;
   }
 
   if (interpretado.tipo === 'ok') {
@@ -1094,15 +1080,17 @@ async function procesarAutoID(autoId) {
       }
       await pool.query(`INSERT INTO historial (usuario_id,ff_uid,player_name,likes_antes,likes_despues,likes_agregados,nivel,region,auto_envio) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,true)`, [row.usuario_id, row.ff_uid, player, before, after, likesAdded, level, region]);
       
-      // ÉXITO: Siguiente envío en el próximo ciclo regular (5 AM) y resetear contadores de fallos
-      const proximo  = calcularProximoExito();
+      const proximo = calcularProximoExito();
       await pool.query(`UPDATE auto_ids SET player_name=$1, nivel=$2, region=$3, likes_enviados=likes_enviados+$4, ultimo_envio=$5, proximo_envio=$6, reintentando=false, falla_desde=NULL, motivo_error=NULL WHERE id=$7`, [player, level, region, likesAdded, new Date().toISOString(), proximo, autoId]);
       pool.query(`INSERT INTO notificaciones_likes (username,ff_uid,player_name,likes_agregados) VALUES ($1,$2,$3,$4)`, [row.username, row.ff_uid, player, likesAdded]).catch(() => {});
-
+      
+      await pool.query(`INSERT INTO ff_uids_estado (ff_uid, player_name, nivel, likes_count, ultimo_exito) 
+                        VALUES ($1, $2, $3, $4, NOW()) ON CONFLICT (ff_uid) DO UPDATE 
+                        SET player_name=EXCLUDED.player_name, nivel=EXCLUDED.nivel, likes_count=EXCLUDED.likes_count, ultimo_exito=NOW()`, 
+                        [row.ff_uid, player, level, after]);
     } else {
       return await registrarFalloID(autoId, row.falla_desde, player, level, region);
     }
-    return;
   }
   return await registrarFalloID(autoId, row.falla_desde, player, level, region);
 }
