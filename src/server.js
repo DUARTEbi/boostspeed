@@ -187,6 +187,7 @@ async function initDB() {
     `);
     // Insertar clave mantenimiento si no existe
     await client.query(`INSERT INTO config(clave,valor) VALUES('mantenimiento','false') ON CONFLICT(clave) DO NOTHING`);
+    await client.query(`INSERT INTO config(clave,valor) VALUES('prioridad_api','2') ON CONFLICT(clave) DO NOTHING`);
 
     // Cargar estado de mantenimiento desde la BD
     const cfgRes = await client.query(`SELECT valor FROM config WHERE clave='mantenimiento'`);
@@ -211,6 +212,24 @@ setInterval(async () => {
     console.error('Cleanup error:', e.message);
   }
 }, 60 * 60 * 1000);
+
+async function getApiPriority() {
+  try {
+    const res = await pool.query(`SELECT valor FROM config WHERE clave='prioridad_api'`);
+    return res.rows.length ? res.rows[0].valor : '2';
+  } catch (e) {
+    return '2';
+  }
+}
+
+async function setApiPriority(apiNumber) {
+  try {
+    await pool.query(`UPDATE config SET valor=$1 WHERE clave='prioridad_api'`, [String(apiNumber)]);
+    console.log(`[PRIORITY] Prioridad cambiada globalmente a API ${apiNumber}`);
+  } catch (e) {
+    console.error('[PRIORITY ERROR] No se pudo actualizar:', e.message);
+  }
+}
 
 function genUID() {
   const c = 'ABCDEFGHJKLMNPQRSTUVWXYZ23456789';
@@ -322,23 +341,39 @@ async function llamarApiFF(uid, server = 'BR') {
     return null;
   };
 
-  // PASO 2: Realizar el Envío en SECUENCIA (API 2 Primero)
-  // DESCUBRIMIENTO CRÍTICO: Si van en paralelo, la API 1 (RTPY) responde más rápido (ej. 74 likes)
-  // y bloquea la cuenta en Garena, dejando a la API 2 (BLNHub) bloqueada cuando intenta entregar los 220.
-  // La solución es correr la poderosa API 2 primero, esperar a que termine, y luego "rematar" con la API 1.
-  let api2Res = null;
+  // PASO 2: Realizar el Envío en SECUENCIA con PRIORIDAD DINÁMICA
+  const prioridad = await getApiPriority();
   let api1Res = null;
+  let api2Res = null;
 
-  try { 
-    api2Res = await intentarEndpoints(apiBase2, apiKey2, false); 
-  } catch (e) {
-    console.error('[API 2 ERROR]', e.message);
-  }
+  console.log(`[PRIORITY] Iniciando envío con prioridad API ${prioridad}`);
 
-  try { 
-    api1Res = await intentarEndpoints(apiBase1, apiKey1, true); 
-  } catch (e) {
-    console.error('[API 1 ERROR]', e.message);
+  if (prioridad === '1') {
+    // API 1 Primero
+    try { api1Res = await intentarEndpoints(apiBase1, apiKey1, true); } catch (e) { console.error('[API 1 ERROR]', e.message); }
+    
+    // Verificamos si debemos cambiar prioridad para la próxima vez
+    const res1Int = api1Res ? interpretarRespuestaFF(api1Res) : null;
+    const a1Added = res1Int && res1Int.tipo === 'ok' ? res1Int.added : 0;
+    if (api1Res && a1Added < 180) {
+      await setApiPriority(2);
+    }
+
+    // API 2 Remate
+    try { api2Res = await intentarEndpoints(apiBase2, apiKey2, false); } catch (e) { console.error('[API 2 ERROR]', e.message); }
+  } else {
+    // API 2 Primero (Default)
+    try { api2Res = await intentarEndpoints(apiBase2, apiKey2, false); } catch (e) { console.error('[API 2 ERROR]', e.message); }
+    
+    // Verificamos si debemos cambiar prioridad
+    const res2Int = api2Res ? interpretarRespuestaFF(api2Res) : null;
+    const a2Added = res2Int && res2Int.tipo === 'ok' ? res2Int.added : 0;
+    if (api2Res && a2Added < 180) {
+      await setApiPriority(1);
+    }
+
+    // API 1 Remate
+    try { api1Res = await intentarEndpoints(apiBase1, apiKey1, true); } catch (e) { console.error('[API 1 ERROR]', e.message); }
   }
 
   const res1Int = api1Res ? interpretarRespuestaFF(api1Res) : null;
@@ -346,27 +381,25 @@ async function llamarApiFF(uid, server = 'BR') {
 
   const a1Added = res1Int && res1Int.tipo === 'ok' ? res1Int.added : 0;
   const a2Added = res2Int && res2Int.tipo === 'ok' ? res2Int.added : 0;
-
   const totalAdded = a1Added + a2Added;
 
   if (!api1Res && !api2Res) {
     throw new Error("Ambas APIs están caídas o no respondieron en absoluto.");
   }
 
-  // --- LÓGICA BASE PROPUESTA: API 2 COMO FUENTE DE VERDAD ---
-  let baseData = api2Res;
+  // --- LÓGICA DE DATOS BASE ---
+  // Preferimos los datos de la API 2 (BLNHub) si están disponibles, sino API 1
+  let baseData = api2Res || api1Res;
   
-  // Si API 2 no sirvió para dar datos del jugador, rescatamos los datos de API 1 como plan B
-  if (!baseData || (baseData.likes_antes === undefined && baseData.likes_before === undefined && api1Res)) {
+  // Si la base elegida no tiene datos de perfil pero la otra sí, intercambiamos
+  if (baseData === api2Res && (!baseData.likes_antes && !baseData.likes_before && api1Res)) {
     baseData = api1Res;
   }
 
-  // Si no se pudo enviar ningún like (debido a límite u otro error) devolvemos el error más relevante
+  // Si no se pudo enviar ningún like, manejamos el error
   if (totalAdded === 0) {
-    // Prioridad: API 1 (RTPY) para el estado "ya recibió" y el timer
     let errorRes = (res1Int && (res1Int.tipo === 'ya_recibio' || res1Int.tipo === 'limite')) ? api1Res : (api2Res || api1Res);
 
-    // Inyectamos info del jugador de la API 2 (si existe) para que los datos mostrados (nombre/nivel) sean los de la API potente
     if (api2Res && (api2Res.nickname || api2Res.Nickname || api2Res.player_name || api2Res.PlayerName || api2Res.player)) {
       errorRes.nickname = api2Res.nickname || api2Res.Nickname || api2Res.player_name || api2Res.PlayerName || api2Res.player;
       errorRes.level = api2Res.level || api2Res.Level;
@@ -375,8 +408,6 @@ async function llamarApiFF(uid, server = 'BR') {
       }
     }
 
-    // NUEVO: Si aún no tenemos Nickname o queremos asegurar datos FRESCOS (como pidió el usuario), 
-    // hacemos una consulta de info explícita.
     try {
       const fresh = await consultarInfoFF(uid);
       if (fresh) {
@@ -384,23 +415,16 @@ async function llamarApiFF(uid, server = 'BR') {
         errorRes.level = fresh.level || errorRes.level;
         errorRes.likes_antes = fresh.likes !== undefined ? fresh.likes : errorRes.likes_antes;
         errorRes.region = fresh.region || errorRes.region;
-        // En caso de error, likes_despues es igual a likes_antes
         errorRes.likes_depois = errorRes.likes_antes;
       }
-    } catch (e) {
-      console.warn('[API FRESH INFO ERROR]', e.message);
-    }
+    } catch (e) {}
 
     return errorRes;
   }
 
-  // 1. Tomamos "Likes Antes" directo sacado de la base elegida:
   const likesAntes = parseInt(baseData.likes_before || baseData.likes_antes || baseData.Likes_Iniciais || 0, 10);
-  
-  // 2. Calculamos los "Likes Después" puramente matemáticos:
   const likesDespues = likesAntes + totalAdded;
 
-  // 3. Empaquetamos todo dentro de la variable base y regresamos a la Web
   baseData.likes_enviados = totalAdded;
   baseData.likes_antes = likesAntes;
   baseData.likes_depois = likesDespues;
