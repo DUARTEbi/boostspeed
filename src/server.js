@@ -1082,11 +1082,9 @@ async function procesarAutoID(autoId) {
   if (interpretado.tipo === 'auth_error') return;
 
   if (interpretado.tipo === 'ya_recibio' || interpretado.tipo === 'limite') {
-    const manana = new Date();
-    manana.setDate(manana.getDate() + 1);
-    manana.setHours(7, 0, 0, 0);
-    // Limpiamos errores porque recibir este estado significa que el ID está operativo
-    await pool.query('UPDATE auto_ids SET proximo_envio=$1, reintentando=false, falla_desde=NULL, motivo_error=NULL, ultimo_envio=NOW() WHERE id=$2', [manana.toISOString(), autoId]);
+    const proximo = calcularProximoExito();
+    // Limpiamos errores y reactivamos, asegurando 24h exactas
+    await pool.query('UPDATE auto_ids SET proximo_envio=$1, reintentando=false, falla_desde=NULL, motivo_error=NULL, ultimo_envio=NOW(), activo=true WHERE id=$2', [proximo, autoId]);
     return;
   }
 
@@ -1143,16 +1141,15 @@ app.get('/api/auto/ids', authMiddleware, async (req, res) => {
     const maxSlots = calcularSlots(usuario);
 
     // [ARREGLO] Sincronizar con historial antes de devolver IDs para evitar estados "Pronto" o errores falsos
+    // Se agrega activo = true para recuperar IDs que fueron desactivados por error
     await pool.query(`
       UPDATE auto_ids ai
       SET ultimo_envio = h.reciente,
-          proximo_envio = CASE 
-            WHEN ai.proximo_envio < h.reciente THEN h.reciente + INTERVAL '24 hours'
-            ELSE ai.proximo_envio
-          END,
+          proximo_envio = h.reciente + INTERVAL '24 hours' + INTERVAL '3 minutes',
           falla_desde = NULL,
           motivo_error = NULL,
-          reintentando = false
+          reintentando = false,
+          activo = true
       FROM (
         SELECT ff_uid, MAX(fecha) as reciente 
         FROM historial 
@@ -1161,7 +1158,7 @@ app.get('/api/auto/ids', authMiddleware, async (req, res) => {
       ) h
       WHERE ai.usuario_id = $1 
       AND ai.ff_uid = h.ff_uid 
-      AND (ai.ultimo_envio IS NULL OR ai.ultimo_envio < h.reciente OR ai.motivo_error IS NOT NULL)
+      AND (ai.ultimo_envio IS NULL OR ai.ultimo_envio < h.reciente OR ai.motivo_error IS NOT NULL OR ai.activo = false)
     `, [req.user.id]);
 
     const [ids, log] = await Promise.all([
