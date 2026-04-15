@@ -190,6 +190,8 @@ async function initDB() {
     // Insertar clave mantenimiento si no existe
     await client.query(`INSERT INTO config(clave,valor) VALUES('mantenimiento','false') ON CONFLICT(clave) DO NOTHING`);
     await client.query(`INSERT INTO config(clave,valor) VALUES('prioridad_api','2') ON CONFLICT(clave) DO NOTHING`);
+    await client.query(`INSERT INTO config(clave,valor) VALUES('key3_usage','0') ON CONFLICT(clave) DO NOTHING`);
+    await client.query(`INSERT INTO config(clave,valor) VALUES('key3_reset_time','0') ON CONFLICT(clave) DO NOTHING`);
 
     // Cargar estado de mantenimiento desde la BD
     const cfgRes = await client.query(`SELECT valor FROM config WHERE clave='mantenimiento'`);
@@ -231,6 +233,31 @@ async function setApiPriority(apiNumber) {
   } catch (e) {
     console.error('[PRIORITY ERROR] No se pudo actualizar:', e.message);
   }
+}
+
+async function verificarResetAPI3() {
+  try {
+    const res = await pool.query(`SELECT clave, valor FROM config WHERE clave IN ('key3_usage', 'key3_reset_time')`);
+    const data = {}; res.rows.forEach(r => data[r.clave] = r.valor);
+    
+    const now = Date.now();
+    const resetTime = parseInt(data.key3_reset_time || '0', 10);
+
+    if (now > resetTime) {
+      // Calcular próxima 1:50 PM Colombia (UTC-5)
+      // 1:50 PM Col = 13:50 Col = 18:50 UTC
+      let nextReset = new Date();
+      nextReset.setUTCHours(18, 50, 0, 0); 
+      
+      if (now > nextReset.getTime()) {
+        nextReset.setUTCDate(nextReset.getUTCDate() + 1);
+      }
+      
+      await pool.query(`UPDATE config SET valor='0' WHERE clave='key3_usage'`);
+      await pool.query(`UPDATE config SET valor=$1 WHERE clave='key3_reset_time'`, [String(nextReset.getTime())]);
+      console.log(`[RESET API3] Contador reiniciado. Próximo reset: ${nextReset.toISOString()}`);
+    }
+  } catch (e) { console.error('[RESET ERROR]', e.message); }
 }
 
 function genUID() {
@@ -374,11 +401,23 @@ async function llamarApiFF(uid, server = 'BR') {
   const totalParcial = (res1Int?.added || 0) + (res2Int?.added || 0);
 
   if (totalParcial < 180 && apiKey3 && apiBase3) {
-    console.log(`[FALLBACK] Intentando con API 3 (HubsDev) - Acumulado actual: ${totalParcial}`);
-    try { 
-      // Para HubsDev usamos SG que mapea mejor globalmente
-      api3Res = await intentarEndpoints(apiBase3, apiKey3, false); 
-    } catch (e) { console.error('[API 3 ERROR]', e.message); }
+    // Verificar reset y límite de 500 antes de usar API 3
+    await verificarResetAPI3();
+    const usageRes = await pool.query(`SELECT valor FROM config WHERE clave='key3_usage'`);
+    const currentUsage = parseInt(usageRes.rows[0].valor || '0', 10);
+
+    if (currentUsage < 500) {
+      console.log(`[FALLBACK] Intentando con API 3 (HubsDev) - Acumulado: ${totalParcial} - Uso: ${currentUsage}/500`);
+      try { 
+        api3Res = await intentarEndpoints(apiBase3, apiKey3, false); 
+        const res3Int = api3Res ? interpretarRespuestaFF(api3Res) : null;
+        if (res3Int && res3Int.tipo === 'ok') {
+          await pool.query(`UPDATE config SET valor = (valor::int + 1)::text WHERE clave='key3_usage'`);
+        }
+      } catch (e) { console.error('[API 3 ERROR]', e.message); }
+    } else {
+      console.log(`[LIMIT] API 3 ha alcanzado el límite de 500 usos hoy.`);
+    }
   }
 
   const res3Int = api3Res ? interpretarRespuestaFF(api3Res) : null;
@@ -1254,8 +1293,9 @@ app.post('/api/admin/login', rateLimit(5), async (req, res) => {
 });
 app.get('/api/admin/stats', adminMiddleware, async (req, res) => {
   try {
+    await verificarResetAPI3(); // Asegurar stats frescas
     const today = new Date().toISOString().slice(0, 10);
-    const [tu, tc, uc, ap, ru, envHoy, idsHoy] = await Promise.all([
+    const [tu, tc, uc, ap, ru, envHoy, idsHoy, cfg] = await Promise.all([
       pool.query('SELECT COUNT(*) FROM usuarios'), 
       pool.query('SELECT COUNT(*) FROM codigos'), 
       pool.query('SELECT COUNT(*) FROM codigos WHERE usado=true'), 
@@ -1263,8 +1303,12 @@ app.get('/api/admin/stats', adminMiddleware, async (req, res) => {
       pool.query(`SELECT id,uid,username,contact,plan_activo,plan_nombre,plan_tipo,likes_disponibles,ilimitado,creado_en FROM usuarios ORDER BY creado_en DESC LIMIT 10`), 
       pool.query(`SELECT COUNT(*) AS total FROM historial WHERE fecha::date = $1`, [today]),
       pool.query(`SELECT COUNT(DISTINCT ff_uid) AS total FROM historial WHERE fecha::date = $1 AND likes_agregados > 0`, [today]),
+      pool.query(`SELECT clave, valor FROM config WHERE clave='key3_usage'`)
     ]);
-    res.json({ ok: true, totalUsuarios: parseInt(tu.rows[0].count, 10), totalCodigos: parseInt(tc.rows[0].count, 10), codigosUsados: parseInt(uc.rows[0].count, 10), planesActivos: parseInt(ap.rows[0].count, 10), enviosHoy: parseInt(envHoy.rows[0].total, 10), idsHoy: parseInt(idsHoy.rows[0].total, 10), keyUsage: lastKeyUsage, keyExpiry: lastKeyExpiry, key2Usage: lastKey2Usage, key2Expiry: lastKey2Expiry, key3Usage: lastKey3Usage, usuariosRecientes: ru.rows });
+
+    const manualKey3Usage = cfg.rows.length ? `${cfg.rows[0].valor} / 500` : '0 / 500';
+
+    res.json({ ok: true, totalUsuarios: parseInt(tu.rows[0].count, 10), totalCodigos: parseInt(tc.rows[0].count, 10), codigosUsados: parseInt(uc.rows[0].count, 10), planesActivos: parseInt(ap.rows[0].count, 10), enviosHoy: parseInt(envHoy.rows[0].total, 10), idsHoy: parseInt(idsHoy.rows[0].total, 10), keyUsage: lastKeyUsage, keyExpiry: lastKeyExpiry, key2Usage: lastKey2Usage, key2Expiry: lastKey2Expiry, key3Usage: manualKey3Usage, usuariosRecientes: ru.rows });
 
   } catch (err) { res.status(500).json({ error: 'Error interno' }); }
 });
