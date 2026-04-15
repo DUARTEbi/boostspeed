@@ -42,9 +42,11 @@ setInterval(() => { const now = Date.now(); for (const [ip, e] of rateLimitMap) 
 const cooldowns = new Map();
 let lastKeyUsage = null;
 let lastKeyExpiry = null;
-let lastKey2Usage = null; // ← Uso de la API key 2
-let lastKey2Expiry = null; // ← Expiración de la API key 2
-let modoMantenimiento = false; // ← Flag global de mantenimiento
+let lastKey2Usage = null;
+let lastKey2Expiry = null;
+let lastKey3Usage = null; // ← Uso de la API key 3 (HubsDev)
+let lastKey3Expiry = null;
+let modoMantenimiento = false;
 function getCooldown(uid) { const exp = cooldowns.get(uid); if (!exp) return 0; if (Date.now() > exp) { cooldowns.delete(uid); return 0; } return exp; }
 function setCooldown(uid, ms) { cooldowns.set(uid, Date.now() + ms); }
 setInterval(() => { const now = Date.now(); for (const [uid, exp] of cooldowns) if (now > exp) cooldowns.delete(uid); }, 10*60*1000);
@@ -309,7 +311,10 @@ async function llamarApiFF(uid, server = 'BR') {
   const apiKey2 = (process.env.FF_API2_KEY || '').trim();
   let apiBase2 = (process.env.FF_API2_URL || '').trim().replace(/\/+$/, '');
 
-  if (!apiKey1 && !apiKey2) throw new Error('No hay API Keys configuradas en las variables de entorno.');
+  const apiKey3 = (process.env.FF_API3_KEY || '').trim();
+  let apiBase3 = (process.env.FF_API3_URL || '').trim().replace(/\/+$/, '');
+
+  if (!apiKey1 && !apiKey2 && !apiKey3) throw new Error('No hay API Keys configuradas en las variables de entorno.');
 
   const intentarEndpoints = async (base, key, isKey1 = true) => {
     if (!base || !key) return null;
@@ -341,59 +346,59 @@ async function llamarApiFF(uid, server = 'BR') {
     return null;
   };
 
-  // PASO 2: Realizar el Envío en SECUENCIA con PRIORIDAD DINÁMICA
   const prioridad = await getApiPriority();
   let api1Res = null;
   let api2Res = null;
+  let api3Res = null;
 
   console.log(`[PRIORITY] Iniciando envío con prioridad API ${prioridad}`);
 
+  // Secuencia de Intento 1 y 2 según prioridad
   if (prioridad === '1') {
-    // API 1 Primero
-    try { api1Res = await intentarEndpoints(apiBase1, apiKey1, true); } catch (e) { console.error('[API 1 ERROR]', e.message); }
-    
-    // Verificamos si debemos cambiar prioridad para la próxima vez
+    try { api1Res = await intentarEndpoints(apiBase1, apiKey1, true); } catch (e) {}
     const res1Int = api1Res ? interpretarRespuestaFF(api1Res) : null;
-    const a1Added = res1Int && res1Int.tipo === 'ok' ? res1Int.added : 0;
-    if (api1Res && a1Added < 180) {
-      await setApiPriority(2);
+    if (!res1Int || res1Int.tipo !== 'ok' || res1Int.added < 180) {
+      try { api2Res = await intentarEndpoints(apiBase2, apiKey2, false); } catch (e) {}
     }
-
-    // API 2 Remate
-    try { api2Res = await intentarEndpoints(apiBase2, apiKey2, false); } catch (e) { console.error('[API 2 ERROR]', e.message); }
   } else {
-    // API 2 Primero (Default)
-    try { api2Res = await intentarEndpoints(apiBase2, apiKey2, false); } catch (e) { console.error('[API 2 ERROR]', e.message); }
-    
-    // Verificamos si debemos cambiar prioridad
+    try { api2Res = await intentarEndpoints(apiBase2, apiKey2, false); } catch (e) {}
     const res2Int = api2Res ? interpretarRespuestaFF(api2Res) : null;
-    const a2Added = res2Int && res2Int.tipo === 'ok' ? res2Int.added : 0;
-    if (api2Res && a2Added < 180) {
-      await setApiPriority(1);
+    if (!res2Int || res2Int.tipo !== 'ok' || res2Int.added < 180) {
+      try { api1Res = await intentarEndpoints(apiBase1, apiKey1, true); } catch (e) {}
     }
-
-    // API 1 Remate
-    try { api1Res = await intentarEndpoints(apiBase1, apiKey1, true); } catch (e) { console.error('[API 1 ERROR]', e.message); }
   }
 
+  // Verificación de objetivo y fallback a API 3 (HubsDev)
   const res1Int = api1Res ? interpretarRespuestaFF(api1Res) : null;
   const res2Int = api2Res ? interpretarRespuestaFF(api2Res) : null;
+  const totalParcial = (res1Int?.added || 0) + (res2Int?.added || 0);
 
-  const a1Added = res1Int && res1Int.tipo === 'ok' ? res1Int.added : 0;
-  const a2Added = res2Int && res2Int.tipo === 'ok' ? res2Int.added : 0;
-  const totalAdded = a1Added + a2Added;
-
-  if (!api1Res && !api2Res) {
-    throw new Error("Ambas APIs están caídas o no respondieron en absoluto.");
+  if (totalParcial < 180 && apiKey3 && apiBase3) {
+    console.log(`[FALLBACK] Intentando con API 3 (HubsDev) - Acumulado actual: ${totalParcial}`);
+    try { 
+      // Para HubsDev usamos SG que mapea mejor globalmente
+      api3Res = await intentarEndpoints(apiBase3, apiKey3, false); 
+    } catch (e) { console.error('[API 3 ERROR]', e.message); }
   }
 
-  // --- LÓGICA DE DATOS BASE ---
-  // Preferimos los datos de la API 2 (BLNHub) si están disponibles, sino API 1
-  let baseData = api2Res || api1Res;
+  const res3Int = api3Res ? interpretarRespuestaFF(api3Res) : null;
+  const a1Added = res1Int && res1Int.tipo === 'ok' ? res1Int.added : 0;
+  const a2Added = res2Int && res2Int.tipo === 'ok' ? res2Int.added : 0;
+  const a3Added = res3Int && res3Int.tipo === 'ok' ? res3Int.added : 0;
+  const totalAdded = a1Added + a2Added + a3Added;
+
+  if (!api1Res && !api2Res && !api3Res) {
+    throw new Error("Ninguna de las APIs configuradas respondió.");
+  }
+
+  let baseData = api3Res || api2Res || api1Res;
   
   // Si la base elegida no tiene datos de perfil pero la otra sí, intercambiamos
   if (baseData === api2Res && (!baseData.likes_antes && !baseData.likes_before && api1Res)) {
     baseData = api1Res;
+  }
+  if (!baseData.likes_antes && !baseData.likes_before && !baseData.data && api3Res) {
+    baseData = api3Res;
   }
 
   // Si no se pudo enviar ningún like, manejamos el error
@@ -446,6 +451,11 @@ function ejecutarPeticion(baseUrl, uid, apiKey, server, isKey1 = true) {
         'Accept': 'application/json'
       }
     };
+    
+    // Soporte para Bearer Token (HubsDev y otros)
+    if (apiKey && apiKey.length > 20) {
+      options.headers['Authorization'] = `Bearer ${apiKey}`;
+    }
 
     const client = fullUrl.startsWith('https') ? https : http;
     const req = client.get(fullUrl, options, (res) => {
@@ -466,8 +476,13 @@ function ejecutarPeticion(baseUrl, uid, apiKey, server, isKey1 = true) {
             if (parsed.key_usage) lastKeyUsage = String(parsed.key_usage);
             if (parsed.key_expiry) lastKeyExpiry = String(parsed.key_expiry);
           } else {
-            if (parsed.key_usage) lastKey2Usage = String(parsed.key_usage);
-            if (parsed.key_expiry) lastKey2Expiry = String(parsed.key_expiry);
+            // Si es API 3 (HubsDev) intentamos guardar uso si lo responde
+            if (fullUrl.includes('hubsdev')) {
+              if (parsed.data && parsed.data.key_usage) lastKey3Usage = String(parsed.data.key_usage);
+            } else {
+              if (parsed.key_usage) lastKey2Usage = String(parsed.key_usage);
+              if (parsed.key_expiry) lastKey2Expiry = String(parsed.key_expiry);
+            }
           }
           
           resolve(parsed);
@@ -489,18 +504,21 @@ function interpretarRespuestaFF(apiData) {
   const sentMatch = String(apiData.sent || '').match(/\d+/);
   const fromSentStr = sentMatch ? parseInt(sentMatch[0], 10) : 0;
   
-  let added = apiData.likes_enviados !== undefined ? parseInt(apiData.likes_enviados, 10) : parseInt(apiData.likes_added || apiData.sent_likes || apiData.sucessos || apiData.sucesso || apiData.Likes_Enviados || fromSentStr || 0, 10);
+  // Soporte para HubsDev y otras APIs con objeto 'data' anidado
+  const root = apiData.data || apiData;
+
+  let added = root.likes_enviados !== undefined ? parseInt(root.likes_enviados, 10) : parseInt(root.likes_added || root.likes_send || root.likes_sent || root.sent_likes || root.sucessos || root.sucesso || root.Likes_Enviados || fromSentStr || 0, 10);
   
   // Fallback para mensajes de éxito sin campo numérico directo
-  const msgRaw = String((apiData.message || '') + (apiData.error || '') + (apiData.msg_sistema || '') + (apiData.sent || '')).toLowerCase();
-  const statusEnvio = String(apiData.status_envio || '').toUpperCase();
+  const msgRaw = String((apiData.message || '') + (root.message || '') + (apiData.error || '') + (root.error || '') + (apiData.msg_sistema || '') + (apiData.sent || '')).toLowerCase();
+  const statusEnvio = String(apiData.status_envio || root.status_envio || '').toUpperCase();
   
-  const before = parseInt(apiData.likes_before || apiData.likes_antes || apiData.Likes_Iniciais || 0, 10);
-  const after  = parseInt(apiData.likes_after || apiData.likes_depois || apiData.Likes_Atuais || 0, 10);
+  const before = parseInt(root.likes_before || root.likes_antes || root.Likes_Iniciais || 0, 10);
+  const after  = parseInt(root.likes_after || root.likes_depois || root.Likes_Atuais || 0, 10);
 
-  const playerName = apiData.nickname || apiData.Nickname || apiData.player_name || apiData.PlayerName || apiData.player || '';
-  const level = apiData.level || apiData.Level || 0;
-  const region = apiData.region || apiData.Region || 'BR';
+  const playerName = root.player_nickname || root.nickname || root.Nickname || root.player_name || root.PlayerName || root.player || '';
+  const level = root.level || root.Level || 0;
+  const region = root.region || root.Region || 'BR';
 
   // CRITERIOS DE ÉXITO
   const esExito = (
@@ -509,6 +527,7 @@ function interpretarRespuestaFF(apiData) {
     apiData.status === 1 || 
     apiData.status === 'success' || 
     apiData.status === 'ok' || 
+    apiData.success === true ||
     (apiData.res === 'SUCCESS' && !apiData.error)
   );
 
@@ -1245,7 +1264,7 @@ app.get('/api/admin/stats', adminMiddleware, async (req, res) => {
       pool.query(`SELECT COUNT(*) AS total FROM historial WHERE fecha::date = $1`, [today]),
       pool.query(`SELECT COUNT(DISTINCT ff_uid) AS total FROM historial WHERE fecha::date = $1 AND likes_agregados > 0`, [today]),
     ]);
-    res.json({ ok: true, totalUsuarios: parseInt(tu.rows[0].count, 10), totalCodigos: parseInt(tc.rows[0].count, 10), codigosUsados: parseInt(uc.rows[0].count, 10), planesActivos: parseInt(ap.rows[0].count, 10), enviosHoy: parseInt(envHoy.rows[0].total, 10), idsHoy: parseInt(idsHoy.rows[0].total, 10), keyUsage: lastKeyUsage, keyExpiry: lastKeyExpiry, key2Usage: lastKey2Usage, key2Expiry: lastKey2Expiry, usuariosRecientes: ru.rows });
+    res.json({ ok: true, totalUsuarios: parseInt(tu.rows[0].count, 10), totalCodigos: parseInt(tc.rows[0].count, 10), codigosUsados: parseInt(uc.rows[0].count, 10), planesActivos: parseInt(ap.rows[0].count, 10), enviosHoy: parseInt(envHoy.rows[0].total, 10), idsHoy: parseInt(idsHoy.rows[0].total, 10), keyUsage: lastKeyUsage, keyExpiry: lastKeyExpiry, key2Usage: lastKey2Usage, key2Expiry: lastKey2Expiry, key3Usage: lastKey3Usage, usuariosRecientes: ru.rows });
 
   } catch (err) { res.status(500).json({ error: 'Error interno' }); }
 });
